@@ -1,0 +1,33 @@
+---
+title: "Adults_Analysis"
+author: "Lauren Oey"
+date: "7/28/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+df <- read_csv("raw.csv")
+glimpse(df)
+```
+
+```{r}
+final.df <- df %>%
+  filter(exptPart == "trial") %>%
+  mutate(liarPlayer = ifelse(trialNumber %% 2 == 0, "blue", "red"),
+         drawnBlue = 6 - drawnRed,
+         trueDrawn = ifelse(liarPlayer == "red", drawnRed, drawnBlue))
+
+final.df %>%
+  group_by(trueDrawn) %>%
+  summarise(mean=mean(reportedDrawn),
+            se = sd(reportedDrawn)/sqrt(n())) %>%
+  ggplot(aes(x=trueDrawn, y=mean)) +
+  geom_line() +
+  geom_ribbon(aes(ymin=mean-se, ymax=mean+se), alpha=0.3) +
+  geom_abline(intercept = 0, slope = 1, colour="darkgray", linetype=2) +
+  scale_x_continuous(limits=c(0,6)) +
+  scale_y_continuous(limits=c(0,6))
+```
