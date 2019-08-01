@@ -3,10 +3,10 @@ import json
 import csv
 from os import listdir
 from os.path import isfile, join
-mypath = 'data/' #set path to folder containing json files
+mypath = 'data_oldformat/' #set path to folder containing json files
 
 files = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-raw = open('raw.csv','w')
+raw = open('raw1.csv','w')
 csvwriter = csv.writer(raw)
 
 head = 0
