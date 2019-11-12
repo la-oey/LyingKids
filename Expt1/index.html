@@ -1,0 +1,163 @@
+<!--
+TODO:
+1. get images of products
+2. make product list correct
+3. randomize product list
+4. make the actual content of the experiment not filler.
+5. make it less ugly.
+ -->
+
+<!DOCTYPE html>
+<html>
+<html lang="en-US">
+<meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<head>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script type="text/javascript" src='js/client.js'></script>
+    <script type="text/javascript" src='js/dataio.js'></script>
+    <script type="text/javascript" src='js/velocity.min.js'></script>
+    <script type="text/javascript" src='js/script.js'></script>
+</head>
+
+
+<body onload="pageLoad();">
+<div id="pickColor" class="screen">
+    <p class="mtitle">
+        Which color do you want to play as?
+    </p>
+    <center><br><br>
+        <div id="colorResponse">
+            <button class="color-button" id="red-button" type="button" onclick="pickCol('red');"><b>Red</b></button>
+            <button class="color-button" id="blue-button" type="button" onclick="pickCol('blue');"><b>Blue</b></button>
+        </div><br><br><br>
+        <button class="big-button active-button" id="continueColor" onclick="clickColor();">Click here to continue</button>
+    </center>
+</div>
+
+<div id="instructions" class="screen">
+    <p class="mtitle">
+        Instructions
+    </p>
+    <button class="big-button active-button next" id="continueInstruct" onclick="clickInstruct();">Click here to continue</button>
+</div>
+
+<div id="prePractice" class="screen">
+    <p class="mtitle">
+        You're ready to try the game!
+    </p>
+    <button class="big-button active-button next" id="continuePre" onclick="clickPrePractice();">Click here to continue</button>
+</div>
+
+<div id="postPractice" class="screen">
+    <p class="mtitle">
+        Nice job! You're ready to play!
+    </p>
+    <button class="big-button active-button next" id="continuePost" onclick="clickPostPractice();">Click here to continue</button>
+</div>
+
+<div id="keep" class="screen">
+    <p class="mtitle trialNum">Round</p>
+    <div id="keepDiv"><center>
+        <p>It's the<br></p>
+        <p class="declareplayer" id="liarplayer" st></p>
+        <p>player's turn to play as the marble-picker!</p></center>
+    </div>
+    <div class="scoreBucket redBucket updateBucket">
+        <img class="imgPt redPt" src="img/redpoint.png" width="100%">
+        <div class="playerScore redScore" id="redUpdateScore"></div>
+    </div>
+    <div class="scoreBucket blueBucket updateBucket">
+        <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
+        <div class="playerScore blueScore" id="blueUpdateScore"></div>
+    </div>
+    <button class="big-button active-button next" id="nextKeep" type="button" onclick="keepTurn();">Next!</button>
+</div>
+
+<div id="trialDrawer" class="screen">
+    <p class="mtitle trialNum">Round</p>
+    <div id="wrapper">
+        <img id="cover" src="img/tablecloth.png">
+        <button class="active-button" id="draw-button" type="button" onclick="draw();"></button>
+        <div class="urn">
+            <div class="suburn">
+                <svg class="urnsvg"></svg>
+                <svg class="urnbottom"></svg>
+            </div>
+        </div>
+        <div class="tube" id="tube1">
+            <svg class="tubesvg" id="tubesvg1"></svg>
+        </div>
+    </div>
+    
+    <div id="choices"><div id="labelChoices"></div></div>
+    <center><div class="subjResponse"></div></center>
+    <div class="scoreBucket redBucket">
+        <img class="imgPt redPt" src="img/redpoint.png" width="100%">
+        <div class="playerScore redScore"></div>
+    </div>
+    <div class="scoreBucket blueBucket">
+        <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
+        <div class="playerScore blueScore"></div>
+    </div>
+<!--     <button class="big-button active-button next" id="nextDrawer" type="button" onclick="report();">Next!</button> -->
+</div>
+
+<!-- <div id="switch" class="screen">
+    <p class="mtitle trialNum">Round</p>
+    <div><center>
+        <p>It's the<br></p>
+        <p class="declareplayer" id="detectorplayer"></p>
+        <p><br>player's turn to play as the decider!<br><br><b>Pass the iPad to the other player.</b></p></center>
+    </div>
+    <div class="scoreBucket redBucket">
+        <img class="imgPt redPt" src="img/redpoint.png" width="100%">
+        <div class="playerScore redScore"></div>
+    </div>
+    <div class="scoreBucket blueBucket">
+        <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
+        <div class="playerScore blueScore"></div>
+    </div>
+    <button class="big-button active-button next" id="nextPass" type="button" onclick="switchTurn();">Next!</button>
+</div> -->
+
+<div id="trialResponder" class="screen">
+    <p class="mtitle trialNum">Round</p>
+    <div class="tube">
+        <svg class="tubesvg" id="tubesvg2"></svg>
+    </div>
+    <center><br><br>
+        <div id="buttonResponse">
+            <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');"><b>Yes</b></button>
+            <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');"><b>No </b></button>
+        </div>
+    </center>
+    <center><div class="subjResponse"></div></center>
+    <div class="scoreBucket redBucket">
+        <img class="imgPt redPt" src="img/redpoint.png" width="100%">
+        <div class="playerScore redScore"></div>
+    </div>
+    <div class="scoreBucket blueBucket">
+        <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
+        <div class="playerScore blueScore"></div>
+    </div>
+<!--     <button class="big-button active-button next" id="nextResponder" type="button" onclick="keepTurn();">Next!</button> -->
+</div>
+
+<div id="completed" class="screen">
+    <center><h1>Scoreboard</h1></center>
+    <div class="scoreboardDiv">
+        <div class="scoreCol" style="color:red">Red Score:<br><b class="redFinalScore">0</b></div>
+        <div class="scoreCol" style="color:blue">Blue Score:<br><b class="blueFinalScore">0</b></div>
+    </div>
+
+    <div id="whowontext"><center>
+        <p class="mtitle" id="whowon"></p>
+        <p class="mtitle">Thank you for your participation!</p>
+    </center></div>
+    <button class="big-button active-button next" id="finished" onclick="experimentDone();">Finished!</button>
+</div>
+
+</body>
