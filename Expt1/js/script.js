@@ -3,7 +3,6 @@
 var expt = {
     saveURL: 'submit.simple.php',
     trials: 20, //switched from 100
-    practiceTrials: 1, //how many practice trials //switch to 4
     marblesSampled: 6, //total number of marbles drawn per trial
     numPerDrawn: 2,
     marbleSize: 15,
@@ -35,10 +34,11 @@ var expt = {
     sona: {
         experiment_id: 1505,
         credit_token: 'b20092f9d3b34a378ee654bcc50710ea'
-    }
+    },
+    debug: true
 };
 var trial = {
-    exptPart: 'trial', //parts: {'practice','trial'}
+    exptPart: 'instruct', //parts: {'instruct', 'practice','trial'}
     roleCurrent: 'liar',
     liarPlayer: 'red', // {red, blue} ~ player1 vs player2
     trialNumber: 0,
@@ -79,7 +79,12 @@ var turn = {
 }
 var client = parseClient();
 var trialData = []; // store of all trials
-
+var instruct = [
+    {id:"instructImg0", src:"img/marblebox.png"},
+    {id:"instructImg1", src:"img/marblebox.png"},
+    {id:"instructImg2", src:"img/redblueteam.png"},
+    {id:"instructImg3", src:"img/trick.png"}
+]
 
 
 // TODO, Potentially: pick randomly between human/threePoints instructions.
@@ -105,16 +110,97 @@ function pickCol(color){
         expt.compColor = "red";
     }
     $('#continueColor').prop('disabled',false);
+
 }
 
 function clickColor() {
     document.getElementById('pickColor').style.display = 'none';
     document.getElementById('instructions').style.display = 'block';
+    $('#continueInstruct').prop('disabled', true);
+    $('#continueInstruct').css('opacity', 0);
+    $('#left-move').css('opacity',0.2);
+    trial.liarPlayer = expt.humanColor;
+    $('.tube').hide();
+    if(expt.humanColor == "blue"){
+        instruct[2]['src'] = "img/blueredteam.png";
+    }
 }
+
+function nextInstruct(currentInstruct) {
+    var currentNum = parseInt(currentInstruct, 10);
+    var nextNum = currentNum+1;
+    document.getElementById('left-move').setAttribute('onclick','prevInstruct('+nextNum+');');
+    document.getElementById('right-move').setAttribute('onclick','nextInstruct("'+nextNum+'");');
+    $('#instructImageDiv').html("<img class='instructImages' id='"+instruct[nextNum]['id']+"' src='"+instruct[nextNum]['src']+"'>");
+    if(nextNum == 1){
+        turn.numDrawn = 0;
+        $('.tubesvg').empty();
+        $('.marblesvg').empty();
+        $('.sampMarble').css('top', '-80%');
+        $('#left-move').css('opacity', 1);
+        $('.tube').show();
+        $('#left-move').css('opacity', 0.2);
+        document.getElementById('left-move').setAttribute('onclick','');
+        $('#right-move').css('opacity', 0.2);
+        document.getElementById('right-move').setAttribute('onclick','');
+        draw();
+    } else if(nextNum == 2){
+        $('.tube').css('top', '68%');
+        $('.tube').hide();
+    } 
+
+    if(nextNum == Object.keys(instruct).length-1){
+        $('#right-move').css('opacity', 0.2);
+        document.getElementById('right-move').setAttribute('onclick','');
+        $('#continueInstruct').prop('disabled', false);
+        $('#continueInstruct').css('opacity', 1);
+    } 
+    
+}
+
+function prevInstruct(currentInstruct) {
+    var currentNum = parseInt(currentInstruct, 10);
+    var prevNum = currentNum-1;
+    document.getElementById('left-move').setAttribute('onclick','prevInstruct("'+prevNum+'");');
+    document.getElementById('right-move').setAttribute('onclick','nextInstruct('+prevNum+');');
+    $('#instructImageDiv').html("<img class='instructImages' id='"+instruct[prevNum]['id']+"' src='"+instruct[prevNum]['src']+"'>");
+    if(prevNum == 0){
+        $('#left-move').css('opacity', 0.2);
+        document.getElementById('left-move').setAttribute('onclick','');
+        $('.tube').css('top', '68%');
+        $('.tube').hide();
+    } else if(prevNum == 1){
+        turn.numDrawn = 0;
+        $('.tubesvg').empty();
+        $('.marblesvg').empty();
+        $('.sampMarble').css('top', '-80%');
+        $('.tube').css('top', '68%');
+        $('.tube').show();
+        $('#instructImg1').css('opacity',1);
+        $('#left-move').css('opacity', 0.2);
+        document.getElementById('left-move').setAttribute('onclick','');
+        $('#right-move').css('opacity', 0.2);
+        document.getElementById('right-move').setAttribute('onclick','');
+        draw();
+    } 
+    if(prevNum == Object.keys(instruct).length - 2){
+        $('#right-move').css('opacity', 1);
+        $('#continueInstruct').prop('disabled', true);
+        $('#continueInstruct').css('opacity', 0);
+    } 
+    
+}
+
+
 
 function clickInstruct() {
     document.getElementById('instructions').style.display = 'none';
     document.getElementById('prePractice').style.display = 'block';
+    $('.tube').show();
+    $('.tubesvg').empty();
+    $('.marblesvg').empty();
+    $('.sampMarble').css('top', '-80%');
+    trial.exptPart = "practice";
 }
 
 function clickPrePractice(){
@@ -125,6 +211,8 @@ function clickPrePractice(){
     trial.liarPlayer = expt.humanColor;
     $('#liarplayer').html(trial.liarPlayer);
     $('#liarplayer').css('color', trial.liarPlayer);
+    $('.trialNum').html("Practice: <i>Marble-Picker</i>");
+
 }
 
 function clickPostPractice(){
@@ -134,34 +222,47 @@ function clickPostPractice(){
     //expt.catchTrials = distributeChecks(expt.trials, 0.10); // 0.1 of expt trials have an attention check
     //expt.pseudo = distributePseudo(expt.trials, 0, 6);
     trial.roleCurrent = sample(expt.roles);
+    debugLog(trial.roleCurrent);
     if(trial.roleCurrent == "liar"){
         trial.liarPlayer = expt.humanColor;
     } else{
         trial.liarPlayer = expt.compColor;
     }
-}
 
-function fillUrn(totalMarbles, probability) {
-    var exactRed = Math.round(totalMarbles * probability);
-    var exactBlue = totalMarbles - exactRed;
-
-    for(var i=0; i<totalMarbles; i++){
-        var color = "blue";
-
-        // balls in urn correspond to exact probability distribution, i.e. no random sampling
-        if(Math.random() < (exactRed/(exactRed + exactBlue))){
-            color = "red"
-            trial.urnRed += 1;
-            exactRed -= 1;
-        } else{
-            trial.urnBlue += 1;
-            exactBlue -= 1;
-        }
-
-        marble(".urnsvg", color, expt.marbleSize, randomDouble(.07*$('.suburn').width(), .93*$('.suburn').width()), randomDouble(.07*$('.suburn').height(), .93*$('.suburn').height()));
+    if(trial.roleCurrent == "liar"){
+        var roletxt = "Marble-Picker"
+    } else{
+        var roletxt = "Decider"
     }
-    $('#draw-button').animate({'opacity': 1});
+    trial.exptPart = "trial";
+    trial.trialNumber = 0;
+    $('.trialNum').html("Round 1: <i>" + roletxt + "</i>");
+    $('.tubesvg').empty();
+    $('.marblesvg').empty();
+    $('.sampMarble').css('top', '-80%');
 }
+
+// function fillUrn(totalMarbles, probability) {
+//     var exactRed = Math.round(totalMarbles * probability);
+//     var exactBlue = totalMarbles - exactRed;
+
+//     for(var i=0; i<totalMarbles; i++){
+//         var color = "blue";
+
+//         // balls in urn correspond to exact probability distribution, i.e. no random sampling
+//         if(Math.random() < (exactRed/(exactRed + exactBlue))){
+//             color = "red"
+//             trial.urnRed += 1;
+//             exactRed -= 1;
+//         } else{
+//             trial.urnBlue += 1;
+//             exactBlue -= 1;
+//         }
+
+//         marble(".urnsvg", color, expt.marbleSize, randomDouble(.07*$('.suburn').width(), .93*$('.suburn').width()), randomDouble(.07*$('.suburn').height(), .93*$('.suburn').height()));
+//     }
+//     $('#draw-button').animate({'opacity': 1});
+// }
 
 function marble(container, color, size, locX, locY){
     d3.select(container).append("circle").attr("cx",locX).attr("cy",locY).attr("r",size).attr("stroke-width",2).attr("stroke","black").style("fill",color);
@@ -169,15 +270,18 @@ function marble(container, color, size, locX, locY){
 
 function drape(){
     $('#draw-button').animate({'opacity': 0});
-    $('#cover').css('z-index', 1);
-    $('#cover').animate({
+    $('.cover').css('z-index', 1);
+    $('.cover').animate({
         "opacity": 1,
-        "top": "12%"
+        "top": "10%"
     }, 1000, function(){
         $('.urn').css('opacity', 0);
+        if(trial.exptPart == "instruct"){
+            $('#instructImg1').animate({'opacity':0});
+        }
     })
 
-    if(trial.exptPart == "practice"){
+    if(trial.exptPart == "instruct" || trial.exptPart == "practice"){
         trial.drawnRed = 3;
         trial.drawnBlue = 3;
     } else{
@@ -224,10 +328,10 @@ function draw(){
     document.getElementById('draw-button').setAttribute('onclick','');
 
     for(var i=0; i<2; i++){
-        $('#cover').animate({
+        $('.cover').animate({
             "top": "9%"
         })
-        $('#cover').animate({
+        $('.cover').animate({
             "top": "12%"
         })
     }
@@ -240,10 +344,20 @@ function draw(){
     function oneMarble(){
         if(turn.numDrawn < expt.marblesSampled){
             color = trial.marblesDrawn[turn.numDrawn];
-            var rollMarble = "<div class='sampMarble' id='marble"+turn.numDrawn+"'><svg class='marblesvg' id='marble"+turn.numDrawn+"svg'></svg></div>";
-            $('#tube1').append(rollMarble);
-            marble('#marble'+turn.numDrawn+'svg', color, expt.marbleSize, .5*$('.tube').width(), $('.tubesvg').height() - ((turn.numDrawn+1)/(expt.marblesSampled+1))*$('.tubesvg').height());
-            $('#marble'+turn.numDrawn).animate({'top':'0%'}, 500);
+            var rollMarble = "<div class='sampMarble' id='marble"+turn.numDrawn+trial.exptPart+"'><svg class='marblesvg' id='marble"+turn.numDrawn+trial.exptPart+"svg'></svg></div>";
+            
+            if(trial.exptPart == "instruct"){
+                var thetube = '#tube0';
+                var thetubesvg = "#tubesvg0";
+            } else{
+                var thetube = '#tube1';
+                var thetubesvg = "#tubesvg1";
+            }
+
+            $(thetube).append(rollMarble);
+            
+            marble('#marble'+turn.numDrawn+trial.exptPart+'svg', color, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((turn.numDrawn+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
+            $('#marble'+turn.numDrawn+trial.exptPart).animate({'top':'0%'}, 500);
             turn.numDrawn += 1;
         }
     }
@@ -256,14 +370,23 @@ function draw(){
         if(turn.numDrawn == expt.marblesSampled){
             document.getElementById('draw-button').setAttribute('onclick','');
             setTimeout(function(){
-                $('#cover').animate({
+                $('.cover').animate({
                     'opacity': 0,
                     'z-index': 0
                 }, 1000);
                 $('.tube').animate({'top': '15%'}, moveTime);
-                setTimeout(function(){
-                    showChoices();
-                }, showChoiceTime)
+                if(trial.exptPart == "instruct"){
+                    setTimeout(function(){
+                        $('#left-move').css('opacity', 1);
+                        document.getElementById('left-move').setAttribute('onclick','prevInstruct("1");');
+                        $('#right-move').css('opacity', 1);
+                        document.getElementById('right-move').setAttribute('onclick','nextInstruct("1");');
+                    }, showChoiceTime)
+                } else{
+                    setTimeout(function(){
+                        showChoices();
+                    }, showChoiceTime)
+                }
             }, 1000)
         } else{
             var delay = initDrawDelay;
@@ -289,9 +412,9 @@ function orderTube(type, player, number, marbleSize){
     }
     if(type=="choice"){
         var indexLab = "#"+type+number;
-    } else if(type=="unordered"){
-        var indexLab = "#tubesvg1"
     } else if(type=="reported"){
+        var indexLab = "#tubesvg1"
+    } else if(type=="detectRep") {
         var indexLab = "#tubesvg2"
     }
     for(var i=0; i<number; i++){
@@ -317,9 +440,9 @@ function highlightChoice(choice){
         $('#choice'+choice).css('background-color','rgb(255, 255, 0)');
         $('#nextDrawer').prop('disabled', false);
         trial.highlightedDrawn = choice;
-        report(); //maybe switch back to button?
-        $('#choices').css('opacity',0);
-        $('#choices').css('z-index',0);
+        //report(); //maybe switch back to button?
+        //$('#choices').css('opacity',0);
+        //$('#choices').css('z-index',0);
     }
 }
 
@@ -329,11 +452,14 @@ function showChoices(){
 
     $('#choices').append("<div id=choiceMid></div>")
     for(var i=0; i<=expt.marblesSampled; i++){
-        $('#choiceMid').append("<svg class='choiceClass choiceClassMid' id='choice"+i+"' onclick='highlightChoice("+i+");'></svg>")
-        orderTube("choice", trial.liarPlayer, i, expt.marbleSize);
-        $('#labelChoices').append("<div>"+i+"</div>");
+        $('#choiceMid').append("<div class='choiceClass choiceClassMid' id='choice"+i+"' onclick='highlightChoice("+i+");'><img id='choice"+i+"' class='choiceImg' src='img/"+trial.liarPlayer+i+".png' height='200'/></div>");
+        // $('#choiceMid').append("<svg class='choiceClass choiceClassMid' id='choice"+i+"' onclick='highlightChoice("+i+");'></svg>")
+        // orderTube("choice", trial.liarPlayer, i, expt.marbleSize);
+        // $('#labelChoices').append("<div>"+i+"</div>");
+
         //$('#choice'+i).append("<text class='choiceTxt' x='20' y='20' font-family='sans-serif' font-size='20px'>"+i+"</text>");
     }
+    $('#nextDrawer').css('opacity',1);
     
     trial.responseStartTime = Date.now();
 }
@@ -341,13 +467,10 @@ function showChoices(){
 function report(){
     trial.responseTime = Date.now() - trial.responseStartTime;
     trial.reportedDrawn = trial.highlightedDrawn;
-    if(trial.liarPlayer=="red"){
-        trial.reportedRed = trial.reportedDrawn;
-        trial.reportedBlue = expt.marblesSampled-trial.reportedDrawn;
-    } else{
-        trial.reportedBlue = trial.reportedDrawn;
-        trial.reportedRed = expt.marblesSampled-trial.reportedDrawn;
-    }
+    $('#nextDrawer').prop('disabled', true);
+    $('#nextDrawer').css('opacity', 0);
+    $('#choices').css('opacity',0);
+    $('#choices').css('z-index',0);
 
     if(trial.liarPlayer == "red"){
         var detectorPlayer = "blue";
@@ -356,6 +479,31 @@ function report(){
     }
     $('#detectorplayer').html(detectorPlayer);
     $('#detectorplayer').css('color', detectorPlayer);
+
+    if(trial.liarPlayer=="red"){
+        trial.reportedRed = trial.reportedDrawn;
+        trial.reportedBlue = expt.marblesSampled-trial.reportedDrawn;
+    } else{
+        trial.reportedBlue = trial.reportedDrawn;
+        trial.reportedRed = expt.marblesSampled-trial.reportedDrawn;
+    }
+
+    if(trial.exptPart == "instruct"){
+        var thetube = '#tube0';
+        var thetubesvg = "#tubesvg0";
+    } else{
+        var thetube = '#tube1';
+        var thetubesvg = "#tubesvg1";
+    }
+
+    //transforms reported to what other play should see
+    for(var i=0; i<expt.marblesSampled; i++){
+        if(i < trial.reportedDrawn){
+            marble('#marble'+i+trial.exptPart+'svg', trial.liarPlayer, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((i+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
+        } else{
+            marble('#marble'+i+trial.exptPart+'svg', detectorPlayer, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((i+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
+        }
+    }
 
     function liarWait() {
         flickerWait();
@@ -429,25 +577,34 @@ function addPoints(player, points, prevPoints){
 
 function keepTurn(){
     document.getElementById('keep').style.display = 'none';
-    if(trial.trialNumber < expt.trials/2){
-        liar();
-    } else{
-        restartTrial();
-        detector();
+    if(trial.exptPart == "practice"){
+        if(trial.roleCurrent == "liar" & trial.trialNumber == 0){
+            trial.liarPlayer = expt.humanColor;
+            liar();
+        } else{
+            if(trial.trialNumber == 1){
+                trial.liarPlayer = expt.compColor;
+                restartTrial();
+                detector();
+            } else{
+                document.getElementById('postPractice').style.display = 'block';
+            }
+        }
+    }
+     else{
+        if(trial.roleCurrent == "liar"){
+            liar();
+        } else{
+            restartTrial();
+            detector();
+        }
     }
 }
-
-// function switchTurn(){
-//     document.getElementById('switch').style.display = 'none';
-//     $('#nextPass').prop('disabled',false);
-//     restartTrial();
-//     detector();
-// }
 
 function restartTrial(){
     $('.urn').css('opacity', 1);
     $('.tube').css('opacity', 1);
-    $('.urnsvg').empty();
+    //$('.urnsvg').empty();
     $('.tubesvg').empty();
     $('.marblesvg').empty();
     $('.sampMarble').css('top', '-80%');
@@ -458,8 +615,8 @@ function restartTrial(){
     trial.drawnRed = 0;
     trial.drawnBlue = 0;
     
-    fillUrn(250,trial.probabilityRed);
-    marble(".urnbottom", "black", expt.marbleSize*1.2, 0.5*$('.urnbottom').width(), 0.5*$('.urnbottom').height());
+    //fillUrn(250,trial.probabilityRed);
+    //marble(".urnbottom", "black", expt.marbleSize*1.2, 0.5*$('.urnbottom').width(), 0.5*$('.urnbottom').height());
 
     trial.catch.key = -1;
     trial.catch.response = -1;
@@ -502,19 +659,15 @@ function flickerWait(){
 
 function liar() {
     document.getElementById('trialDrawer').style.display = 'block';
-    var roletxt = "Marble-Picker"
-    if(trial.exptPart == "practice"){
-        $('.trialNum').html("Practice: <i>" + roletxt + "</i>");
-    } else{
-        $('.trialNum').html("Round " + (trial.trialNumber+1) + ": <i>" + roletxt + "</i>");
-    }
     $('#nextDrawer').prop('disabled', true);
+    $('#nextDrawer').css('opacity',0);
     document.getElementById('draw-button').setAttribute('onclick','draw();');
     $('.tube').css('top', '68%');
     $('#choices').empty();
     $('#choices').css('opacity',0);
     $('#choices').css('z-index',0);
-    $('#cover').css('top', '-10%');
+    $('.cover').css('top', '-10%');
+    $('#draw-button').animate({'opacity': 1});
     turn.numDrawn = 0;
     trial.marblesDrawn = [];
     trial.urnRed = 0;
@@ -527,12 +680,6 @@ function liar() {
 
 function detector() {
     document.getElementById('trialResponder').style.display = 'block';
-    var roletxt = "Decider"
-    if(trial.exptPart == "practice"){
-        $('.trialNum').html("Practice: <i>" + roletxt + "</i>");
-    } else{
-        $('.trialNum').html("Round " + (trial.trialNumber+1) + ": <i>" + roletxt + "</i>");
-    }
     
     $('#nextResponder').prop('disabled', true);
     trial.roleCurrent = "detector";
@@ -548,7 +695,7 @@ function detector() {
             clearInterval(trial.timer);
             $('.subjResponse').css('opacity','0');
             computerReport();
-            orderTube("reported", trial.liarPlayer, trial.reportedDrawn, expt.marbleSize);
+            orderTube("detectRep", trial.liarPlayer, trial.reportedDrawn, expt.marbleSize);
             $('.callout-button').css('opacity','0.8');
             $('.callout-button').prop('disabled', false);
             trial.responseStartTime = Date.now();
@@ -569,6 +716,9 @@ function computerReport(){
 
     if(trial.pseudoRound){
         trial.reportedDrawn = expt.pseudo[trial.trialNumber];
+    } else if(trial.exptPart == "practice"){
+        $("#tubesvg1").css('opacity',1);
+        trial.reportedDrawn = 6;
     } else{
         if(Math.random() < 0.2){
             trial.compUnifLie = true;
@@ -613,44 +763,47 @@ function trialDone() {
     trial.trialTime = Date.now() - trial.startTime;
     trial.trialNumber += 1;
 
-    if(trial.trialNumber > 0){
+    if(trial.exptPart == "trial"){
         if(!trial.callBS){
             trial.redTrialScore = trial.reportedRed;
             trial.blueTrialScore = trial.reportedBlue;
         } else{
             if(trial.liarPlayer == "red"){
                 if(trial.reportedRed == trial.drawnRed){
-                    console.log("truth");
+                    debugLog("truth");
                     trial.redTrialScore = trial.reportedRed;
                     trial.blueTrialScore = trial.reportedBlue - 3;
                 } else{
-                    console.log("lie");
+                    debugLog("lie");
                     trial.redTrialScore = 0;
                     trial.blueTrialScore = expt.marblesSampled;
                 }
             } else{
                 if(trial.reportedBlue == trial.drawnBlue){
-                    console.log("truth");
+                    debugLog("truth");
                     trial.blueTrialScore = trial.reportedBlue;
-                    trial.blueTrialScore = trial.reportedRed - 3;
+                    trial.redTrialScore = trial.reportedRed - 3;
                 } else{
-                    console.log("lie");
+                    debugLog("lie");
                     trial.blueTrialScore = 0;
                     trial.redTrialScore = expt.marblesSampled;
                 }
             }
         }
 
+
+
         expt.stat.redRunningScore += trial.redTrialScore;
         expt.stat.blueRunningScore += trial.blueTrialScore;
 
-        if((expt.trialNumber+1)%5 == 0){
-            addPoints("red", trial.redTrialScore, expt.stat.redTotalScore);
-            addPoints("blue", trial.blueTrialScore, expt.stat.blueTotalScore);
-            expt.stat.redTotalScore += trial.redRunningScore;
-            expt.stat.blueTotalScore += trial.blueRunningScore;
-            trial.redRunningScore = 0;
-            trial.blueRunningScore = 0;
+
+        if(trial.trialNumber%5 == 0){
+            addPoints("red", expt.stat.redRunningScore, expt.stat.redTotalScore);
+            addPoints("blue", expt.stat.blueRunningScore, expt.stat.blueTotalScore);
+            expt.stat.redTotalScore += expt.stat.redRunningScore;
+            expt.stat.blueTotalScore += expt.stat.blueRunningScore;
+            expt.stat.redRunningScore = 0;
+            expt.stat.blueRunningScore = 0;
         } else{
             setTimeout(function(){
                 $('#nextKeep').prop('disabled',false);
@@ -659,40 +812,51 @@ function trialDone() {
     }
 
     recordData();
+    console.log(trial.trialNumber)
 
     if(trial.exptPart == "practice"){
-        trial.trialNumber = 0;
-        if(trial.roleCurrent == "detector"){
-            trial.exptPart = 'trial';
-            document.getElementById('postPractice').style.display = 'block';
-        } else{
+        setTimeout(function(){
+            $('#nextKeep').prop('disabled',false);
+        }, 1000);
+        if(trial.roleCurrent == "liar"){
             trial.liarPlayer = expt.compColor;
             $('#liarplayer').html(trial.liarPlayer);
             $('#liarplayer').css('color', trial.liarPlayer);
+            trial.roleCurrent = "detector";
         }
         
     } else if(trial.trialNumber == expt.trials){
         $('#keepDiv').hide();
         document.getElementById('nextKeep').setAttribute('onclick','toWinnerCircle();');
     } else {
-        setTimeout(function(){
-            if(trial.trialNumber == expt.trials/2){
-                if(trial.liarPlayer == 'red'){
-                    trial.liarPlayer = 'blue';
-                } else{
-                    trial.liarPlayer = 'red';
-                }
-                if(trial.roleCurrent == "liar"){ //switch roles halfway through
-                    trial.roleCurrent = "detector";
-                } else{
-                    trial.roleCurrent = "liar";
-                }
-                $('#keepDiv').css('opacity',1);
+        if(trial.trialNumber == expt.trials/2){
+            if(trial.liarPlayer == 'red'){
+                trial.liarPlayer = 'blue';
+            } else{
+                trial.liarPlayer = 'red';
             }
-            $('#liarplayer').html(trial.liarPlayer);
-            $('#liarplayer').css('color', trial.liarPlayer);
-        }, 2000)
+            if(trial.roleCurrent == "liar"){ //switch roles halfway through
+                trial.roleCurrent = "detector";
+            } else{
+                trial.roleCurrent = "liar";
+            }
+            $('#keepDiv').css('opacity',1);
+        }
+        $('#liarplayer').html(trial.liarPlayer);
+        $('#liarplayer').css('color', trial.liarPlayer);
         
+    }
+
+    if(trial.roleCurrent == "liar"){
+        var roletxt = "Marble-Picker"
+    } else{
+        var roletxt = "Decider"
+    }
+    
+    if(trial.exptPart == "practice"){
+        $('.trialNum').html("Practice: <i>" + roletxt + "</i>");
+    } else{
+        $('.trialNum').html("Round " + (trial.trialNumber+1) + ": <i>" + roletxt + "</i>");
     }
 
 }

@@ -177,6 +177,7 @@ body {
     margin-right: 10%;
 }
 
+
 #red-button {
     background-color: red;
     color: pink;
@@ -185,6 +186,37 @@ body {
 #blue-button {
     background-color: blue;
     color: aqua;
+}
+
+#instructCenter {
+    width: 90%;
+}
+
+.instructImages {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+
+#left-move {
+    float: left;
+    border-top: 60px solid transparent;
+    border-bottom: 60px solid transparent; 
+    border-right:60px solid deepskyblue;
+}
+
+#right-move {
+    float: right;
+    border-top: 60px solid transparent;
+    border-bottom: 60px solid transparent;
+    border-left: 60px solid deepskyblue;
+}
+
+.instructMove { /*fix this*/
+    position: relative;
+    top: 50%;
 }
 
 .declareplayer {
@@ -234,29 +266,30 @@ body {
 }
 
 .urn {
-    position: absolute;
+/*    position: absolute;
     top: 18%;
     border: 2px solid black;
     left: 0;
-    right: 0;
+    right: 0;*/
     margin-left: auto;
     margin-right: auto;
-    width: 72%;
-    height: 42%;
+/*    width: 72%;
+    height: 42%;*/
 }
 
 .suburn {
-    position: absolute;
+    /*position: absolute;
     bottom: 0;
     width: 100%;
-    height: 75%;
+    height: 75%;*/
+    margin: auto;
     left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
 }
 
-.urnsvg {
+/*.urnsvg {
     height: 100%;
     width: 100%;
 }
@@ -270,14 +303,14 @@ body {
     border-color: black;
     border-style: solid;
     border-width: 1px 0 0 0;
-}
+}*/
 
-#cover{
+.cover{
     position:absolute;
     top: -10%;
     z-index: 1;
-    height: 61%;
-    width: 80%;
+    height: 65%;
+    width: 60%;
     left: 0;
     right: 0;
     margin-left: auto;
@@ -293,7 +326,7 @@ body {
     border-width: 0 2px 2px 2px;
     width: 5%;
     height: 30%;
-    left: 0;
+    left: 0.5%; /*otherwise it's slightly offcenter*/
     right: 0;
     margin-left: auto;
     margin-right: auto;
@@ -393,6 +426,12 @@ body {
     width: 11%;
     margin-left: 0.5%;
     margin-right: 0.5%;
+    float: left;
+    border-color: white;
+}
+
+.choiceImg {
+    margin: auto;
 }
 
 .choiceTxt {

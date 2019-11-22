@@ -40,7 +40,18 @@ TODO:
 <div id="instructions" class="screen">
     <p class="mtitle">
         Instructions
-    </p>
+    </p><br><br>
+    <center><div id="instructCenter">
+        <div class="instructMove" id="left-move" onclick=""></div>
+        <div class="instructMove" id="right-move" onclick="nextInstruct('0')"></div>
+        <div id="instructImageDiv">
+            <img class="instructImages" id="instructImg0" src="img/marblebox.png">
+        </div>
+        <img class="cover" src="img/tablecloth.png">
+        <div class="tube" id="tube0">
+            <svg class="tubesvg" id="tubesvg0"></svg>
+        </div>
+    </div></center>
     <button class="big-button active-button next" id="continueInstruct" onclick="clickInstruct();">Click here to continue</button>
 </div>
 
@@ -78,21 +89,23 @@ TODO:
 
 <div id="trialDrawer" class="screen">
     <p class="mtitle trialNum">Round</p>
+    <center>
     <div id="wrapper">
-        <img id="cover" src="img/tablecloth.png">
-        <button class="active-button" id="draw-button" type="button" onclick="draw();"></button>
+        <img class="cover" src="img/tablecloth.png">
         <div class="urn">
-            <div class="suburn">
+            <img id='suburn' src="img/marblebox.png"/>
+            <!-- <div class="suburn">
                 <svg class="urnsvg"></svg>
                 <svg class="urnbottom"></svg>
-            </div>
+            </div> -->
         </div>
+        <button class="active-button" id="draw-button" type="button" onclick="draw();">Go!</button>
         <div class="tube" id="tube1">
             <svg class="tubesvg" id="tubesvg1"></svg>
         </div>
-    </div>
+    </div></center>
     
-    <div id="choices"><div id="labelChoices"></div></div>
+    <center><div id="choices"><div id="labelChoices"></div></div></center>
     <center><div class="subjResponse"></div></center>
     <div class="scoreBucket redBucket">
         <img class="imgPt redPt" src="img/redpoint.png" width="100%">
@@ -102,7 +115,7 @@ TODO:
         <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
         <div class="playerScore blueScore"></div>
     </div>
-<!--     <button class="big-button active-button next" id="nextDrawer" type="button" onclick="report();">Next!</button> -->
+    <button class="big-button active-button next" id="nextDrawer" type="button" onclick="report();">Next!</button>
 </div>
 
 <!-- <div id="switch" class="screen">
@@ -130,8 +143,8 @@ TODO:
     </div>
     <center><br><br>
         <div id="buttonResponse">
-            <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');"><b>Yes</b></button>
-            <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');"><b>No </b></button>
+            <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');"><b>Trick</b></button>
+            <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');"><b>Truth</b></button>
         </div>
     </center>
     <center><div class="subjResponse"></div></center>
