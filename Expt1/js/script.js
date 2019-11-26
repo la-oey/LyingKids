@@ -7,10 +7,11 @@ var expt = {
     numPerDrawn: 2,
     marbleSize: 15,
     roles: ['liar', 'detector'],
+    roleFirst: ['liar', 'detector'],
     humanColor: ['red', 'blue'],
     compColor: ['red', 'blue'],
     allTrialProbs: [0.5],//[0.2,0.5,0.8],
-    trialProbs: 0,
+    pseudo: [],
     choiceArr: "oneRow",
     catchTrials: [],
     stat: {
@@ -83,7 +84,10 @@ var instruct = [
     {id:"instructImg0", src:"img/marblebox.png"},
     {id:"instructImg1", src:"img/marblebox.png"},
     {id:"instructImg2", src:"img/redblueteam.png"},
-    {id:"instructImg3", src:"img/trick.png"}
+    {id:"instructImg3", src:"img/trick.png"},
+    {id:"instructImg4", src:"img/redblueaccept.png"},
+    {id:"instructImg5", src:"img/redbluecatch.png"},
+    {id:"instructImg6", src:"img/redblueaccus.png"}
 ]
 
 
@@ -123,7 +127,17 @@ function clickColor() {
     $('.tube').hide();
     if(expt.humanColor == "blue"){
         instruct[2]['src'] = "img/blueredteam.png";
+        instruct[4]['src'] = "img/blueredaccept.png";
+        instruct[5]['src'] = "img/blueredcatch.png";
+        instruct[6]['src'] = "img/blueredaccus.png";
+        $('.leftBucket').html('<img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%"><div class="playerScore blueScore"></div>');
+        $('.rightBucket').html('<img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%"><div class="playerScore redScore"></div>');
+        $('#leftUpdateBucket').html('<img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%"><div class="playerScore blueScore" id="blueUpdateScore"></div>');
+        $('#rightUpdateBucket').html('<img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%"><div class="playerScore redScore" id="redUpdateScore"></div>');
+        $('#leftInstrBucket').html('<img class="imgPt bluePt" id="blueInstrPt" src="img/bluepoint.png" width="100%"><div class="playerScore blueScore" id="blueInstrScore"></div>');
+        $('#rightInstrBucket').html('<img class="imgPt redPt" id="redInstrPt" src="img/redpoint.png" width="100%"><div class="playerScore redScore" id="redInstrScore"></div>');
     }
+    $('.scoreInstrBucket').hide();
 }
 
 function nextInstruct(currentInstruct) {
@@ -132,6 +146,22 @@ function nextInstruct(currentInstruct) {
     document.getElementById('left-move').setAttribute('onclick','prevInstruct('+nextNum+');');
     document.getElementById('right-move').setAttribute('onclick','nextInstruct("'+nextNum+'");');
     $('#instructImageDiv').html("<img class='instructImages' id='"+instruct[nextNum]['id']+"' src='"+instruct[nextNum]['src']+"'>");
+    if(nextNum > 3){ //reset score bucket
+        $('#redInstrScore').css('height', '15%');
+        $('#blueInstrScore').css('height', '15%');
+        $('#left-move').css('opacity', 0.2);
+        document.getElementById('left-move').setAttribute('onclick','');
+        $('#right-move').css('opacity', 0.2);
+        document.getElementById('right-move').setAttribute('onclick','');
+        setTimeout(function(){
+            document.getElementById('left-move').setAttribute('onclick','prevInstruct('+nextNum+');');
+            $('#left-move').css('opacity', 1);
+            if(nextNum != Object.keys(instruct).length-1){
+                document.getElementById('right-move').setAttribute('onclick','nextInstruct("'+nextNum+'");');
+                $('#right-move').css('opacity', 1);
+            }
+        }, 2500);
+    }
     if(nextNum == 1){
         turn.numDrawn = 0;
         $('.tubesvg').empty();
@@ -147,11 +177,21 @@ function nextInstruct(currentInstruct) {
     } else if(nextNum == 2){
         $('.tube').css('top', '68%');
         $('.tube').hide();
-    } 
+    } else if(nextNum == 4){
+        $('.scoreInstrBucket').show();
+        addPoints(expt.humanColor, 5, 3);
+        addPoints(expt.compColor, 1, 3);
+    } else if(nextNum == 5){
+        addPoints(expt.humanColor, 0, 3);
+        addPoints(expt.compColor, 6, 3);
+    } else if(nextNum == 6){
+        addPoints(expt.humanColor, 5, 3);
+        addPoints(expt.compColor, -2, 3);
+    }
 
     if(nextNum == Object.keys(instruct).length-1){
-        $('#right-move').css('opacity', 0.2);
-        document.getElementById('right-move').setAttribute('onclick','');
+        //$('#right-move').css('opacity', 0.2);
+        //document.getElementById('right-move').setAttribute('onclick','');
         $('#continueInstruct').prop('disabled', false);
         $('#continueInstruct').css('opacity', 1);
     } 
@@ -164,6 +204,20 @@ function prevInstruct(currentInstruct) {
     document.getElementById('left-move').setAttribute('onclick','prevInstruct("'+prevNum+'");');
     document.getElementById('right-move').setAttribute('onclick','nextInstruct('+prevNum+');');
     $('#instructImageDiv').html("<img class='instructImages' id='"+instruct[prevNum]['id']+"' src='"+instruct[prevNum]['src']+"'>");
+    if(prevNum > 3){ //reset score bucket
+        $('#redInstrScore').css('height', '15%');
+        $('#blueInstrScore').css('height', '15%');
+        $('#left-move').css('opacity', 0.2);
+        document.getElementById('left-move').setAttribute('onclick','');
+        $('#right-move').css('opacity', 0.2);
+        document.getElementById('right-move').setAttribute('onclick','');
+        setTimeout(function(){
+            document.getElementById('left-move').setAttribute('onclick','prevInstruct('+prevNum+');');
+            $('#left-move').css('opacity', 1);
+            document.getElementById('right-move').setAttribute('onclick','nextInstruct("'+prevNum+'");');
+            $('#right-move').css('opacity', 1);
+        }, 2500);
+    }
     if(prevNum == 0){
         $('#left-move').css('opacity', 0.2);
         document.getElementById('left-move').setAttribute('onclick','');
@@ -182,9 +236,20 @@ function prevInstruct(currentInstruct) {
         $('#right-move').css('opacity', 0.2);
         document.getElementById('right-move').setAttribute('onclick','');
         draw();
-    } 
+    } else if(prevNum == 3){
+        $('.scoreInstrBucket').hide();
+    } else if(prevNum == 4){
+        addPoints(expt.humanColor, 5, 3);
+        addPoints(expt.compColor, 1, 3);
+    } else if(prevNum == 5){
+        addPoints(expt.humanColor, 0, 3);
+        addPoints(expt.compColor, 6, 3);
+    } else if(prevNum == 6){
+        addPoints(expt.humanColor, 5, 3);
+        addPoints(expt.compColor, -2, 3);
+    }
+
     if(prevNum == Object.keys(instruct).length - 2){
-        $('#right-move').css('opacity', 1);
         $('#continueInstruct').prop('disabled', true);
         $('#continueInstruct').css('opacity', 0);
     } 
@@ -212,7 +277,8 @@ function clickPrePractice(){
     $('#liarplayer').html(trial.liarPlayer);
     $('#liarplayer').css('color', trial.liarPlayer);
     $('.trialNum').html("Practice: <i>Marble-Picker</i>");
-
+    $('.redScore').css('height', 0);
+    $('.blueScore').css('height', 0);
 }
 
 function clickPostPractice(){
@@ -220,8 +286,9 @@ function clickPostPractice(){
     document.getElementById('keep').style.display = 'block';
 
     //expt.catchTrials = distributeChecks(expt.trials, 0.10); // 0.1 of expt trials have an attention check
-    //expt.pseudo = distributePseudo(expt.trials, 0, 6);
-    trial.roleCurrent = sample(expt.roles);
+    expt.pseudo = distributePseudo(expt.trials);
+    expt.roleFirst = sample(expt.roles);
+    trial.roleCurrent = expt.roleFirst;
     debugLog(trial.roleCurrent);
     if(trial.roleCurrent == "liar"){
         trial.liarPlayer = expt.humanColor;
@@ -285,14 +352,9 @@ function drape(){
         trial.drawnRed = 3;
         trial.drawnBlue = 3;
     } else{
-        if(trial.pseudoRound){
-            for(var i=0; i<expt.marblesSampled; i++){
-                if(i < expt.pseudo[trial.trialNumber]){
-                    trial.drawnRed += 1;
-                } else{
-                    trial.drawnBlue += 1;
-                }
-            }
+        if(expt.pseudo[trial.trialNumber] != -1){
+            trial.drawnRed = expt.pseudo[trial.trialNumber];
+            trial.drawnBlue = expt.marblesSampled - trial.drawnRed;
         } else{
             for(var i=0; i<expt.marblesSampled; i++){
                 if(Math.random() < trial.probabilityRed){
@@ -427,6 +489,8 @@ function orderTube(type, player, number, marbleSize){
     }
 }
 
+var practiceChoiceSeq = [];
+
 function highlightChoice(choice){
     //if highlighted, unhighlighted
     if($('#choice'+choice).css('background-color')=='rgb(255, 255, 0)'){
@@ -443,6 +507,27 @@ function highlightChoice(choice){
         //report(); //maybe switch back to button?
         //$('#choices').css('opacity',0);
         //$('#choices').css('z-index',0);
+    }
+
+    if(trial.exptPart == "practice"){
+        practiceChoiceSeq.push(choice);
+        var checkAll = -1;
+        var checkNone = -1;
+        var checkTrue = -1;
+        for(var i=0; i<practiceChoiceSeq.length; i++){
+            if(practiceChoiceSeq[i] == "6"){
+                checkAll = i;
+            } else if(practiceChoiceSeq[i] == "0" & i > checkAll){
+                checkNone = i;
+            } else if(practiceChoiceSeq[i] == "3" & i > checkNone){
+                checkTrue = i;
+            }
+        }
+        if(checkAll != -1 & checkNone != -1 & checkTrue != -1){
+            $('#nextDrawer').prop('disabled', false);
+        } else{
+            $('#nextDrawer').prop('disabled', true);
+        }
     }
 }
 
@@ -551,27 +636,46 @@ function callout(call){
     trialDone();
 }
 
-function addPoints(player, points, prevPoints){
-    $('.'+player+"Pt").css({'top': '-15%'}, 1000);
-    $('.'+player+"Pt").animate({'opacity': 1}, 250);
-    if(points > 0){
-        $('.'+player+"Pt").animate({'top': '10%'}, 1000);
-    } else if(points < 0){
-        $('.'+player+"Pt").animate({'top': '-40%'}, 1000);
+function addPoints(player, points, prevPoints){    
+    if(trial.exptPart == "trial"){
+        $('.'+player+"TrialPt").css({'top': '-15%'}, 1000);
+        $('.'+player+"TrialPt").animate({'opacity': 1}, 250);
+        if(points > 0){
+            $('.'+player+"TrialPt").animate({'top': '10%'}, 1000);
+        } else if(points < 0){
+            $('.'+player+"TrialPt").animate({'top': '-40%'}, 1000);
+        }
+        var maxPoints = expt.marblesSampled * expt.trials;
+        setTimeout(function(){
+            $('.'+player+"TrialPt").animate({'opacity': 0}, 250)
+            $('#'+player+'UpdateScore').animate({
+                'height': (points+prevPoints)/maxPoints*$('.updateBucket').height()
+            }, 1000)
+            $('.'+player+'Score').css('height', (points+prevPoints)/maxPoints*$('.updateBucket').height());
+        }, 1250);
+
+        setTimeout(function(){
+            $('#nextKeep').prop('disabled',false);
+        }, 3000);
+    } else{ //instruct
+        $('#'+player+"InstrPt").css({'top': '-15%'}, 1000);
+        $('#'+player+"InstrPt").animate({'opacity': 1}, 250);
+        if(points > 0){
+            $('#'+player+"InstrPt").animate({'top': '10%'}, 1000);
+        } else if(points < 0){
+            $('#'+player+"InstrPt").animate({'top': '-40%'}, 1000);
+        }
+        var maxPoints = 20;
+        setTimeout(function(){
+            $('#'+player+"InstrPt").animate({'opacity': 0}, 250)
+            $('#'+player+'InstrScore').animate({
+                'height': (points+prevPoints)/maxPoints*$('.scoreInstrBucket').height()
+            }, 1000)
+            $('#'+player+'InstrScore').css('height', (points+prevPoints)/maxPoints*$('.scoreInstrBucket').height());
+        }, 1250);
+
     }
     
-    maxPoints = expt.marblesSampled * expt.trials;
-    setTimeout(function(){
-        $('.'+player+"Pt").animate({'opacity': 0}, 250)
-        $('#'+player+'UpdateScore').animate({
-            'height': (points+prevPoints)/maxPoints*$('.updateBucket').height()
-        }, 1000)
-        $('.'+player+'Score').css('height', (points+prevPoints)/maxPoints*$('.updateBucket').height());
-    }, 1250);
-
-    setTimeout(function(){
-        $('#nextKeep').prop('disabled',false);
-    }, 3000);
 }
 
 
@@ -714,11 +818,11 @@ function computerReport(){
         }
     }
 
-    if(trial.pseudoRound){
-        trial.reportedDrawn = expt.pseudo[trial.trialNumber];
-    } else if(trial.exptPart == "practice"){
+    if(trial.exptPart == "practice"){
         $("#tubesvg1").css('opacity',1);
         trial.reportedDrawn = 6;
+    } else if(expt.pseudo[trial.trialNumber] != -1){
+        trial.reportedDrawn = expt.pseudo[trial.trialNumber];
     } else{
         if(Math.random() < 0.2){
             trial.compUnifLie = true;
@@ -752,6 +856,8 @@ function computerReport(){
         trial.reportedRed = trial.reportedDrawn;
         trial.reportedBlue = expt.marblesSampled - trial.reportedDrawn;
     }
+
+    debugLog("computer report: " + trial.reportedDrawn);
 
 }
 
@@ -791,8 +897,6 @@ function trialDone() {
             }
         }
 
-
-
         expt.stat.redRunningScore += trial.redTrialScore;
         expt.stat.blueRunningScore += trial.blueTrialScore;
 
@@ -812,7 +916,6 @@ function trialDone() {
     }
 
     recordData();
-    console.log(trial.trialNumber)
 
     if(trial.exptPart == "practice"){
         setTimeout(function(){
@@ -995,27 +1098,26 @@ function distributeChecks(totalTrials, freq){
     return(checkRounds);
 }
 
-function distributePseudo(totalTrials, minArrPseudo, maxArrPseudo){
+function distributePseudo(totalTrials){
     var pseudoDict = {};
-    var arrPseudo = [];
-    var bucketOdd = [];
+    var arrPseudo = [0,1,5,6];
+    var bucketLie = arrPseudo.slice(0);
 
-    for(var a=minArrPseudo; a <= maxArrPseudo; a++){
-        arrPseudo.push(a);
+    for(var i=0; i<totalTrials/2 - arrPseudo.length; i++){
+        bucketLie.push(-1);
     }
-    for(var i=0; i<=totalTrials/2; i++){
-        bucketOdd.push(i);
-    }
-    var bucketEven = bucketOdd.slice(0);
+    var bucketDetect = bucketLie.slice(0);
 
-    for(var o=0; o<arrPseudo.length; o++){
-        index = Math.floor(randomDouble(0, bucketOdd.length));
-        pseudoDict[(2*bucketOdd.splice(index, 1)[0]+1)] = arrPseudo[o];
+    bucketLie = shuffle(bucketLie);
+    bucketDetect = shuffle(bucketDetect);
+
+    if(expt.roleFirst == "liar"){
+        var pseudoDict = bucketLie.concat(bucketDetect);
+    } else{
+        var pseudoDict = bucketDetect.concat(bucketLie);
     }
-    for(var e=0; e<arrPseudo.length; e++){
-        index = Math.floor(randomDouble(0, bucketEven.length));
-        pseudoDict[(2*bucketEven.splice(index, 1)[0])] = arrPseudo[e];
-    }
+    debugLog(pseudoDict);
+
     return(pseudoDict);
 }
 

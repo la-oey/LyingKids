@@ -52,6 +52,14 @@ TODO:
             <svg class="tubesvg" id="tubesvg0"></svg>
         </div>
     </div></center>
+    <div class="scoreInstrBucket leftInstrBucket" id="leftInstrBucket">
+        <img class="imgPt redPt" id="redInstrPt" src="img/redpoint.png" width="100%">
+        <div class="playerScore redScore" id="redInstrScore"></div>
+    </div>
+    <div class="scoreInstrBucket rightInstrBucket" id="rightInstrBucket">
+        <img class="imgPt bluePt" id="blueInstrPt" src="img/bluepoint.png" width="100%">
+        <div class="playerScore blueScore" id="blueInstrScore"></div>
+    </div>
     <button class="big-button active-button next" id="continueInstruct" onclick="clickInstruct();">Click here to continue</button>
 </div>
 
@@ -76,12 +84,12 @@ TODO:
         <p class="declareplayer" id="liarplayer" st></p>
         <p>player's turn to play as the marble-picker!</p></center>
     </div>
-    <div class="scoreBucket redBucket updateBucket">
-        <img class="imgPt redPt" src="img/redpoint.png" width="100%">
+    <div class="scoreBucket leftBucket updateBucket" id="leftUpdateBucket">
+        <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
         <div class="playerScore redScore" id="redUpdateScore"></div>
     </div>
-    <div class="scoreBucket blueBucket updateBucket">
-        <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
+    <div class="scoreBucket rightBucket updateBucket" id="rightUpdateBucket">
+        <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
         <div class="playerScore blueScore" id="blueUpdateScore"></div>
     </div>
     <button class="big-button active-button next" id="nextKeep" type="button" onclick="keepTurn();">Next!</button>
@@ -107,12 +115,12 @@ TODO:
     
     <center><div id="choices"><div id="labelChoices"></div></div></center>
     <center><div class="subjResponse"></div></center>
-    <div class="scoreBucket redBucket">
-        <img class="imgPt redPt" src="img/redpoint.png" width="100%">
+    <div class="scoreBucket leftBucket">
+        <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
         <div class="playerScore redScore"></div>
     </div>
-    <div class="scoreBucket blueBucket">
-        <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
+    <div class="scoreBucket rightBucket">
+        <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
         <div class="playerScore blueScore"></div>
     </div>
     <button class="big-button active-button next" id="nextDrawer" type="button" onclick="report();">Next!</button>
@@ -148,11 +156,11 @@ TODO:
         </div>
     </center>
     <center><div class="subjResponse"></div></center>
-    <div class="scoreBucket redBucket">
+    <div class="scoreBucket leftBucket">
         <img class="imgPt redPt" src="img/redpoint.png" width="100%">
         <div class="playerScore redScore"></div>
     </div>
-    <div class="scoreBucket blueBucket">
+    <div class="scoreBucket rightBucket">
         <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
         <div class="playerScore blueScore"></div>
     </div>

@@ -224,6 +224,24 @@ body {
     font-size: 28px;
 }
 
+.scoreInstrBucket {
+    position: absolute;
+    bottom: 30%;
+    height: 60%;
+    width: 5%;
+    border-color: black;
+    border-style: solid;
+    border-width: 0 2px 2px 2px;
+}
+
+.leftInstrBucket {
+    left: 15%;
+}
+
+.rightInstrBucket {
+    right: 15%;
+}
+
 .scoreBucket {
     position: absolute;
     bottom: 0%;
@@ -233,12 +251,12 @@ body {
     border-style: solid;
 }
 
-.redBucket {
+.leftBucket {
     left: 0%;
     border-width: 0 2px 0 0;
 }
 
-.blueBucket {
+.rightBucket {
     right: 0%;
     border-width: 0 0 0 2px;
 }
