@@ -395,18 +395,24 @@ function draw(){
     drape();
     document.getElementById('draw-button').setAttribute('onclick','');
 
-    for(var i=0; i<2; i++){
-        $('.cover').animate({
-            "top": "9%"
-        })
-        $('.cover').animate({
-            "top": "12%"
-        })
-    }
+    var shakeDelay = 1000;
+
+    setTimeout(function(){
+        for(var i=0; i<2; i++){
+            $('.cover').animate({
+                "top": "9%"
+            })
+            $('.cover').animate({
+                "top": "12%"
+            })
+        }
+    }, shakeDelay);
+
+    
     var audio = new Audio('audio/shake.wav');
     setTimeout(function(){
         audio.play();
-    }, 800);
+    }, 200);
 
     countDraws = 0
     function oneMarble(){
