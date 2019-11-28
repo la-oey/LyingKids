@@ -169,6 +169,9 @@ function nextInstruct(currentInstruct) {
                     $('#right-move').css('opacity', 1);
                 }
             }, 2500);
+        } else{
+            $('#instructImageDiv').css('opacity',0);
+            $('#instructImageDiv').animate({'opacity': 1}, 500);
         }
     }
     if(nextNum == 1){
@@ -230,6 +233,9 @@ function prevInstruct(currentInstruct) {
                 document.getElementById('right-move').setAttribute('onclick','nextInstruct("'+prevNum+'");');
                 $('#right-move').css('opacity', 1);
             }, 2500);
+        } else{
+            $('#instructImageDiv').css('opacity',0);
+            $('#instructImageDiv').animate({'opacity': 1}, 500);
         }
     }
     if(prevNum == 0){
