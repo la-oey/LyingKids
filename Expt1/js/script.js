@@ -640,7 +640,7 @@ function report(){
 
 function computerDetect(){
     trial.callBS = false;
-    trial.compDetect = cbinom(expt.marblesSampled, trial.probabilityRed, trial.reportedDrawn) - (cbinom(expt.marblesSampled, trial.probabilityRed, (expt.marblesSampled*trial.probabilityRed)) - 0.5) //lowers prob of celling out by centering cbinom at expected mean
+    trial.compDetect = cbinom(expt.marblesSampled, trial.probabilityRed, trial.reportedDrawn) * .6 //lowers and flattens diff in prob of calling out by multiplying cbinom by .7
     trial.compLie = -1;
     //console.log("CompDetect: " + trial.compDetect)
     if(Math.random() < trial.compDetect){
@@ -990,9 +990,9 @@ function toWinnerCircle(){
     if(expt.stat.redTotalScore == expt.stat.blueTotalScore){
         $('#whowon').html("You tied!");
     } else if(expt.stat.redTotalScore > expt.stat.blueTotalScore){
-        $('#whowon').html("<b style='color:red'>Red</b> won the game!");
+        $('#whowon').html("<b style='color:red'>Red won the game!</b>");
     } else{
-        $('#whowon').html("<b style='color:blue'>Blue</b> won the game!");
+        $('#whowon').html("<b style='color:blue'>Blue won the game!</b>");
     }
 
     //$('.scoreboardDiv').show();
