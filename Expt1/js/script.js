@@ -415,10 +415,10 @@ function draw(){
     }, shakeDelay);
 
     
-    var audio = new Audio('audio/shake.wav');
-    setTimeout(function(){
-        audio.play();
-    }, 200);
+    // var audio = new Audio('audio/shake.wav');
+    // setTimeout(function(){
+    //     audio.play();
+    // }, 200);
 
     countDraws = 0
     function oneMarble(){
@@ -615,6 +615,9 @@ function report(){
         flickerWait();
         
         trial.waitTime = 1000 + 3000*exponential(0.75);
+        if(trial.exptPart == "practice"){
+            trial.waitTime = 10000;
+        }
         setTimeout(function(){
             clearInterval(trial.timer);
             $('.subjResponse').html("<p><br>They decided!<br><br></p>")
@@ -810,7 +813,7 @@ function detector() {
     function detectWait() {
         flickerWait();
         
-        trial.waitTime = 3000 + 6000*exponential(0.75);
+        trial.waitTime = 15000 + 1000*exponential(0.75);
         setTimeout(function(){
             clearInterval(trial.timer);
             $('.subjResponse').css('opacity','0');
