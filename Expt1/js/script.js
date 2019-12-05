@@ -946,7 +946,7 @@ function trialDone() {
             trial.roleCurrent = "detector";
             $('#practiceOppDecision').show();
         } else{
-            $('#practiceOppDecision').html("<center><p>They were trying to trick you<br>but you caught them!</p></center>");
+            $('#practiceOppDecision').html("<center><img src='img/thumbs-up.png'/><br><p>They were trying to trick you<br>but you caught them!</p></center>");
         }
         
     } else if(trial.trialNumber == expt.trials){
