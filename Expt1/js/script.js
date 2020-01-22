@@ -821,6 +821,9 @@ function detector() {
             orderTube("detectRep", trial.liarPlayer, trial.reportedDrawn, expt.marbleSize);
             $('.callout-button').css('opacity','0.8');
             $('.callout-button').prop('disabled', false);
+            if(trial.exptPart == "practice"){
+                $('#accept-button').prop('disabled', true);
+            }
             trial.responseStartTime = Date.now();
         }, trial.waitTime);
     }
@@ -946,7 +949,7 @@ function trialDone() {
             trial.roleCurrent = "detector";
             $('#practiceOppDecision').show();
         } else{
-            $('#practiceOppDecision').html("<center><img src='img/thumbs-up.png'/><br><p>They were trying to trick you<br>but you caught them!</p></center>");
+            $('#practiceOppDecision').html("<center><img src='img/thumbs-up.png' height='200'/><br><p>They were trying to trick you<br>but you caught them!</p></center>");
         }
         
     } else if(trial.trialNumber == expt.trials){
