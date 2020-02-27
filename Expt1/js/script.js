@@ -614,7 +614,7 @@ function report(){
     function liarWait() {
         flickerWait();
         
-        trial.waitTime = 1000 + 3000*exponential(0.75);
+        trial.waitTime = 1000 + 1500*exponential(0.75);
         if(trial.exptPart == "practice"){
             trial.waitTime = 10000;
         }
@@ -813,7 +813,7 @@ function detector() {
     function detectWait() {
         flickerWait();
         
-        trial.waitTime = 15000 + 1000*exponential(0.75);
+        trial.waitTime = 8000 + 1000*exponential(0.75);
         setTimeout(function(){
             clearInterval(trial.timer);
             $('.subjResponse').css('opacity','0');
@@ -982,6 +982,8 @@ function trialDone() {
     
     if(trial.exptPart == "practice"){
         $('.trialNum').html("Practice: <i>" + roletxt + "</i>");
+    } else if((trial.trialNumber+1) == 21){
+    	$('.trialNum').html("End!");
     } else{
         $('.trialNum').html("Round " + (trial.trialNumber+1) + ": <i>" + roletxt + "</i>");
     }
