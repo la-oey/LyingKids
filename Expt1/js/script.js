@@ -944,8 +944,12 @@ function trialDone() {
 
     trial.currEndTime = Date.now();
     recordData();
-    data = {client: client, expt: expt, trials: trialData};
-    writeServer(data);
+
+    // start incrementally writing data after each trial, starting at the test trials
+    if(trial.exptPart == "trial"){
+    	data = {client: client, expt: expt, trials: trialData};
+    	writeServer(data);
+    }
 
     if(trial.exptPart == "practice"){
         if(trial.roleCurrent == "liar"){
