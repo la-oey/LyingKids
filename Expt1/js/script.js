@@ -48,6 +48,7 @@ var trial = {
     trialTime: 0,
     responseStartTime: 0,
     responseTime: 0,
+    currEndTime: 0,
     timer: 0,
     probabilityRed: 0.5,
     probabilityBlue: 0.5,
@@ -941,7 +942,10 @@ function trialDone() {
         }, 1000);
     }
 
+    trial.currEndTime = Date.now();
     recordData();
+    data = {client: client, expt: expt, trials: trialData};
+    writeServer(data);
 
     if(trial.exptPart == "practice"){
         if(trial.roleCurrent == "liar"){
@@ -1058,7 +1062,9 @@ function recordData(){
         redTotalScore: expt.stat.redTotalScore,
         blueTotalScore: expt.stat.blueTotalScore,
         responseTime: trial.responseTime,
-        trialTime: trial.trialTime
+        trialTime: trial.trialTime,
+        currStartTime: trial.startTime,
+        currEndTime: trial.currEndTime
     })
 }
 

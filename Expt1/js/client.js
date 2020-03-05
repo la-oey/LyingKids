@@ -26,6 +26,7 @@ function parseClient(){
 		client.type = 'visitor';
 		client.sid = 'visitor-' + Math.random().toString(36).substr(2, 5);
 	}
+	client.exptStartTime = Date.now();
 	client.window = {width: $(window).width(), height: $(window).height()};
 	client.screen = {width: screen.width, height: screen.height};
 	client.userAgent = navigator.userAgent;
