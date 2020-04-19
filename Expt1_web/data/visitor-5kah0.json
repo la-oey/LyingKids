@@ -1,0 +1,142 @@
+{
+    "client": {
+        "type": "visitor",
+        "sid": "visitor-5kah0",
+        "exptStartTime": 1587339177786,
+        "window": {
+            "width": 1199,
+            "height": 758
+        },
+        "screen": {
+            "width": 1440,
+            "height": 900
+        },
+        "userAgent": "Mozilla\/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/80.0.3987.163 Safari\/537.36",
+        "score": 0,
+        "bonus": 0
+    },
+    "expt": {
+        "saveURL": "submit.simple.php",
+        "saveVideoURL": "submit.video.php",
+        "trials": 20,
+        "marblesSampled": 6,
+        "numPerDrawn": 2,
+        "marbleSize": 15,
+        "roles": [
+            "liar",
+            "detector"
+        ],
+        "roleFirst": "liar",
+        "humanColor": "blue",
+        "compColor": "red",
+        "allTrialProbs": [
+            0.5
+        ],
+        "pseudo": [
+            0,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            1,
+            6,
+            5,
+            -1,
+            5,
+            1,
+            -1,
+            -1,
+            6,
+            -1,
+            -1,
+            0,
+            -1
+        ],
+        "choiceArr": "oneRow",
+        "catchTrials": [],
+        "stat": {
+            "redTotalScore": 0,
+            "blueTotalScore": 0,
+            "redRunningScore": -3,
+            "blueRunningScore": 6
+        },
+        "debug": true,
+        "trialProbs": 0.5
+    },
+    "trials": [
+        {
+            "playerColor": "blue",
+            "compColor": "red",
+            "exptPart": "practice",
+            "trialNumber": 1,
+            "playerRole": "liar",
+            "liarPlayer": "blue",
+            "marblesSampled": 6,
+            "probabilityRed": 0.5,
+            "drawnRed": 3,
+            "drawnBlue": 3,
+            "reportedDrawn": 5,
+            "reportedRed": 1,
+            "reportedBlue": 5,
+            "callBS": true,
+            "redTrialScore": 6,
+            "blueTrialScore": 0,
+            "redTotalScore": 0,
+            "blueTotalScore": 0,
+            "responseTime": 4140,
+            "trialTime": 25122,
+            "currStartTime": 1587339181140,
+            "currEndTime": 1587339206267
+        },
+        {
+            "playerColor": "blue",
+            "compColor": "red",
+            "exptPart": "practice",
+            "trialNumber": 2,
+            "playerRole": "detector",
+            "liarPlayer": "red",
+            "marblesSampled": 6,
+            "probabilityRed": 0.5,
+            "drawnRed": 3,
+            "drawnBlue": 3,
+            "reportedDrawn": 6,
+            "reportedRed": 6,
+            "reportedBlue": 0,
+            "callBS": true,
+            "redTrialScore": 0,
+            "blueTrialScore": 6,
+            "redTotalScore": 0,
+            "blueTotalScore": 0,
+            "responseTime": 3417,
+            "trialTime": 11909,
+            "currStartTime": 1587339209813,
+            "currEndTime": 1587339221727
+        },
+        {
+            "playerColor": "blue",
+            "compColor": "red",
+            "exptPart": "trial",
+            "trialNumber": 1,
+            "playerRole": "liar",
+            "liarPlayer": "blue",
+            "marblesSampled": 6,
+            "probabilityRed": 0.5,
+            "drawnRed": 0,
+            "drawnBlue": 6,
+            "reportedDrawn": 6,
+            "reportedRed": 0,
+            "reportedBlue": 6,
+            "callBS": true,
+            "redTrialScore": -3,
+            "blueTrialScore": 6,
+            "redTotalScore": 0,
+            "blueTotalScore": 0,
+            "responseTime": 2227,
+            "trialTime": 16002,
+            "currStartTime": 1587339230804,
+            "currEndTime": 1587339246806
+        }
+    ]
+}

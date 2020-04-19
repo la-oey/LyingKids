@@ -1,0 +1,606 @@
+
+.instructVid {
+    border: 2px solid black;
+    width: 435px;
+    height: 300px;
+}
+
+.fullInstructVid {
+    /*border: 2px solid black;*/
+    width: 900px;
+    height: 600px;
+}
+
+.practiceVid {
+    border: 2px solid black;
+    width: 232px;
+    height: 160px;
+    position: absolute;
+    top: 26%;
+    left: 6%;
+}
+
+.videostream {
+    border: 2px solid black;
+    width: 140px;
+    height: 105px;
+    position: absolute;
+    top: 5%;
+    left: 6%;
+    background-color: black;
+}
+
+.playerprof {
+    /*border: 2px solid black;*/
+    width: 140px;
+    height: 105px;
+    position: absolute;
+    top: 5%;
+    right: 6%;
+    /*display: none;*/
+}
+
+.playericon {
+    height:100%;
+    margin: 0 auto;
+    display: none;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    margin: 18px 0;
+    width: 70%;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 95%;
+    height: 8.4px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    background: #0000CD;
+    border-radius: 1.3px;
+    border: 0.2px solid #010101;
+}
+
+input[type=range]::-ms-track {
+    width: 95%;
+    height: 8.4px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    background: #0000CD;
+    border-radius: 1.3px;
+    border: 0.2px solid #010101;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    border: 1px solid #000000;
+    height: 36px;
+    width: 16px;
+    border-radius: 3px;
+    background: #ffffff;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -14px;
+}
+
+input[type=range]::-ms-thumb {
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    border: 1px solid #000000;
+    height: 36px;
+    width: 16px;
+    border-radius: 3px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.pic {
+    height: 200px;
+    width: auto;
+}
+
+p {
+    font-size: 30px;
+    font-family: verdana;
+    margin: 1em 10% 1em 10%;
+}
+
+label {
+    font-size: 16px;
+    font-family: verdana;
+    /*margin: 1em 10% 1em 10%;*/
+}
+
+ul {
+    font-size: 16px;
+    font-family: verdana;
+    margin: 0.5em 10% 0.5em 10%;
+}
+
+.indent {
+    margin: 0em 15% 0em 15%;
+}
+
+#subsetInstr {
+    padding: 2px;
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.mtitle {
+    padding: 2px;
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+
+}
+
+body {
+    background-color: white;
+}
+
+.screen {
+    display: none;
+    /*margin-top: 5%;*/
+}
+
+.questions {
+    font-size: 25px;
+    font-family: verdana;
+    color: black;
+}
+
+.textleft {
+    margin-left: 10%;
+    float: left;
+    font-size: 1.25em;
+}
+
+.textright {
+    float: right;
+    margin-right: 10%;
+    font-size: 1.25em;
+}
+
+.picture1 {
+    height: 120px;
+    width: auto;
+    float: left;
+    margin-left: 10%
+}
+
+.picture2 {
+    height: 120px;
+    width: auto;
+    margin-right: 10%;
+    float: right;
+}
+
+
+.big-button {
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1%;
+    width: 50%;
+    padding: 10px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1.25em;
+    font-family: "Helvetica", sans-serif;
+
+}
+
+.active-button {
+    border: 2px solid #4CAF50;
+    background-color: white;
+    color: black;
+    display: inline-block;
+}
+
+.active-button:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.active-button:disabled {
+    background-color: #555555;
+    color: white;
+}
+
+.color-button {
+    opacity: 0.75;
+    width: 200px;
+    height: 200px;
+    color: black;
+    font-size: 48px;
+    padding: 20px;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+
+#red-button {
+    background-color: red;
+    color: pink;
+}
+
+#blue-button {
+    background-color: blue;
+    color: aqua;
+}
+
+#instructCenter {
+    width: 90%;
+}
+
+.instructImages {
+    display: block;
+    /*margin-top: 0%;*/
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.instructMove {
+    position: relative;
+    margin-top: -10%;
+}
+
+
+#left-move {
+    float: left;
+    border-top: 60px solid transparent;
+    border-bottom: 60px solid transparent; 
+    border-right:60px solid deepskyblue;
+    
+}
+
+#right-move {
+    float: right;
+    border-top: 60px solid transparent;
+    border-bottom: 60px solid transparent;
+    border-left: 60px solid deepskyblue;
+    /*margin-top: auto;
+    margin-bottom: auto;*/
+}
+
+#left-move:hover {
+    border-right:60px solid #99e6ff;
+}
+
+#right-move:hover {
+    border-left:60px solid #99e6ff;
+}
+
+
+.declareplayer {
+    font-weight: bold;
+    font-size: 28px;
+}
+
+.scoreInstrBucket {
+    position: absolute;
+    top: 30%;
+    bottom: 15%;
+    height: 55%;
+    width: 5%;
+    border-color: black;
+    border-style: solid;
+    border-width: 0 2px 2px 2px;
+}
+
+.leftInstrBucket {
+    left: 15%;
+}
+
+.rightInstrBucket {
+    right: 15%;
+}
+
+.scoreBucket {
+    position: absolute;
+    bottom: 0%;
+    height: 100%;
+    width: 5%;
+    border-color: black;
+    border-style: solid;
+}
+
+.leftBucket {
+    left: 0%;
+    border-width: 0 2px 0 0;
+}
+
+.rightBucket {
+    right: 0%;
+    border-width: 0 0 0 2px;
+}
+
+.imgPt {
+    position: absolute;
+    top: -15%;
+    width: 100%;
+    opacity: 0;
+}
+
+.playerScore {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 0%;
+}
+
+.redScore {
+    background-color: red;
+}
+
+.blueScore {
+    background-color: blue;
+}
+
+/*.urn {
+    margin-left: auto;
+    margin-right: auto;
+    height: 30%;
+}
+
+#suburn {
+    margin: auto;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}*/
+
+.cover{
+    position:absolute;
+    top: -10%;
+    z-index: 1;
+    height: 55%;
+    width: 52%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0;
+}
+
+.tube {
+    position: absolute;
+    top: 68%;
+    border-color: black;
+    border-style: solid;
+    border-width: 0 2px 2px 2px;
+    width: 5%;
+    height: 30%;
+    left: 0.5%; /*otherwise it's slightly offcenter*/
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#tube0 {
+    background-color: gray;
+}
+
+#tube1 {
+    background-color: gray;
+}
+
+.tubesvg {
+    height: 98%;
+    width: 96%;
+    margin-left: 2%;
+    margin-bottom: 1%;
+}
+
+.sampMarble {
+    position: absolute;
+    top: -80%;
+    height: 100%;
+}
+
+.marblesvg {
+    height: 98%;
+    margin-bottom: 0%;
+}
+
+#draw-button {
+    position: absolute;
+    z-index: 1;
+    padding: 5px;
+    top: 35%;
+    font-size: 1.5em;
+    width: 20%;
+    height: 10%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0;
+}
+
+#labelChoices {
+    position: absolute;
+    top: 30%;
+    width: 92%;
+    height: 10%;
+    left: 10%;
+    right: 6%;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+#choices {
+    position: absolute;
+    top: 50%;
+    width: 92%;
+    height: 40%;
+    left: 10%;
+    right: 6%;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+#choiceTop {
+    margin: 0 auto;
+    width: 100%;
+}
+
+#choiceBottom {
+    margin: 0 auto;
+    width: 80%;
+}
+
+#choiceMid {
+    margin: 0 auto;
+    width: 100%;
+}
+
+.choiceClass {
+    border: 2px solid black;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+.choiceClassTop {
+    width: 20%;
+    margin-left: 1%;
+    margin-right: 1%;
+}
+
+.choiceClassBottom {
+    width: 25%;
+    margin-left: 1.25%;
+    margin-right: 1.25%;
+}
+
+.choiceClassMid {
+    width: 11%;
+    margin-left: 0.5%;
+    margin-right: 0.5%;
+    float: left;
+    border-color: white;
+}
+
+.choiceImg {
+    margin: auto;
+}
+
+.choiceTxt {
+    position: absolute;
+    z-index: 1;
+}
+
+.subjResponse {
+    position: absolute;
+    font-size: 2em;
+    top: 60%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 0;
+}
+
+
+#reportMarbles {
+    border: 3px solid red;
+}
+
+#reportMarbles:focus {
+    border: 2px solid lightblue;
+}
+
+#buttonResponse {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+}
+
+#practiceOppDecision {
+    display: none;
+}
+
+
+
+.next {
+    position: absolute;
+    bottom: 2%;
+}
+
+.callout-button {
+    opacity: 0.8;
+    width: 200px;
+    color: black;
+    font-size: 36px;
+    padding: 20px;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+#accept-button {
+    background-color: green;
+}
+
+#reject-button {
+    background-color: #FF4500;
+}
+
+#catchQ {
+    margin-left: 25%;
+    font-size: 30px;
+}
+
+.scoreReport {
+    margin-left: 20%;
+    margin-right: 20%;
+    font-size: 20px;
+}
+
+.scoreboardDiv {
+  margin-left: 25%;
+  margin-right: 25%;
+  padding: 40px;
+}
+
+.scoreCol {
+  width: 50%;
+  float: left;
+  font-size: 28px;
+  text-align: center;
+}
+
+.totalScores {
+    font-size: 40px;
+}
+
+#statsBox {
+    margin-left: 25%;
+    margin-right: 25%;
+    padding: 10px;
+    border: 5px solid black;
+}
+
+#whowontext {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
+
+
