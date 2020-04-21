@@ -380,13 +380,16 @@ body {
 #choices {
     position: absolute;
     top: 50%;
-    width: 92%;
+    width: 84%;
     height: 40%;
-    left: 10%;
-    right: 6%;
+    left: 14%;
+    right: 2%;
     margin-left: auto;
     margin-right: auto;
+}
 
+.choiceClass:hover{
+    background-color: #FFFFCC;
 }
 
 #choiceTop {

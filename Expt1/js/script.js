@@ -513,14 +513,35 @@ var practiceChoiceSeq = [];
 function highlightChoice(choice){
     //if highlighted, unhighlighted
     if($('#choice'+choice).css('background-color')=='rgb(255, 255, 0)'){
-        $('#choice'+choice).css('background-color','white');
+        //$('#choice'+choice).css('background-color','white');
+        for(var i=0; i<=expt.marblesSampled; i++){
+            $('#choice'+i).on({
+                mouseenter: function(){
+                    $(this).css('background-color', '#FFFFAD');
+                },
+                mouseleave: function(){
+                    $(this).css('background-color', 'white');
+                }
+            })
+        }
         $('#nextDrawer').prop('disabled', true);
     } else{ //if unhighlighted, highlight
         //unhighlights all
         for(var i=0; i<=expt.marblesSampled; i++){
-            $('#choice'+i).css('background-color','white');
+            if(i != choice){
+                $('#choice'+i).css('background-color','white');
+                $('#choice'+i).on({
+                    mouseenter: function(){
+                        $(this).css('background-color', '#FFFFCC');
+                    },
+                    mouseleave: function(){
+                        $(this).css('background-color', 'white');
+                    }
+                })
+            }
         }
         $('#choice'+choice).css('background-color','rgb(255, 255, 0)');
+        $('#choice'+choice).off('mouseenter mouseleave');
         $('#nextDrawer').prop('disabled', false);
         trial.highlightedDrawn = choice;
     }
