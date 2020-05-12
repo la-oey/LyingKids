@@ -1,83 +1,159 @@
-
 function hasGetUserMedia() {
     return(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
 }
 
-function wait(delayInMS) {
-  return new Promise(resolve => setTimeout(resolve, delayInMS));
+function setupCam() {
+    Webcam.set({
+        width: 320,
+        height: 240,
+        image_format: 'jpeg',
+        jpeg_quality: 90
+    })
+
+    Webcam.attach('#thecamera')
 }
 
-function startRecording(stream, lengthInMS) {
-    let recorder = new MediaRecorder(stream);
-    let vid_data=[];
+function showCam(){
+    $('#thecamera').css({
+        'display':'block',
+        'margin-left':'auto',
+        'margin-right':'auto'
+    })
 
-    recorder.ondataavailable = event => vid_data.push(event.data);
+    $('#clickclick').css({
+        'display':'block',
+        'margin-left':'auto',
+        'margin-right':'auto'
+    })
+}
 
-    recorder.start();
-    //console.log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
+function quickCam() {
+    setupCam();
+    //probably should check for when camera is open, but for now turning on camera for 1 second
+    setTimeout(function(){ 
+        take_snapshot();
+    }, 2000);
+    
+}
 
-    let stopped = new Promise((resolve, reject) => {
-        recorder.onstop = resolve;
-        recorder.onerror = event => reject(event.name);
-    });
+var playerimage = [];
 
-    let recorded = wait(lengthInMS).then(() => {
-        recorder.state == "recording" && recorder.stop();
-    });
+function take_snapshot() {
+    Webcam.snap(function(data_uri){
+        Webcam.reset('#thecamera');
+        playerimage.push(data_uri);        
+        $('#thecamera').html('<img src="'+data_uri+'"/>');
+        if(!expt.debug){
+            writeImgServer(data_uri);
+        }
+    })
+}
+
+function replacePlayerPic() {
+    $('#playericon').attr('src',playerimage[(playerimage.length-1)]);
+    $('#playerprof').css('display','block');
+}
+
+
+
+
+
+// function wait(delayInMS) {
+//   return new Promise(resolve => setTimeout(resolve, delayInMS));
+// }
+
+// function startRecording(stream, lengthInMS) {
+//     let recorder = new MediaRecorder(stream);
+//     let vid_data=[];
+
+//     recorder.ondataavailable = event => vid_data.push(event.data);
+
+//     recorder.start();
+//     //console.log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
+
+//     let stopped = new Promise((resolve, reject) => {
+//         recorder.onstop = resolve;
+//         recorder.onerror = event => reject(event.name);
+//     });
+
+//     let recorded = wait(lengthInMS).then(() => {
+//         recorder.state == "recording" && recorder.stop();
+//     });
   
-    return(Promise.all([
-        stopped,
-        recorded
-    ]).
-    then(() => vid_data));
-}
+//     return(Promise.all([
+//         stopped,
+//         recorded
+//     ]).
+//     then(() => vid_data));
+// }
 
-function turnOnCamera(){
-    if(!hasGetUserMedia()){
-        alert('getUserMedia() is not supported by your browser.')
-    } else{
-        const recordingTimeMS = 10000 //max recording is 20 mins
-        var constraints = {video:true, audio:true};
-        var preview = document.querySelector('.videostream');
-        navigator.mediaDevices.getUserMedia(constraints).
-        then(stream => {
-            preview.srcObject = stream;
-            preview.captureStream = preview.captureStream || preview.mozCaptureStream;
-            return new Promise(resolve => preview.onplaying = resolve);
-        }).
-        then(() => startRecording(preview.captureStream(), recordingTimeMS)).
-        then(recordedChunks => {
-            var recordedBlob = new Blob(recordedChunks, {type: "video/webm"});
-            vidData = URL.createObjectURL(recordedBlob);
+// function turnOnVideoCamera(){
+//     if(!hasGetUserMedia()){
+//         alert('getUserMedia() is not supported by your browser.')
+//     } else{
+//         $('#opponenticon').css('display','block');
+//         $('.videostream').css('display','block');
+//         const recordingTimeMS = 10000; //max recording is 20 mins
+//         var constraints = {video:true, audio:true};
+//         var preview = document.querySelector('.videostream');
+//         navigator.mediaDevices.getUserMedia(constraints)
+//         .then(stream => {
+//             preview.srcObject = stream;
+//             preview.captureStream = preview.captureStream || preview.mozCaptureStream;
+//             return new Promise(resolve => preview.onplaying = resolve);
+//         })
+//         .then(() => startRecording(preview.captureStream(), recordingTimeMS))
+//         .then(recordedChunks => {
+//             var recordedBlob = new Blob(recordedChunks, {type: "video/webm"});
+//             vidData = URL.createObjectURL(recordedBlob);
             
-            //saves video file as form data
-            if(!expt.debug){
-                var formdata = new FormData();
-                formdata.append('name', client.sid);
-                formdata.append('file', recordedBlob);
-                writeVidServer(formdata);
-            }
-        });
-    }
-}
+//             //saves video file as form data
+//             if(!expt.debug){
+//                 var formdata = new FormData();
+//                 formdata.append('name', client.sid);
+//                 formdata.append('file', recordedBlob);
+//                 writeVidServer(formdata);
+//             }
+//         });
+//     }
+// }
 
-function turnOffCamera(stream){
-    var preview = document.querySelector('.videostream');
-    preview.srcObject.getTracks().forEach(track => track.stop());
-}
+// function turnOffVideoCamera(stream){
+//     var preview = document.querySelector('.videostream');
+//     preview.srcObject.getTracks().forEach(track => track.stop());
+// }
 
-function playVideo(vid, to){
+function preloadVideo(vid, to){
     $("#"+to).attr("src","video/"+vid+".mov");
+    document.getElementById(to).pause();
+}
+
+function loadVideo(vid, to){
+    $("#"+to).attr("src","video/"+vid+".mov");
+    $('#'+to).css('filter','brightness(1)');
+}
+
+function playVideo(to){ //plays or resumes video
+    document.getElementById(to).play();
+    $('#'+to).css('filter','brightness(1)');
+}
+
+function pauseVideo(to, time=0){
+    setTimeout(function(){
+        document.getElementById(to).pause();
+        $('#'+to).css('filter','brightness(0)');
+    }, time)
 }
 
 function showPlayer(color){
-    $('.videostream').css('border','3px solid ' + color);
+    // $('.videostream').css('border','3px solid ' + color);
+    $('#playerprof').css('border','3px solid ' + color);
 }
 
 function showOpponent(gender, color){
-    $('.playerprof').css('border','3px solid ' + color);
-    $('.playericon').css('display','block');
-    $('.playericon').attr('src','img/'+gender+'_'+color+'.jpg');
+    $('#opponentprof').css('border','3px solid ' + color);
+    $('#opponenticon').css('display','block');
+    $('#opponenticon').attr('src','img/'+gender+'_'+color+'.jpg');
 }
 
 
@@ -85,6 +161,10 @@ function showOpponent(gender, color){
 
 
 
+
+function attentionCheck(choiceA, choiceB){
+
+}
 
 function marble(container, color, size, locX, locY){
     d3.select(container).append("circle").attr("cx",locX).attr("cy",locY).attr("r",size).attr("stroke-width",2).attr("stroke","black").style("fill",color);
@@ -160,10 +240,10 @@ function draw(){
     }, shakeDelay);
 
     
-    // var audio = new Audio('audio/shake.wav');
-    // setTimeout(function(){
-    //     audio.play();
-    // }, 200);
+    
+    setTimeout(function(){
+        shakeAudio.play();
+    }, 300);
 
     countDraws = 0
     function oneMarble(){
@@ -184,6 +264,9 @@ function draw(){
             marble('#marble'+turn.numDrawn+trial.exptPart+'svg', color, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((turn.numDrawn+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
             $('#marble'+turn.numDrawn+trial.exptPart).animate({'top':'0%'}, 500);
             turn.numDrawn += 1;
+            setTimeout(function(){
+                dropAudio.play();
+            }, 200);
         }
     }
 
@@ -253,46 +336,95 @@ function orderTube(type, player, number, marbleSize){
 }
 
 var practiceChoiceSeq = [];
+var gotAll = false;
+var gotNone = false;
+var gotTrue = false;
+var gotTrick = false;
+
+function practiceHighlightChoice(choice){
+    // the gnarliest nested if statement of all time
+    practiceChoiceSeq.push(choice);
+        if(!gotAll){
+            if(choice == "6"){
+                yaAudio.play();
+                gotAll = true;
+            } else{
+                noAudio.play();
+            }
+        } else{
+            if(!gotNone){
+                if(choice == "0"){
+                    yaAudio.play();
+                    gotNone = true;
+                } else{
+                    noAudio.play();
+                }
+            } else{
+                if(!gotTrue){
+                    if(choice == "3"){
+                        yaAudio.play();
+                        gotTrue = true;
+                        loadVideo("decide","practiceVid");
+                    } else{
+                        noAudio.play();
+                    }
+                } else{
+                    if(choice == "3"){
+                        noAudio.play();
+                    } else{
+                        yaAudio.play();
+                        gotTrick = true;
+                    }
+                }
+            }
+        }
+
+        if(gotAll & gotNone & gotTrue & gotTrick){
+            $('#nextDrawer').prop('disabled', false);
+        } else{
+            $('#nextDrawer').prop('disabled', true);
+        }
+}
+
 
 function highlightChoice(choice){
     //if highlighted, unhighlighted
     if($('#choice'+choice).css('background-color')=='rgb(255, 255, 0)'){
-        $('#choice'+choice).css('background-color','white');
+        //$('#choice'+choice).css('background-color','white');
+        for(var i=0; i<=expt.marblesSampled; i++){
+            $('#choice'+i).on({
+                mouseenter: function(){
+                    $(this).css('background-color', '#FFFFAD');
+                },
+                mouseleave: function(){
+                    $(this).css('background-color', 'white');
+                }
+            })
+        }
         $('#nextDrawer').prop('disabled', true);
     } else{ //if unhighlighted, highlight
         //unhighlights all
         for(var i=0; i<=expt.marblesSampled; i++){
-            $('#choice'+i).css('background-color','white');
+            if(i != choice){
+                $('#choice'+i).css('background-color','white');
+                $('#choice'+i).on({
+                    mouseenter: function(){
+                        $(this).css('background-color', '#FFFFCC');
+                    },
+                    mouseleave: function(){
+                        $(this).css('background-color', 'white');
+                    }
+                })
+            }
         }
         $('#choice'+choice).css('background-color','rgb(255, 255, 0)');
+        $('#choice'+choice).off('mouseenter mouseleave');
         $('#nextDrawer').prop('disabled', false);
         trial.highlightedDrawn = choice;
     }
 
     if(trial.exptPart == "practice"){
-        practiceChoiceSeq.push(choice);
-        var checkAll = -1;
-        var checkNone = -1;
-        var checkTrue = -1;
-        var checkTrick = -1;
-        for(var i=0; i<practiceChoiceSeq.length; i++){
-            if(practiceChoiceSeq[i] == "6"){
-                checkAll = i;
-            } else if(practiceChoiceSeq[i] == "0" & i > checkAll){
-                checkNone = i;
-            } else if(practiceChoiceSeq[i] == "3" & i > checkNone){
-                checkTrue = i;
-            } 
-
-            if((practiceChoiceSeq[i] == "4" || practiceChoiceSeq[i] == "5" || practiceChoiceSeq[i] == "6") & i > checkTrue & checkTrue > -1){
-                checkTrick = i;
-            }
-        }
-        if(checkAll != -1 & checkNone != -1 & checkTrue != -1 & checkTrick != -1){
-            $('#nextDrawer').prop('disabled', false);
-        } else{
-            $('#nextDrawer').prop('disabled', true);
-        }
+        practiceHighlightChoice(choice)
     }
 }
 
@@ -303,11 +435,6 @@ function showChoices(){
     $('#choices').append("<div id=choiceMid></div>")
     for(var i=0; i<=expt.marblesSampled; i++){
         $('#choiceMid').append("<div class='choiceClass choiceClassMid' id='choice"+i+"' onclick='highlightChoice("+i+");'><img id='choice"+i+"' class='choiceImg' src='img/"+trial.liarPlayer+i+".png' height='200'/></div>");
-        // $('#choiceMid').append("<svg class='choiceClass choiceClassMid' id='choice"+i+"' onclick='highlightChoice("+i+");'></svg>")
-        // orderTube("choice", trial.liarPlayer, i, expt.marbleSize);
-        // $('#labelChoices').append("<div>"+i+"</div>");
-
-        //$('#choice'+i).append("<text class='choiceTxt' x='20' y='20' font-family='sans-serif' font-size='20px'>"+i+"</text>");
     }
     $('#nextDrawer').css('opacity',1);
     
@@ -597,9 +724,11 @@ function toWinnerCircle(){
 
     // expt done
     data = {client: client, expt: expt, trials: trialData};
-    writeServer(data);
+    //writeServer(data);
+    SaveData(data);
 
     document.getElementById('completed').style.display = 'block';
+    winnerAudio.play();
 }
 
 

@@ -1,9 +1,15 @@
-// https://ucsd.sona-systems.com/webstudy_credit.aspx?experiment_id=1465&credit_token=c6393dd431374ab48035c7fafafced2e&survey_code=XXXX
+var saveInfo = {
+    dataURL: 'https://madlab.ucsd.edu/mturk/save.json.php',
+    //videoURL: 'submit.video.php',
+    imgURL: 'https://madlab.ucsd.edu/mturk/save.image.php',
+    experimenter: 'loey',
+    experimentName: 'trick-or-truth-2'
+}
+
+
 // experiment settings
 var expt = {
-    saveURL: 'submit.simple.php',
-    saveVideoURL: 'submit.video.php',
-    trials: 20, //switched from 100
+    trials: 2, //switched from 100
     marblesSampled: 6, //total number of marbles drawn per trial
     numPerDrawn: 2,
     marbleSize: 15,
@@ -71,35 +77,72 @@ var turn = {
 }
 var client = parseClient();
 var trialData = []; // store of all trials
-var instruct = [
-    {id:"instructImg0", src:"img/marblebox.png"},
-    {id:"instructImg1", src:"img/marblebox.png"},
-    {id:"instructImg2", src:"img/redblueteam.png"},
-    {id:"instructImg3", src:"img/trick.png"},
-    {id:"instructImg4", src:"img/redblueaccept.png"},
-    {id:"instructImg5", src:"img/redblueaccept.png"},
-    {id:"instructImg6", src:"img/redbluecatch.png"},
-    {id:"instructImg7", src:"img/redbluecatch.png"},
-    {id:"instructImg8", src:"img/redblueaccus.png"},
-    {id:"instructImg9", src:"img/redblueaccus.png"}
-]
+// var instruct = [
+//     {id:"instructImg0", src:"img/marblebox.png"},
+//     {id:"instructImg1", src:"img/marblebox.png"},
+//     {id:"instructImg2", src:"img/redblueteam.png"},
+//     {id:"instructImg3", src:"img/trick.png"},
+//     {id:"instructImg4", src:"img/redblueaccept.png"},
+//     {id:"instructImg5", src:"img/redblueaccept.png"},
+//     {id:"instructImg6", src:"img/redbluecatch.png"},
+//     {id:"instructImg7", src:"img/redbluecatch.png"},
+//     {id:"instructImg8", src:"img/redblueaccus.png"},
+//     {id:"instructImg9", src:"img/redblueaccus.png"}
+// ]
+var yaAudio, noAudio, dropAudio, shakeAudio, winnerAudio;
+var data = [];
 
 
 
 function pageLoad() {
-    document.getElementById('start').style.display = 'block';
-    if(!expt.debug){
-    	turnOnCamera();
-    }
+    $('#start').css('display','block');
+    console.log("debug: " + expt.debug);
+    
+    // if(!expt.debug){
+    //     turnOnVideoCamera();
+    // }
+
+    //preload video and audio files
+    preloadVideo("color","colorVid");
+    preloadVideo("screen","screenVid");
+    preloadVideo("shake","practiceVid");
+    yaAudio = new Audio("audio/correct.mp3");
+    noAudio = new Audio("audio/incorrect.mp3");
+    dropAudio = new Audio("audio/drop.mp3");
+    shakeAudio = new Audio('audio/shake.wav');
+    winnerAudio = new Audio('audio/winner.wav');
+
 }
 
 function clickStart() {
+    $('#start').css('display','none');
+    $('#photobooth').css('display','block');
+
+    trial.startTime = Date.now();
+    showCam();
+    setupCam();
+    $('#continuePicture').prop('disabled',true);
+    $('#clickclick').click(function(){
+        $('#clickclick').prop('disabled',true);
+        $('#continuePicture').prop('disabled',false);
+    })
+}
+
+function clickPicture() {
     expt.trialProbs = sample(expt.allTrialProbs);
     //expt.humanColor = sample(expt.humanColor); //assigns human to play as red or blue
     
-    document.getElementById('start').style.display = 'none';
-    document.getElementById('pickColor').style.display = 'block';
-    playVideo("color","colorVid");
+    $('#photobooth').css('display','none');
+    $('#pickColor').css('display','block');
+    $('#thecamera').css('display','none');
+    $('#clickclick').css('display','none');
+    replacePlayerPic();
+
+    playVideo("colorVid");
+    //loadVideo("color","colorVid")
+    // document.getElementById("colorVid").onended = function(){
+    //     console.log("Video time: " + (Date.now() - trial.startTime));
+    // }
     $('#continueColor').prop('disabled',true);
 }
 
@@ -117,27 +160,28 @@ function pickCol(color){
     }
     $('#continueColor').prop('disabled',false);
 
-    playVideo("opponent","colorVid");
+    loadVideo("opponent_"+expt.humanColor,"colorVid");
     setTimeout(function(){
     	showPlayer(expt.humanColor);
     }, 2000);
     setTimeout(function(){
     	showOpponent("female",expt.compColor);
-    }, 4000);
+    }, 8000);
     
 }
 
 function clickColor() {
-    document.getElementById("colorVid").pause();
-    document.getElementById('pickColor').style.display = 'none';
-    document.getElementById('instructions').style.display = 'block';
-    playVideo("screen","howtoVid");
+    pauseVideo("colorVid");
+    $('#pickColor').css('display','none');
+    $('#instructions').css('display','block');
+    playVideo("screenVid");
 }
 
 
 function clickInstruct() {
-	document.getElementById("howtoVid").pause();
-    document.getElementById('instructions').style.display = 'none';
+	//document.getElementById("howtoVid").pause();
+    pauseVideo("screenVid");
+    $('#instructions').css('display','none');
     $('.tube').show();
     $('.tubesvg').empty();
     $('.marblesvg').empty();
@@ -152,11 +196,14 @@ function clickInstruct() {
     $('.trialNum').html("Practice: <i>Marble-Picker</i>");
     $('.redScore').css('height', 0);
     $('.blueScore').css('height', 0);
+    quickCam();
+    $('#practiceVid').css('display','block');
+    playVideo("practiceVid");
 }
 
 function clickPostPractice(){
-    document.getElementById('postPractice').style.display = 'none';
-    document.getElementById('keep').style.display = 'block';
+    $('#postPractice').css('display','none');
+    $('#keep').css('display','block');
     $('.practiceVid').hide()
 
     //expt.catchTrials = distributeChecks(expt.trials, 0.10); // 0.1 of expt trials have an attention check
@@ -198,13 +245,14 @@ function clickPostPractice(){
     $('#keepDiv').css('opacity',1);
     $('#liarplayer').html(trial.liarPlayer);
     $('#liarplayer').css('color', trial.liarPlayer);
+    quickCam();
 }
 
 
 
 
 function liar() {
-    document.getElementById('trialDrawer').style.display = 'block';
+    $('#trialDrawer').css('display','block');
     $('#nextDrawer').prop('disabled', true);
     $('#nextDrawer').css('opacity',0);
     $('#draw-button').attr('onclick','draw();');
@@ -225,7 +273,7 @@ function liar() {
 }
 
 function detector() {
-    document.getElementById('trialResponder').style.display = 'block';
+    $('#trialResponder').css('display','block');
     
     $('#nextResponder').prop('disabled', true);
     trial.roleCurrent = "detector";
@@ -244,9 +292,9 @@ function detector() {
             orderTube("detectRep", trial.liarPlayer, trial.reportedDrawn, expt.marbleSize);
             $('.callout-button').css('opacity','0.8');
             $('.callout-button').prop('disabled', false);
-            if(trial.exptPart == "practice"){
-                $('#accept-button').prop('disabled', true);
-            }
+            // if(trial.exptPart == "practice"){ //previously blocked from clicking accept
+            //     $('#accept-button').prop('disabled', true);
+            // }
             trial.responseStartTime = Date.now();
         }, trial.waitTime);
     }
@@ -255,9 +303,10 @@ function detector() {
 
 
 function trialDone() {
-    document.getElementById('keep').style.display = 'block';
+    $('#keep').css('display','block');
     $('#keepDiv').css('opacity',0);
     $('#nextKeep').prop('disabled',true);
+    quickCam();
 
     trial.trialTime = Date.now() - trial.startTime;
     trial.trialNumber += 1;
@@ -313,9 +362,10 @@ function trialDone() {
 
     // start incrementally writing data after each trial, starting at the test trials
     if(trial.exptPart == "trial"){
-    	data = {client: client, expt: expt, trials: trialData};
-    	writeServer(data);
+        data = {client: client, expt: expt, trials: trialData};
+        writeServer(data);
     }
+    
 
     if(trial.exptPart == "practice"){
         if(trial.roleCurrent == "liar"){
@@ -363,4 +413,46 @@ function trialDone() {
     }
 
 }
+
+
+  
+
+
+
+function writeServer(data){
+    if(!expt.debug){
+        $.ajax({
+          dataType: 'json',
+          type: 'POST',
+          url: saveInfo.dataURL,
+          data: { data: JSON.stringify(data), 
+            experimenter: saveInfo.experimenter,
+            experimentName: saveInfo.experimentName},
+            success: function(data){
+              debugLog('success saving data!');
+          },
+          error:function(xhr, status, error){
+              debugLog('failure saving data');
+              debugLog(xhr.responseText);
+              debugLog(status);
+              debugLog(error);
+          }
+      });
+    }
+}
+
+function writeImgServer(data){
+    if(!expt.debug){
+        $.ajax({
+            type: "POST",
+            url: saveInfo.imgURL,
+            data: { img: data, 
+                name: client.sid,
+                experimenter: saveInfo.experimenter,
+                experimentName: saveInfo.experimentName},
+            }).done(function(o) {
+               console.log('saved'); 
+           })
+        }
+    }
 
