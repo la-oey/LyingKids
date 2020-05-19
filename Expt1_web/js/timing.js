@@ -76,6 +76,11 @@ var events = [
 	},
 	{
 		video: 'decide.mov',
+		event: 'lie_button',
+		time: '???'
+	},
+	{
+		video: 'decide.mov',
 		event: 'lie_pause',
 		time: '39154'
 	},

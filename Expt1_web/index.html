@@ -19,24 +19,41 @@ TODO:
     <script type="text/javascript" src='js/client.js'></script>
     <script type="text/javascript" src='js/dataio.js'></script>
     <script type="text/javascript" src='js/velocity.min.js'></script>
+    <script type="text/javascript" src='js/webcamjs-master/webcam.js'></script>
     <script type="text/javascript" src='js/script.js'></script>
     <script type="text/javascript" src='js/utils.js'></script>
+    <script type="text/javascript" src='js/timing.js'></script>
 </head>
 
 
 <body onload="pageLoad();">
 <div id="fullscreen">
-    <video class="videostream" autoplay muted></video>
-    <div class="playerprof"><img class="playericon" src=""></div>
+    <div id="thecamera"></div>
+    <button id="clickclick" onclick="take_snapshot();">
+        <img id="cameraicon" src="img/camera.png">
+    </button>
+    <!-- <video class="videostream" autoplay muted></video>  -->
+    <div id="playerprof"><img id="playericon" src=""></div>
+    <div id="opponentprof"><img id="opponenticon" src=""></div>
+    <video class="sideInstructVid" id="practiceVid" type="video/mov" autoplay></video>
+
     <div id="start" class="screen">
         <p class="mtitle">
             Let's play!
         </p>
         <center><button class="big-button active-button" id="letsgo" onclick="clickStart();">Yeah!</button></center>
     </div>
+    <div id="photobooth" class="screen">
+        <p class="mtitle">
+            Take a picture!
+        </p>
+        <center><button class="big-button active-button" id="continuePicture" onclick="clickPicture();">Done!</button></center>
+    </div>
     <div id="pickColor" class="screen">
         <center>
-            <video class="instructVid" id="colorVid" src="" type="video/mov" autoplay/>
+            <div class="coverVid topCoverMidVid"></div>
+            <video class="instructVid" id="colorVid" type="video/mov" autoplay></video>
+            <div class="coverVid bottomCoverMidVid"></div>
         </center>
         <p class="mtitle">
             Which color do you want to play as?
@@ -55,7 +72,7 @@ TODO:
             Instructions
         </p><br><br>
         <center>
-            <video class="fullInstructVid" id="howtoVid" src="" type="video/mov" autoplay/>
+            <video class="fullInstructVid" id="screenVid" type="video/mov" autoplay/>
         </center>
         <button class="big-button active-button next" id="continueInstruct" onclick="clickInstruct();">Done!</button>
     </div>
@@ -64,6 +81,9 @@ TODO:
         <p class="mtitle">
             Nice job! You're ready to play!
         </p>
+        <center>
+            <video class="instructVid" id="summaryVid" type="video/mov" autoplay/>
+        </center>
         <button class="big-button active-button next" id="continuePost" onclick="clickPostPractice();">Done!</button>
     </div>
 
@@ -84,7 +104,6 @@ TODO:
             <div class="playerScore blueScore" id="blueUpdateScore"></div>
         </div>
         <button class="big-button active-button next" id="nextKeep" type="button" onclick="keepTurn();">Done!</button>
-        <video class="practiceVid" id="keepVid" src="" type="video/mov" autoplay/>
     </div>
 
     <div id="trialDrawer" class="screen">
@@ -92,12 +111,11 @@ TODO:
         <center>
         <div id="wrapper">
             <img class="cover" src="img/tablecloth.png">
+            <br>
             <div class="urn">
                 <img id='suburn' src="img/marblebox.png"/>
-                <!-- <div class="suburn">
-                    <svg class="urnsvg"></svg>
-                    <svg class="urnbottom"></svg>
-                </div> -->
+                <div class="suburn">
+                </div>
             </div>
             <button class="active-button" id="draw-button" type="button" onclick="draw();">Go!</button>
             <div class="tube" id="tube1">
@@ -116,7 +134,6 @@ TODO:
             <div class="playerScore blueScore"></div>
         </div>
         <button class="big-button active-button next" id="nextDrawer" type="button" onclick="report();">Done!</button>
-        <video class="practiceVid" id="drawerVid" src="" type="video/mov" autoplay/>
     </div>
 
     <!-- <div id="switch" class="screen">
@@ -139,7 +156,7 @@ TODO:
 
     <div id="trialResponder" class="screen">
         <p class="mtitle trialNum">Round</p>
-        <div class="tube">
+        <div class="tube" id="tube2">
             <svg class="tubesvg" id="tubesvg2"></svg>
         </div>
         <center><br><br>
@@ -157,7 +174,6 @@ TODO:
             <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
             <div class="playerScore blueScore"></div>
         </div>
-        <video class="practiceVid" id="responderVid" src="" type="video/mov" autoplay/>
     <!--     <button class="big-button active-button next" id="nextResponder" type="button" onclick="keepTurn();">Next!</button> -->
     </div>
 

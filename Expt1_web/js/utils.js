@@ -1,3 +1,8 @@
+function getEventTime(video, event){
+    var item = events.find(obj => { return obj.video === (video + ".mov") && obj.event === event});
+    return(item.time);
+}
+
 function hasGetUserMedia() {
     return(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
 }
@@ -145,6 +150,11 @@ function pauseVideo(to, time=0){
     }, time)
 }
 
+function resumeVideo(to){ //plays or resumes video
+    document.getElementById(to).play();
+    $('#'+to).css('filter','brightness(1)');
+}
+
 function showPlayer(color){
     // $('.videostream').css('border','3px solid ' + color);
     $('#playerprof').css('border','3px solid ' + color);
@@ -156,6 +166,30 @@ function showOpponent(gender, color){
     $('#opponenticon').attr('src','img/'+gender+'_'+color+'.jpg');
 }
 
+function blink(elem, color, thic, freq, timeStart, interval=false){
+    function ablink(){
+        setTimeout(function(){
+            for(var i=0; i<freq; i++){
+                setTimeout(function(){
+                    $('#'+elem).css('box-shadow', "0px 0px 30px " + thic.toString() + "px " + color);
+                }, 500+(1000*i));
+                setTimeout(function(){
+                    $('#'+elem).css('box-shadow', '');
+                }, 1000+(1000*i));
+            }
+            
+        }, timeStart);
+    }
+    ablink();
+    if(interval){
+        var timer = setInterval(function(){
+            ablink();
+        }, 10000);
+        $('#'+elem).click(function(){
+            clearInterval(timer);
+        })
+    }
+}
 
 
 
@@ -240,7 +274,6 @@ function draw(){
     }, shakeDelay);
 
     
-    
     setTimeout(function(){
         shakeAudio.play();
     }, 300);
@@ -264,9 +297,16 @@ function draw(){
             marble('#marble'+turn.numDrawn+trial.exptPart+'svg', color, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((turn.numDrawn+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
             $('#marble'+turn.numDrawn+trial.exptPart).animate({'top':'0%'}, 500);
             turn.numDrawn += 1;
-            setTimeout(function(){
-                dropAudio.play();
-            }, 200);
+            if(turn.numDrawn % 2 == 0){
+                setTimeout(function(){
+                    dropAudio.play();
+                }, 200);
+            } else{
+                setTimeout(function(){
+                    dropAudio2.play();
+                }, 200);
+            }
+            
         }
     }
 
@@ -344,46 +384,88 @@ var gotTrick = false;
 function practiceHighlightChoice(choice){
     // the gnarliest nested if statement of all time
     practiceChoiceSeq.push(choice);
-        if(!gotAll){
-            if(choice == "6"){
+    yaAudio.pause();
+    yaAudio.currentTime = 0;
+    noAudio.pause();
+    noAudio.currentTime = 0;
+    if(!gotAll){
+        if(choice == "6"){
+            yaAudio.play();
+            gotAll = true;
+
+            playVideo("practiceVid");
+            $('.choiceClass').attr('onclick', '');
+            var noTime = getEventTime('shake','no_red') - getEventTime('shake','most_red');
+            setTimeout(function(){
+                pauseVideo("practiceVid");
+                resetHighlight();
+            }, noTime);
+
+        } else{
+            noAudio.play();
+        }
+    } else{
+        if(!gotNone){
+            if(choice == "0"){
                 yaAudio.play();
-                gotAll = true;
+                gotNone = true;
+
+                playVideo("practiceVid");
+                $('.choiceClass').attr('onclick', '');
+                var trueTime = getEventTime('shake','true_red') - getEventTime('shake','no_red');
+                setTimeout(function(){
+                    pauseVideo("practiceVid");
+                    resetHighlight();
+                }, trueTime);
             } else{
                 noAudio.play();
             }
         } else{
-            if(!gotNone){
-                if(choice == "0"){
+            if(!gotTrue){
+                if(choice == "3"){
                     yaAudio.play();
-                    gotNone = true;
+                    gotTrue = true;
+
+                    $('.choiceClass').attr('onclick', '');
+                    loadVideo("decide","practiceVid");
+                    
+                    setTimeout(function(){
+                        blink("choice6img", colors.funcblink, 30, 2, 0);
+                        setTimeout(function(){
+                            highlightChoice(6);
+                        }, 2000);
+                        
+                    }, getEventTime('decide','lie_red'));
                 } else{
                     noAudio.play();
                 }
             } else{
-                if(!gotTrue){
-                    if(choice == "3"){
-                        yaAudio.play();
-                        gotTrue = true;
-                        loadVideo("decide","practiceVid");
-                    } else{
-                        noAudio.play();
-                    }
-                } else{
-                    if(choice == "3"){
-                        noAudio.play();
-                    } else{
-                        yaAudio.play();
-                        gotTrick = true;
-                    }
-                }
+                
+                //force player to pick 6
+                var reportTime = getEventTime('decide','lie_pause') - getEventTime('decide','lie_red');
+                setTimeout(function(){
+                    gotTrick = true;
+                    blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
+                    $('#nextDrawer').prop('disabled',false);
+                    pauseVideo("practiceVid");
+                }, reportTime);
+                
+
+                // if(choice == "3"){
+                //     noAudio.play();
+                // } else{
+                //     yaAudio.play();
+                //     gotTrick = true;
+                // }
             }
         }
+    }
 
-        if(gotAll & gotNone & gotTrue & gotTrick){
-            $('#nextDrawer').prop('disabled', false);
-        } else{
-            $('#nextDrawer').prop('disabled', true);
-        }
+    if(gotAll & gotNone & gotTrue & gotTrick){
+        $('#nextDrawer').prop('disabled', false);
+    } else{
+        $('#nextDrawer').prop('disabled', true);
+    }
 }
 
 
@@ -434,11 +516,21 @@ function showChoices(){
 
     $('#choices').append("<div id=choiceMid></div>")
     for(var i=0; i<=expt.marblesSampled; i++){
-        $('#choiceMid').append("<div class='choiceClass choiceClassMid' id='choice"+i+"' onclick='highlightChoice("+i+");'><img id='choice"+i+"' class='choiceImg' src='img/"+trial.liarPlayer+i+".png' height='200'/></div>");
+        $('#choiceMid').append("<div class='choiceClass choiceClassMid' id='choice"+i+"'><img id='choice"+i+"img' class='choiceImg' src='img/"+trial.liarPlayer+i+".png' height='200'/></div>");
     }
     $('#nextDrawer').css('opacity',1);
     
     trial.responseStartTime = Date.now();
+
+    if(trial.exptPart == "trial"){
+        resetHighlight();
+    }
+}
+
+function resetHighlight(){
+    for(var i=0; i<=expt.marblesSampled; i++){
+        $('#choice'+i).attr('onclick','highlightChoice('+i+');');
+    }
 }
 
 function report(){
@@ -488,8 +580,12 @@ function report(){
         
         trial.waitTime = 1000 + 1500*exponential(0.75);
         if(trial.exptPart == "practice"){
-            trial.waitTime = 10000;
+            trial.waitTime = 6000;
+            setTimeout(function(){
+                playVideo("practiceVid");
+            }, 5000) //EDIT
         }
+
         setTimeout(function(){
             clearInterval(trial.timer);
             $('.subjResponse').html("<p><br>They decided!<br><br></p>")
@@ -555,9 +651,11 @@ function addPoints(player, points, prevPoints){
             $('.'+player+'Score').css('height', (points+prevPoints)/maxPoints*$('.updateBucket').height());
         }, 1250);
 
-        setTimeout(function(){
-            $('#nextKeep').prop('disabled',false);
-        }, 3000);
+        if(trial.exptPart == "trial"){
+            setTimeout(function(){
+                $('#nextKeep').prop('disabled',false);
+            }, 3000);
+        }
     } else{ //instruct
         $('#'+player+"InstrPt").css({'top': '-15%'}, 1000);
         $('#'+player+"InstrPt").animate({'opacity': 1}, 250);
@@ -592,7 +690,15 @@ function keepTurn(){
                 restartTrial();
                 detector();
             } else{
-                document.getElementById('postPractice').style.display = 'block';
+                $('.sideInstructVid').hide();
+                $('#postPractice').css('display','block');
+                $('#continuePost').prop('disabled',true);
+                playVideo('summaryVid');
+                document.getElementById('summaryVid').onended = function(){
+                    $('#summaryVid').css('filter','brightness(0)');
+                    blink("continuePost",  20, 2, 0, true);
+                    $('#continuePost').prop('disabled',false);
+                }
             }
         }
     }
@@ -661,10 +767,33 @@ function computerReport(){
     }
 
     if(trial.exptPart == "practice"){
+        //INSTRUCT ANIMATIONS
         $("#tubesvg1").css('opacity',1);
         trial.reportedDrawn = 6;
         trial.drawnRed = 3; //reported is a lie
         trial.drawnBlue = 3;
+        $('.callout-button').prop('disabled',true);
+        
+        playVideo("practiceVid");
+        var oppReport = getEventTime('decide', 'opponent_lie') - getEventTime('decide', 'points_pause');
+        blink("tube2", colors.funcblink, 20, 2, oppReport);
+        var greenTime = getEventTime('decide', 'green_button') - getEventTime('decide', 'points_pause');
+        blink("accept-button", colors.truthblink, 20, 2, greenTime);
+        var orangeTime = getEventTime('decide', 'orange_button') - getEventTime('decide', 'points_pause');
+        blink("reject-button", colors.trickblink, 20, 2, orangeTime);
+        document.getElementById("practiceVid").onended = function(){
+            $('#practiceVid').css('filter','brightness(0)');
+            $('.callout-button').prop('disabled',false);
+            setTimeout(function(){
+                console.log('disabled? ' + $('.callout-button').prop('disabled'));
+                if(!$('.callout-button').prop('disabled')){
+                    loadVideo('prompt_again', 'practiceVid'); //EDIT - add time info for blink
+                    blink("reject-button", colors.trickblink, 20, 2, 4000);
+                    blink("accept-button", colors.truthblink, 20, 2, 7000);
+                }
+            }, 10000)
+        };
+
     } else if(expt.pseudo[trial.trialNumber] != -1){
         trial.reportedDrawn = expt.pseudo[trial.trialNumber];
         trial.pseudo = true;
