@@ -86,13 +86,13 @@ var instruct = [
     {id:"instructImg0", src:"img/marblebox.png"},
     {id:"instructImg1", src:"img/marblebox.png"},
     {id:"instructImg2", src:"img/redblueteam.png"},
-    {id:"instructImg3", src:"img/trick.png"},
+    {id:"instructImg3", src:"img/trickred.png"},
     {id:"instructImg4", src:"img/redblueaccept.png"},
     {id:"instructImg5", src:"img/redblueaccept.png"},
     {id:"instructImg6", src:"img/redbluecatch.png"},
     {id:"instructImg7", src:"img/redbluecatch.png"},
-    {id:"instructImg8", src:"img/redblueaccus.png"},
-    {id:"instructImg9", src:"img/redblueaccus.png"}
+    {id:"instructImg8", src:"img/redblueaccuse.png"},
+    {id:"instructImg9", src:"img/redblueaccuse.png"}
 ]
 
 
@@ -132,12 +132,13 @@ function clickColor() {
     $('.tube').hide();
     if(expt.humanColor == "blue"){
         instruct[2]['src'] = "img/blueredteam.png";
+        instruct[3]['src'] = "img/trickblue.png";
         instruct[4]['src'] = "img/blueredaccept.png";
         instruct[5]['src'] = "img/blueredaccept.png";
         instruct[6]['src'] = "img/blueredcatch.png";
         instruct[7]['src'] = "img/blueredcatch.png";
-        instruct[8]['src'] = "img/blueredaccus.png";
-        instruct[9]['src'] = "img/blueredaccus.png";
+        instruct[8]['src'] = "img/blueredaccuse.png";
+        instruct[9]['src'] = "img/blueredaccuse.png";
         $('.leftBucket').html('<img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%"><div class="playerScore blueScore"></div>');
         $('.rightBucket').html('<img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%"><div class="playerScore redScore"></div>');
         $('#leftUpdateBucket').html('<img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%"><div class="playerScore blueScore" id="blueUpdateScore"></div>');
