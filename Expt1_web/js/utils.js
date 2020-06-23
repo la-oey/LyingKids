@@ -1,7 +1,34 @@
 function getEventTime(video, event){
-    var item = events.find(obj => { return obj.video === (video + ".mov") && obj.event === event});
+    var diffColors =  ["opponent", "screenRecord", "shake_all", "decide_opponentlie"];
+    if(diffColors.includes(video)){
+        video = video + "_" + expt.humanColor;
+    }
+    var item = events.find(obj => { return obj.video === (video + ".mp4") && obj.event === event});
     return(item.time);
 }
+
+var Timer = function(callback, delay) {
+    var timerId, start, remaining = delay;
+
+    this.reset = function() { //if user restarts video to 0, resets timer
+        remaining = delay;
+    }
+
+    this.pause = function() { //if user pauses video, pauses timer
+        window.clearTimeout(timerId);
+        remaining -= Date.now() - start;
+    };
+
+    this.resume = function() { //if user resumes video, resumes timer
+        start = Date.now();
+        if(remaining >= 0){
+            window.clearTimeout(timerId);
+            timerId = window.setTimeout(callback, remaining);
+        }
+    };
+
+    this.resume();
+};
 
 function hasGetUserMedia() {
     return(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
@@ -38,7 +65,6 @@ function quickCam() {
     setTimeout(function(){ 
         take_snapshot();
     }, 2000);
-    
 }
 
 var playerimage = [];
@@ -61,93 +87,44 @@ function replacePlayerPic() {
 
 
 
+function loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc){
+    $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' type='video/mp4' controls autoplay></video>");
+    $("#"+to).attr("src","video/"+vid+".mp4");
+    $("#"+to+"replay").attr('onclick',"clickReplay(\""+vid+"\",\""+to+"\",\""+classtype+"\","+callPlayFunc+","+callEndFunc+","+callResetFunc+");");
+    $('.replayButton').css('display','none');
+    if(callPlayFunc != null){
+        callPlayFunc();
+    }
+    document.getElementById(to).onended = function(){
+        loadWaiting(vid, to, classtype);
+        if(callEndFunc != null){
+            callEndFunc();
+        }
+    }
+}
 
-
-// function wait(delayInMS) {
-//   return new Promise(resolve => setTimeout(resolve, delayInMS));
-// }
-
-// function startRecording(stream, lengthInMS) {
-//     let recorder = new MediaRecorder(stream);
-//     let vid_data=[];
-
-//     recorder.ondataavailable = event => vid_data.push(event.data);
-
-//     recorder.start();
-//     //console.log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
-
-//     let stopped = new Promise((resolve, reject) => {
-//         recorder.onstop = resolve;
-//         recorder.onerror = event => reject(event.name);
-//     });
-
-//     let recorded = wait(lengthInMS).then(() => {
-//         recorder.state == "recording" && recorder.stop();
-//     });
-  
-//     return(Promise.all([
-//         stopped,
-//         recorded
-//     ]).
-//     then(() => vid_data));
-// }
-
-// function turnOnVideoCamera(){
-//     if(!hasGetUserMedia()){
-//         alert('getUserMedia() is not supported by your browser.')
-//     } else{
-//         $('#opponenticon').css('display','block');
-//         $('.videostream').css('display','block');
-//         const recordingTimeMS = 10000; //max recording is 20 mins
-//         var constraints = {video:true, audio:true};
-//         var preview = document.querySelector('.videostream');
-//         navigator.mediaDevices.getUserMedia(constraints)
-//         .then(stream => {
-//             preview.srcObject = stream;
-//             preview.captureStream = preview.captureStream || preview.mozCaptureStream;
-//             return new Promise(resolve => preview.onplaying = resolve);
-//         })
-//         .then(() => startRecording(preview.captureStream(), recordingTimeMS))
-//         .then(recordedChunks => {
-//             var recordedBlob = new Blob(recordedChunks, {type: "video/webm"});
-//             vidData = URL.createObjectURL(recordedBlob);
-            
-//             //saves video file as form data
-//             if(!expt.debug){
-//                 var formdata = new FormData();
-//                 formdata.append('name', client.sid);
-//                 formdata.append('file', recordedBlob);
-//                 writeVidServer(formdata);
-//             }
-//         });
+// function loadVideo(vid, to, classtype){
+//     $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' type='video/mp4' controls autoplay></video>");
+//     $("#"+to).attr("src","video/"+vid+".mp4");
+//     $('.replayButton').css('display','none');
+//     document.getElementById(to).onended = function(){
+//         loadWaiting(vid, to, classtype);
 //     }
 // }
 
-// function turnOffVideoCamera(stream){
-//     var preview = document.querySelector('.videostream');
-//     preview.srcObject.getTracks().forEach(track => track.stop());
-// }
-
-function preloadVideo(vid, to){
-    $("#"+to).attr("src","video/"+vid+".mov");
-    document.getElementById(to).pause();
-}
-
-function loadVideo(vid, to){
-    $("#"+to).attr("src","video/"+vid+".mov");
-    $('#'+to).css('filter','brightness(1)');
-}
-
 function playVideo(to){ //plays or resumes video
     document.getElementById(to).play();
-    $('#'+to).css('filter','brightness(1)');
+    $('.replayInstruct').css('display','none');
+    // $('#'+to).css('filter','brightness(1)');
 }
 
 function pauseVideo(to, time=0){
-    setTimeout(function(){
-        document.getElementById(to).pause();
-        $('#'+to).css('filter','brightness(0)');
-    }, time)
+    if(document.getElementById(to) != null){
+        setTimeout(function(){
+            document.getElementById(to).pause();
+            // $('#'+to).css('filter','brightness(0)');
+        }, time)
+    }
 }
 
 function resumeVideo(to){ //plays or resumes video
@@ -155,16 +132,43 @@ function resumeVideo(to){ //plays or resumes video
     $('#'+to).css('filter','brightness(1)');
 }
 
-function showPlayer(color){
-    // $('.videostream').css('border','3px solid ' + color);
-    $('#playerprof').css('border','3px solid ' + color);
+function loadWaiting(vid, to, classtype){
+    //loadVideo("waiting", to);
+    //$('#'+to).attr('loop','loop');
+    if(to == "practiceVid"){
+        $('#'+to+"div").html("<img class='"+classtype+"Vid' src='img/salt.gif'>");
+    } else if(to == "screenVid"){
+        $("#"+to+"replay").css('display','block');
+    }
+    else{ //does not load wait gif for screen record
+        $('#'+to+"div").html("<img class='"+classtype+"Vid' src='img/salt.gif'>");
+        $("#"+to+"replay").css('display','block');
+    }
 }
 
-function showOpponent(gender, color){
-    $('#opponentprof').css('border','3px solid ' + color);
+function clickReplay(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc){
+    if(callResetFunc != null){
+        callResetFunc();
+    }
+    loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc);
+}
+
+function showPlayer(color){
+    $('#playerprof').css('border','5px solid ' + color);
+}
+
+function showOpponent(gender, color, teamless=false){
+    if(teamless){
+        $('#opponentprof').css('border','5px solid black');
+    } else{
+        $('#opponentprof').css('border','5px solid ' + color);
+    }
+    $('#opponentprof').css('display','block');
     $('#opponenticon').css('display','block');
     $('#opponenticon').attr('src','img/'+gender+'_'+color+'.jpg');
 }
+
+
 
 function blink(elem, color, thic, freq, timeStart, interval=false){
     function ablink(){
@@ -182,23 +186,15 @@ function blink(elem, color, thic, freq, timeStart, interval=false){
     }
     ablink();
     if(interval){
-        var timer = setInterval(function(){
+        blinktimer = setInterval(function(){
             ablink();
         }, 10000);
         $('#'+elem).click(function(){
-            clearInterval(timer);
+            clearInterval(blinktimer);
         })
     }
 }
 
-
-
-
-
-
-function attentionCheck(choiceA, choiceB){
-
-}
 
 function marble(container, color, size, locX, locY){
     d3.select(container).append("circle").attr("cx",locX).attr("cy",locY).attr("r",size).attr("stroke-width",2).attr("stroke","black").style("fill",color);
@@ -392,15 +388,13 @@ function practiceHighlightChoice(choice){
         if(choice == "6"){
             yaAudio.play();
             gotAll = true;
-
-            playVideo("practiceVid");
             $('.choiceClass').attr('onclick', '');
-            var noTime = getEventTime('shake','no_red') - getEventTime('shake','most_red');
-            setTimeout(function(){
-                pauseVideo("practiceVid");
-                resetHighlight();
-            }, noTime);
+            $('#practiceVid').attr('onplay','');
 
+            loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct");
+            document.getElementById("practiceVid").onended = function(){
+                resetHighlight();
+            }
         } else{
             noAudio.play();
         }
@@ -409,14 +403,12 @@ function practiceHighlightChoice(choice){
             if(choice == "0"){
                 yaAudio.play();
                 gotNone = true;
-
-                playVideo("practiceVid");
                 $('.choiceClass').attr('onclick', '');
-                var trueTime = getEventTime('shake','true_red') - getEventTime('shake','no_red');
-                setTimeout(function(){
-                    pauseVideo("practiceVid");
+
+                loadVideo("shake_true_"+expt.humanColor, "practiceVid","sideInstruct");
+                document.getElementById("practiceVid").onended = function(){
                     resetHighlight();
-                }, trueTime);
+                }
             } else{
                 noAudio.play();
             }
@@ -427,30 +419,36 @@ function practiceHighlightChoice(choice){
                     gotTrue = true;
 
                     $('.choiceClass').attr('onclick', '');
-                    loadVideo("decide","practiceVid");
-                    
-                    setTimeout(function(){
+                    loadVideo("decide_lie","practiceVid","sideInstruct");
+
+                    var timer0 = new Timer(function(){
                         blink("choice6img", colors.funcblink, 30, 2, 0);
-                        setTimeout(function(){
+                        setTimeout(function(){ //might need to get un-highlighted if player restarts video
                             highlightChoice(6);
                         }, 2000);
-                        
-                    }, getEventTime('decide','lie_red'));
+                    }, getEventTime('decide_lie','lie'));
+
+                    var currVideo = document.getElementById("practiceVid")
+                    currVideo.onpause = function(){
+                        timer0.pause();
+                    }
+                    currVideo.onplay = function(){
+                        if(currVideo.currentTime == 0){
+                            timer0.reset();
+                        }
+                        timer0.resume();
+                    }
                 } else{
                     noAudio.play();
                 }
             } else{
-                
-                //force player to pick 6
-                var reportTime = getEventTime('decide','lie_pause') - getEventTime('decide','lie_red');
-                setTimeout(function(){
-                    gotTrick = true;
+                //force player to pick 6 
+               document.getElementById("practiceVid").onended = function(){
                     blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
+                    gotTrick = true;
                     $('#nextDrawer').prop('disabled',false);
-                    pauseVideo("practiceVid");
-                }, reportTime);
+                }        
                 
-
                 // if(choice == "3"){
                 //     noAudio.play();
                 // } else{
@@ -581,8 +579,9 @@ function report(){
         trial.waitTime = 1000 + 1500*exponential(0.75);
         if(trial.exptPart == "practice"){
             trial.waitTime = 6000;
+            pauseVideo("practiceVid");
             setTimeout(function(){
-                playVideo("practiceVid");
+                loadVideo("decide_switch", "practiceVid","sideInstruct");
             }, 5000) //EDIT
         }
 
@@ -693,9 +692,9 @@ function keepTurn(){
                 $('.sideInstructVid').hide();
                 $('#postPractice').css('display','block');
                 $('#continuePost').prop('disabled',true);
-                playVideo('summaryVid');
+                loadVideo("summary","summaryVid","instruct");
                 document.getElementById('summaryVid').onended = function(){
-                    $('#summaryVid').css('filter','brightness(0)');
+                    // $('#summaryVid').css('filter','brightness(0)');
                     blink("continuePost",  20, 2, 0, true);
                     $('#continuePost').prop('disabled',false);
                 }
@@ -774,26 +773,58 @@ function computerReport(){
         trial.drawnBlue = 3;
         $('.callout-button').prop('disabled',true);
         
-        playVideo("practiceVid");
-        var oppReport = getEventTime('decide', 'opponent_lie') - getEventTime('decide', 'points_pause');
-        blink("tube2", colors.funcblink, 20, 2, oppReport);
-        var greenTime = getEventTime('decide', 'green_button') - getEventTime('decide', 'points_pause');
-        blink("accept-button", colors.truthblink, 20, 2, greenTime);
-        var orangeTime = getEventTime('decide', 'orange_button') - getEventTime('decide', 'points_pause');
-        blink("reject-button", colors.trickblink, 20, 2, orangeTime);
-        document.getElementById("practiceVid").onended = function(){
-            $('#practiceVid').css('filter','brightness(0)');
-            $('.callout-button').prop('disabled',false);
-            setTimeout(function(){
-                console.log('disabled? ' + $('.callout-button').prop('disabled'));
-                if(!$('.callout-button').prop('disabled')){
-                    loadVideo('prompt_again', 'practiceVid'); //EDIT - add time info for blink
-                    blink("reject-button", colors.trickblink, 20, 2, 4000);
-                    blink("accept-button", colors.truthblink, 20, 2, 7000);
-                }
-            }, 10000)
-        };
+        loadVideo("decide_opponentlie_"+expt.humanColor, "practiceVid","sideInstruct");
+        var timer0 = new Timer(function(){
+            blink("tube2", colors.funcblink, 20, 2, 0);
+        }, getEventTime('decide_opponentlie', 'opponent_lie'));
 
+        var currVideo = document.getElementById("practiceVid")
+        currVideo.onpause = function(){
+            timer0.pause();
+        }
+        currVideo.onplay = function(){
+            if(currVideo.currentTime == 0){
+                timer0.reset();
+            }
+            timer0.resume();
+        }
+
+        currVideo.onended = function(){
+            loadVideo('tricktruth','practiceVid',"sideInstruct");
+            var timer0 = new Timer(function(){
+                blink("reject-button", colors.trickblink, 20, 2, 0);
+            }, getEventTime('tricktruth', 'orange_button'));
+            var timer1 = new Timer(function(){
+                blink("accept-button", colors.truthblink, 20, 2, 0);
+            }, getEventTime('tricktruth', 'green_button'));
+
+            var currVideo = document.getElementById("practiceVid")
+            currVideo.onpause = function(){
+                timer0.pause();
+                timer1.pause();
+            }
+            currVideo.onplay = function(){
+                if(currVideo.currentTime == 0){
+                    timer0.reset();
+                    timer1.reset();
+                }
+                timer0.resume();
+                timer1.resume();
+            }
+
+
+            currVideo.onended = function(){
+                $('#practiceVid').attr('onplay','');
+                $('.callout-button').prop('disabled',false);
+                setTimeout(function(){
+                    if(!$('.callout-button').prop('disabled')){
+                        loadVideo('prompt_again', 'practiceVid',"sideInstruct");
+                        blink("reject-button", colors.trickblink, 20, 2, getEventTime('prompt_again', 'orange_button'));
+                        blink("accept-button", colors.truthblink, 20, 2, getEventTime('prompt_again', 'green_button'));
+                    }
+                }, 10000);
+            }
+        }
     } else if(expt.pseudo[trial.trialNumber] != -1){
         trial.reportedDrawn = expt.pseudo[trial.trialNumber];
         trial.pseudo = true;
@@ -999,3 +1030,75 @@ function distributePseudo(totalTrials){
 
     return(pseudoDict);
 }
+
+
+
+
+
+
+
+
+// function wait(delayInMS) {
+//   return new Promise(resolve => setTimeout(resolve, delayInMS));
+// }
+
+// function startRecording(stream, lengthInMS) {
+//     let recorder = new MediaRecorder(stream);
+//     let vid_data=[];
+
+//     recorder.ondataavailable = event => vid_data.push(event.data);
+
+//     recorder.start();
+//     //console.log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
+
+//     let stopped = new Promise((resolve, reject) => {
+//         recorder.onstop = resolve;
+//         recorder.onerror = event => reject(event.name);
+//     });
+
+//     let recorded = wait(lengthInMS).then(() => {
+//         recorder.state == "recording" && recorder.stop();
+//     });
+  
+//     return(Promise.all([
+//         stopped,
+//         recorded
+//     ]).
+//     then(() => vid_data));
+// }
+
+// function turnOnVideoCamera(){
+//     if(!hasGetUserMedia()){
+//         alert('getUserMedia() is not supported by your browser.')
+//     } else{
+//         $('#opponenticon').css('display','block');
+//         $('.videostream').css('display','block');
+//         const recordingTimeMS = 10000; //max recording is 20 mins
+//         var constraints = {video:true, audio:true};
+//         var preview = document.querySelector('.videostream');
+//         navigator.mediaDevices.getUserMedia(constraints)
+//         .then(stream => {
+//             preview.srcObject = stream;
+//             preview.captureStream = preview.captureStream || preview.mozCaptureStream;
+//             return new Promise(resolve => preview.onplaying = resolve);
+//         })
+//         .then(() => startRecording(preview.captureStream(), recordingTimeMS))
+//         .then(recordedChunks => {
+//             var recordedBlob = new Blob(recordedChunks, {type: "video/webm"});
+//             vidData = URL.createObjectURL(recordedBlob);
+            
+//             //saves video file as form data
+//             if(!expt.debug){
+//                 var formdata = new FormData();
+//                 formdata.append('name', client.sid);
+//                 formdata.append('file', recordedBlob);
+//                 writeVidServer(formdata);
+//             }
+//         });
+//     }
+// }
+
+// function turnOffVideoCamera(stream){
+//     var preview = document.querySelector('.videostream');
+//     preview.srcObject.getTracks().forEach(track => track.stop());
+// }

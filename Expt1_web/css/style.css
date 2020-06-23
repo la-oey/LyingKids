@@ -18,6 +18,7 @@
     color: black;
     border-radius: 50%;
     display: none;
+    cursor: pointer;
     /*display: inline-block;*/
 }
 
@@ -32,19 +33,20 @@
 }
 
 #playerprof {
-    border: 3px solid black;
+    border: 5px solid black;
     width: 140px;
     height: 105px;
     position: absolute;
     top: 5%;
     left: 6%;    
     display: none;
+    z-index: 1;
 }
 
 #playericon {
     height:100%;
     margin: 0 auto;
-    z-index: 1;
+    /*z-index: 1;*/
 }
 
 #opponentprof {
@@ -53,13 +55,14 @@
     position: absolute;
     top: 5%;
     right: 6%;
+    z-index: 1;
 }
 
 #opponenticon {
+    display: none;
     height:100%;
     margin: 0 auto;
-    display: none;
-    z-index: 1;
+    /*z-index: 1;*/
 }
 
 /*.videostream {
@@ -73,61 +76,94 @@
     background-color: black;
 }*/
 
-.sideInstructVid {
+.coverVid {
+    background-color: white;
+}
+
+
+
+.instructVid {
     border: 2px solid black;
-    width: 160px;
-    height: 190px;
+    width: 272px;
+    height: 326px;
+    /*top: 30%;*/
+    /*top: 500px;*/
+}
+
+.instructViddiv {
+    width: 60%;
+    /*margin: 30% 30% 50% 30%;*/
+}
+
+.fullInstructVid {
+    height:75%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 10%;
+}
+
+.bottomCoverFullInstruct {
+    position: absolute;
+    z-index: 1;
+    width: 60%;
+    height: 10%;
+    top: 75%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.sideInstructViddiv {
     position: absolute;
     top: 25%;
     left: 6%;
     display: none;
-    background-color: black;
 }
 
-.instructVid {
+.sideInstructVid {
+    width: 176.8px;
+    height: 211.9px;
     border: 2px solid black;
-    width: 202px;
-    height: 360px;
 }
 
-.fullInstructVid {
-    /*border: 2px solid black;*/
-    width: 900px;
-    height: 600px;
-}
-/*
-.coverVid {
-    position: relative;
-    z-index: 1;
-}*/
-
-
-
-.topCoverMidVid {
+.replayInstruct {
     position: absolute;
+    padding: 10px 10px;
+    left: 65%;
     z-index: 1;
-    width: 206px;
-    height: 95px;
-    top: 0%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: white;
-    /*border-bottom: 2px solid black;*/
+    top: 275px;
 }
 
-.bottomCoverMidVid {
+.replayFullInstruct {
     position: absolute;
+    padding: 10px 10px;
+    left: 80%;
     z-index: 1;
-    width: 206px;
-    height: 40px;
-    top: 336px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: white;
-    /*border-top: 2px solid black;*/
+    top: 80%;
+}
+
+.replaySideInstruct {
+    position: absolute;
+    padding: 10px 10px;
+    left: 11%;
+    z-index: 1;
+    top: 55%;
+}
+
+#introVidreplay {
+    top: 350px;
 }
 
 
+
+video::end {
+    controls: false;
+}
+
+
+video::-webkit-media-controls-fullscreen-button {
+    display: none;
+}
 
 
 
@@ -181,6 +217,11 @@ input[type=range]::-ms-thumb {
     cursor: pointer;
 }
 
+input[type=date]::-webkit-datetime-edit {
+    color: #999;
+    font: verdana;
+}
+
 .pic {
     height: 200px;
     width: auto;
@@ -195,7 +236,90 @@ p {
 label {
     font-size: 16px;
     font-family: verdana;
-    /*margin: 1em 10% 1em 10%;*/
+}
+
+form {
+    margin: 1em 8% 1em 8%;
+}
+
+#windowGradient {
+    position: absolute;
+    top: 20%;
+    left: 34%;
+    height: 60%;
+    width: 32%;
+}
+
+#windowBinary {
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+    top: 13%;
+    left: 42%;
+    height: 38%;
+    width: 32%;
+}
+
+#continueSetup {
+    position: absolute;
+    bottom: 5%;
+}
+
+#preConsent {
+    margin: 1em 8% 1em 8%;
+    font-size: 20px;
+    font-family: verdana;
+}
+
+#consentText {
+    margin: 1em 8% 1em 8%;
+    font-size: 16px;
+    font-family: verdana;
+}
+
+#giveConsent {
+    margin: 1em 15% 1em 15%;
+    font-family: verdana;
+    font-size: 16px;
+}
+
+#downloadButton {
+    background-color: dodgerblue;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 3px 10px;
+}
+
+#downloadButton:hover {
+    background-color: royalblue;
+}
+
+.rightAlign {
+    display: inline-block;
+    text-align: right;
+}
+
+.explain {
+    padding-left: 4%;
+}
+
+.indentDemo {
+    margin: 1em 5% 1em 5%;
+}
+
+.boxConsent {
+    font-size: 16px;
+    font-family: verdana;
+    border: 2px solid black;
+    margin: 2% 8% 2% 8%;
+    padding: 0.5% 1% 0% 1%;
+}
+
+.warning {
+    color: red;
+    font-size: 12px;
+    padding-left: 3%;
 }
 
 ul {
@@ -217,12 +341,11 @@ ul {
 }
 
 .mtitle {
-    padding: 2px;
+    /*padding: 2px;*/
     display: block;
     font-size: 24px;
     font-weight: bold;
     text-align: center;
-
 }
 
 body {
@@ -268,18 +391,19 @@ body {
 
 
 .big-button {
+    position: absolute;
+    bottom: 5%;
     left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 1%;
+    /*margin-top: 1%;*/
     width: 50%;
     padding: 10px 32px;
     text-align: center;
     text-decoration: none;
     font-size: 1.25em;
     font-family: "Helvetica", sans-serif;
-
 }
 
 .active-button {
@@ -287,6 +411,8 @@ body {
     background-color: white;
     color: black;
     display: inline-block;
+    font-family: "Helvetica", sans-serif;
+    cursor: pointer;
 }
 
 .active-button:hover {
@@ -298,6 +424,24 @@ body {
     background-color: #555555;
     color: white;
 }
+
+#continueConsent {
+    position: relative;
+}
+
+#continueDemo {
+    position: relative;
+}
+
+#continueInstruct {
+    position: absolute;
+    z-index: 1;
+    bottom: 5%;
+}
+
+
+
+
 
 .color-button {
     opacity: 0.6;
@@ -430,13 +574,19 @@ body {
     background-color: blue;
 }
 
+#wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    width: 60%;
+}
+
 /*.urn {
     margin-left: auto;
     margin-right: auto;
-    height: 30%;
-}
+    width: 60%;
+}*/
 
-#suburn {
+/*#suburn {
     margin: auto;
     left: 0;
     right: 0;
@@ -514,9 +664,9 @@ body {
 
 #choices {
     position: absolute;
-    top: 55%;
+    top: 60%;
     width: 84%;
-    height: 40%;
+    height: 30%;
     left: 14%;
     right: 2%;
     margin-left: auto;

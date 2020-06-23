@@ -1,123 +1,155 @@
 var events = [
 	{
-		video: 'color.mov',
+		video: 'color.mp4',
 		event: 'red_team',
-		time: '5089'
+		time: '4939'
 	},
 	{
-		video: 'color.mov',
+		video: 'color.mp4',
 		event: 'blue_team',
 		time: '7594'
 	},
+
+
 	{
-		video: 'opponent_red.mov',
+		video: 'opponent_red.mp4',
 		event: 'player_team',
-		time: '3580'
+		time: '4111'
 	},
 	{
-		video: 'opponent_red.mov',
-		event: 'opponent_team',
+		video: 'opponent_red.mp4',
+		event: 'other_player',
 		time: '8086'
 	},
 	{
-		video: 'opponent_blue.mov',
-		event: 'player_team',
-		time: '2000' //edit
-	},
-	{
-		video: 'opponent_blue.mov',
+		video: 'opponent_red.mp4',
 		event: 'opponent_team',
-		time: '8000' //edit
+		time: '11842'
 	},
 	{
-		video: 'shake.mov',
+		video: 'opponent_red.mp4',
+		event: 'opponent_button',
+		time: '23610'
+	},
+	{
+		video: 'opponent_blue.mp4',
+		event: 'player_team',
+		time: '2755'
+	},
+	{
+		video: 'opponent_blue.mp4',
+		event: 'other_player',
+		time: '6386'
+	},
+	{
+		video: 'opponent_blue.mp4',
+		event: 'opponent_team',
+		time: '12883'
+	},
+	{
+		video: 'opponent_blue.mp4',
+		event: 'opponent_button',
+		time: '22225'
+	},
+
+
+	{
+		video: 'screenRecord_red.mp4',
+		event: 'hide_button',
+		time: '150000'
+	},
+	{
+		video: 'screenRecord_blue.mp4',
+		event: 'hide_button',
+		time: '150000'
+	},
+
+
+	{
+		video: 'shake_shakebutton.mp4',
 		event: 'shake_button',
-		time: '8602'
+		time: '8230'
 	},
 	{
-		video: 'shake.mov',
-		event: 'shake_pause',
-		time: '10109'
-	},
-	{
-		video: 'shake.mov',
+		video: 'shake_all_red.mp4',
 		event: 'sample',
-		time: '19117'
+		time: '4920'
 	},
 	{
-		video: 'shake.mov',
+		video: 'shake_all_red.mp4',
 		event: 'choices',
-		time: '21368'
+		time: '7270'
 	},
 	{
-		video: 'shake.mov',
-		event: 'most_red',
-		time: '29368'
+		video: 'shake_all_blue.mp4',
+		event: 'sample',
+		time: '4110'
 	},
 	{
-		video: 'shake.mov',
-		event: 'no_red',
-		time: '34633'
+		video: 'shake_all_blue.mp4',
+		event: 'choices',
+		time: '6050'
+	},
+
+
+	{
+		video: 'decide_lie.mp4',
+		event: 'lie',
+		time: '20921'
 	},
 	{
-		video: 'shake.mov',
-		event: 'true_red',
-		time: '41632'
-	},
-	{
-		video: 'decide.mov',
-		event: 'lie_red',
-		time: '21857'
-	},
-	{
-		video: 'decide.mov',
+		video: 'decide_lie.mp4',
 		event: 'lie_next',
-		time: '36857'
+		time: '35903'
 	},
 	{
-		video: 'decide.mov',
-		event: 'lie_button',
-		time: '???'
-	},
-	{
-		video: 'decide.mov',
-		event: 'lie_pause',
-		time: '39154'
-	},
-	{
-		video: 'decide.mov',
+		video: 'decide_switch.mp4',
 		event: 'opponent_allpoints',
-		time: '48911'
+		time: '7180'
 	},
 	{
-		video: 'decide.mov',
+		video: 'decide_switch.mp4',
 		event: 'player_nopoints',
-		time: '50672'
+		time: '8460'
 	},
 	{
-		video: 'decide.mov',
+		video: 'decide_switch.mp4',
 		event: 'points_next',
-		time: '65441'
+		time: '22340'
 	},
 	{
-		video: 'decide.mov',
-		event: 'points_pause',
-		time: '68195'
-	},
-	{
-		video: 'decide.mov',
+		video: 'decide_opponentlie_red.mp4',
 		event: 'opponent_lie',
-		time: '73696'
+		time: '8510'
 	},
 	{
-		video: 'decide.mov',
-		event: 'green_button',
-		time: '85971'
+		video: 'decide_opponentlie_blue.mp4',
+		event: 'opponent_lie',
+		time: '5130'
 	},
+
+
 	{
-		video: 'decide.mov',
+		video: 'tricktruth.mp4',
 		event: 'orange_button',
-		time: '91969'
+		time: '8351'
+	},
+	{
+		video: 'tricktruth.mp4',
+		event: 'green_button',
+		time: '15101'
+	},
+
+
+	{
+		video: 'prompt_again.mp4',
+		event: 'orange_button',
+		time: '9502'
+	},
+	{
+		video: 'prompt_again.mp4',
+		event: 'green_button',
+		time: '13702'
 	}
 ]
 

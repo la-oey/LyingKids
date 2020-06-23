@@ -22,7 +22,21 @@ TODO:
     <script type="text/javascript" src='js/webcamjs-master/webcam.js'></script>
     <script type="text/javascript" src='js/script.js'></script>
     <script type="text/javascript" src='js/utils.js'></script>
+    <script type="text/javascript" src='js/madlabUtils.js'></script>
     <script type="text/javascript" src='js/timing.js'></script>
+    <script type="text/javascript" src='js/clickMapping.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script> 
+        $(function(){
+            $("#setupDiv").load("madlab/setup.html"); 
+        });
+        $(function(){
+            $("#consentForm").load("madlab/consent.html"); 
+        });
+        $(function(){
+            $("#demoSurvey").load("madlab/demographic.html"); 
+        });
+    </script>
 </head>
 
 
@@ -33,27 +47,69 @@ TODO:
         <img id="cameraicon" src="img/camera.png">
     </button>
     <!-- <video class="videostream" autoplay muted></video>  -->
-    <div id="playerprof"><img id="playericon" src=""></div>
-    <div id="opponentprof"><img id="opponenticon" src=""></div>
-    <video class="sideInstructVid" id="practiceVid" type="video/mov" autoplay></video>
+    <div class="sideInstructViddiv" id="practiceViddiv">
+        <video class="sideInstructVid" id="practiceVid" type="video/mp4" controls autoplay></video>
+    </div>
+    <button class='replayButton replaySideInstruct active-button' id="practiceVidreplay">Replay</button>
+    <div id="presetup" class="screen">
+        <center><p>Welcome, parent! For now, you'll be doing set up! You do not need your child yet, but we will let you know when it will be a good time to get your child.</p></center><br>
+        <center><button class="big-button active-button" id="continuePreSetup" onclick="clickPreSetup();">Continue</button></center>
+    </div>
+
+    <div id="setup" class="screen">
+        <div id="setupDiv"></div>
+        <center><button class="big-button active-button" id="continueSetup" onclick="clickSetup();">Continue</button></center>
+    </div>
+
+    <div id="consent" class="screen">
+        <p class="mtitle">
+            Parent consent for child to participate in research
+        </p>
+        <div id="consentForm"></div>
+        <center><button class="big-button active-button" id="continueConsent" onclick="clickConsent();">Continue</button></center>
+    </div>
+
+    <div id="demographic" class="screen">
+        <p class="mtitle">
+            Please tell us a bit more about your child
+        </p>
+        <div id="demoSurvey"></div>
+        <center><button class="big-button active-button" id="continueDemo" onclick="clickDemo();">Continue</button></center>
+    </div>
 
     <div id="start" class="screen">
         <p class="mtitle">
-            Let's play!
+            Let's begin! <br><br> Please get your child. 
         </p>
         <center><button class="big-button active-button" id="letsgo" onclick="clickStart();">Yeah!</button></center>
     </div>
+
     <div id="photobooth" class="screen">
         <p class="mtitle">
-            Take a picture!
+            Take a picture! This will be your player icon!
         </p>
         <center><button class="big-button active-button" id="continuePicture" onclick="clickPicture();">Done!</button></center>
     </div>
+
+    <div id="introduction" class="screen">
+        <p class="mtitle">
+            Meet Vivian!
+        </p>
+        <center>
+            <div class="instructViddiv" id="introViddiv">
+                <video class="instructVid" id="introVid" type="video/mp4" controls autoplay></video>
+            </div>
+            <button class='replayButton replayInstruct active-button' id="introVidreplay">Replay</button>
+        </center>
+        <center><button class="big-button active-button" id="continueIntro" onclick="clickIntro();">Done!</button></center>
+    </div>
+
     <div id="pickColor" class="screen">
         <center>
-            <div class="coverVid topCoverMidVid"></div>
-            <video class="instructVid" id="colorVid" type="video/mov" autoplay></video>
-            <div class="coverVid bottomCoverMidVid"></div>
+            <div class="instructViddiv" id="colorViddiv">
+                <video class="instructVid" id="colorVid" type="video/mp4" controls autoplay></video>
+            </div>
+            <button class='replayButton replayInstruct active-button' id="colorVidreplay">Replay</button>
         </center>
         <p class="mtitle">
             Which color do you want to play as?
@@ -72,7 +128,11 @@ TODO:
             Instructions
         </p><br><br>
         <center>
-            <video class="fullInstructVid" id="screenVid" type="video/mov" autoplay/>
+            <div class="coverVid bottomCoverFullInstruct"></div>
+            <div id="screenViddiv">
+                <video class="fullInstructVid" id="screenVid" type="video/mp4" controls autoplay></video>
+            </div>
+            <button class='replayButton replayFullInstruct active-button' id="screenVidreplay">Replay</button>
         </center>
         <button class="big-button active-button next" id="continueInstruct" onclick="clickInstruct();">Done!</button>
     </div>
@@ -82,18 +142,24 @@ TODO:
             Nice job! You're ready to play!
         </p>
         <center>
-            <video class="instructVid" id="summaryVid" type="video/mov" autoplay/>
+            <div class="instructViddiv" id="summaryViddiv">
+                <video class="instructVid" id="summaryVid" type="video/mp4" controls autoplay/>
+            </div>
+            <button class='replayButton replayInstruct active-button' id="instructVidreplay">Replay</button>
         </center>
         <button class="big-button active-button next" id="continuePost" onclick="clickPostPractice();">Done!</button>
     </div>
 
     <div id="keep" class="screen">
         <p class="mtitle trialNum">Round</p>
-        <div id="keepDiv"><center>
-            <p>It's the<br></p>
-            <p class="declareplayer" id="liarplayer" st></p>
-            <p>player's turn to play as the marble-picker!</p></center>
+        <div id="keepDiv">
+            <center>
+                <p>It's your turn to play as the<br></p>
+                <p class="declareplayer" id="humanRole" st></p><br><br>
+                <video class="instructVid" id="turnVid" type="video/mp4" controls autoplay/>
+            </center>
         </div>
+        
         <div id="practiceOppDecision"><center><img src="img/thumbs-down.png"/ height="200"><br><p>They thought you played a trick<br>and they caught you!</p></center></div>
         <div class="scoreBucket leftBucket updateBucket" id="leftUpdateBucket">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
@@ -190,6 +256,8 @@ TODO:
         </center></div>
         <button class="big-button active-button next" id="finished" onclick="experimentDone();">Finished!</button>
     </div>
+    <div id="playerprof"><img id="playericon" src=""></div>
+    <div id="opponentprof"><img id="opponenticon" src=""></div>
 </div>
 
 </body>
