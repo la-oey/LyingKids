@@ -126,6 +126,10 @@
     border: 2px solid black;
 }
 
+#practiceVidreplay {
+    display: none;
+}
+
 .replayInstruct {
     position: absolute;
     padding: 10px 10px;
@@ -147,11 +151,19 @@
     padding: 10px 10px;
     left: 11%;
     z-index: 1;
-    top: 55%;
+    top: 53%;
 }
 
 #introVidreplay {
     top: 350px;
+}
+
+#summaryVidreplay {
+    top: 350px;
+}
+
+#turnVidreplay {
+    top: 500px;
 }
 
 
@@ -821,14 +833,25 @@ body {
 
 #whowontext {
     position: absolute;
-    top: 50%;
+    top: 25%;
     left: 0;
     right: 0;
     margin-left: auto;
     margin-right: auto;
+    font-size: 60px;
 }
 
 
+#winnerVid {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 35%;
+}
+
+#winnerVidreplay {
+    top: 600px;
+}
 
 
 

@@ -145,7 +145,7 @@ TODO:
             <div class="instructViddiv" id="summaryViddiv">
                 <video class="instructVid" id="summaryVid" type="video/mp4" controls autoplay/>
             </div>
-            <button class='replayButton replayInstruct active-button' id="instructVidreplay">Replay</button>
+            <button class='replayButton replayInstruct active-button' id="summaryVidreplay">Replay</button>
         </center>
         <button class="big-button active-button next" id="continuePost" onclick="clickPostPractice();">Done!</button>
     </div>
@@ -156,10 +156,12 @@ TODO:
             <center>
                 <p>It's your turn to play as the<br></p>
                 <p class="declareplayer" id="humanRole" st></p><br><br>
-                <video class="instructVid" id="turnVid" type="video/mp4" controls autoplay/>
+                <div class="instructViddiv" id="turnViddiv">
+                    <video class="instructVid" id="turnVid" type="video/mp4" controls autoplay/>
+                </div>
+                <button class='replayButton replayInstruct active-button' id="turnVidreplay">Replay</button>
             </center>
         </div>
-        
         <div id="practiceOppDecision"><center><img src="img/thumbs-down.png"/ height="200"><br><p>They thought you played a trick<br>and they caught you!</p></center></div>
         <div class="scoreBucket leftBucket updateBucket" id="leftUpdateBucket">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
@@ -191,11 +193,11 @@ TODO:
 
         <center><div id="choices"><div id="labelChoices"></div></div></center>
         <center><div class="subjResponse"></div></center>
-        <div class="scoreBucket leftBucket">
+        <div class="scoreBucket leftBucket leftStaticBucket">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
             <div class="playerScore redScore"></div>
         </div>
-        <div class="scoreBucket rightBucket">
+        <div class="scoreBucket rightBucket rightStaticBucket">
             <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
             <div class="playerScore blueScore"></div>
         </div>
@@ -232,11 +234,11 @@ TODO:
             </div>
         </center>
         <center><div class="subjResponse"></div></center>
-        <div class="scoreBucket leftBucket">
+        <div class="scoreBucket leftBucket leftStaticBucket">
             <img class="imgPt redPt" src="img/redpoint.png" width="100%">
             <div class="playerScore redScore"></div>
         </div>
-        <div class="scoreBucket rightBucket">
+        <div class="scoreBucket rightBucket rightStaticBucket">
             <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
             <div class="playerScore blueScore"></div>
         </div>
@@ -249,12 +251,24 @@ TODO:
             <div class="scoreCol" style="color:red">Red Score:<br><b class="redFinalScore">0</b></div>
             <div class="scoreCol" style="color:blue">Blue Score:<br><b class="blueFinalScore">0</b></div>
         </div>
+        <center>
+            <div id="whowontext">
+                <p class="mtitle" id="whowon"></p>
+            </div>
+            <div class="instructViddiv" id="winnerViddiv">
+                <video class="instructVid" id="winnerVid" type="video/mp4" controls autoplay/>
+            </div>
+            <button class='replayButton replayInstruct active-button' id="winnerVidreplay">Replay</button>
+        </center>
+        <button class="big-button active-button next" id="continueWinner" onclick="clickWinner();">Finished!</button>
+    </div>
 
-        <div id="whowontext"><center>
-            <p class="mtitle" id="whowon"></p>
-            <p class="mtitle">Thanks for playing!</p>
-        </center></div>
-        <button class="big-button active-button next" id="finished" onclick="experimentDone();">Finished!</button>
+    <div id="debriefing" class="screen">
+        <p class="mtitle">
+            Debriefing
+        </p>
+        <div id="debriefingText"></div>
+        <center><button class="big-button active-button" id="" onclick="experimentDone();">Finished!</button></center>
     </div>
     <div id="playerprof"><img id="playericon" src=""></div>
     <div id="opponentprof"><img id="opponenticon" src=""></div>

@@ -81,6 +81,11 @@ var events = [
 		time: '7270'
 	},
 	{
+		video: 'shake_all_red.mp4',
+		event: 'question',
+		time: '14020'
+	},
+	{
 		video: 'shake_all_blue.mp4',
 		event: 'sample',
 		time: '4110'
@@ -90,6 +95,32 @@ var events = [
 		event: 'choices',
 		time: '6050'
 	},
+	{
+		video: 'shake_all_blue.mp4',
+		event: 'question',
+		time: '12520'
+	},
+	{
+		video: 'shake_no_red.mp4',
+		event: 'question',
+		time: '3120'
+	},
+	{
+		video: 'shake_no_blue.mp4',
+		event: 'question',
+		time: '3570'
+	},
+	{
+		video: 'shake_true_red.mp4',
+		event: 'question',
+		time: '4570'
+	},
+	{
+		video: 'shake_true_blue.mp4',
+		event: 'question',
+		time: '4030'
+	},
+
 
 
 	{
@@ -103,14 +134,19 @@ var events = [
 		time: '35903'
 	},
 	{
+		video: 'decide_lie_again.mp4',
+		event: 'lie_next',
+		time: '10540'
+	},
+	{
 		video: 'decide_switch.mp4',
 		event: 'opponent_allpoints',
-		time: '7180'
+		time: '6180'
 	},
 	{
 		video: 'decide_switch.mp4',
 		event: 'player_nopoints',
-		time: '8460'
+		time: '7960'
 	},
 	{
 		video: 'decide_switch.mp4',
@@ -120,37 +156,53 @@ var events = [
 	{
 		video: 'decide_opponentlie_red.mp4',
 		event: 'opponent_lie',
-		time: '8510'
+		time: '7810'
 	},
 	{
 		video: 'decide_opponentlie_blue.mp4',
 		event: 'opponent_lie',
-		time: '5130'
+		time: '4430'
 	},
 
 
 	{
 		video: 'tricktruth.mp4',
 		event: 'orange_button',
-		time: '8351'
+		time: '8151'
 	},
 	{
 		video: 'tricktruth.mp4',
 		event: 'green_button',
-		time: '15101'
+		time: '14601'
 	},
 
 
 	{
 		video: 'prompt_again.mp4',
 		event: 'orange_button',
-		time: '9502'
+		time: '920'
 	},
 	{
 		video: 'prompt_again.mp4',
 		event: 'green_button',
-		time: '13702'
-	}
+		time: '5430'
+	},
+	{
+		video: 'prompt_trick.mp4',
+		event: 'player_allpoints',
+		time: '6950'
+	},
+	{
+		video: 'prompt_trick.mp4',
+		event: 'opponent_nopoints',
+		time: '9900'
+	},
+
+	{
+		video: 'summary.mp4',
+		event: 'next',
+		time: '44600'
+	},
 ]
 
 

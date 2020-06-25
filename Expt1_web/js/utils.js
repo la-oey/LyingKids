@@ -1,5 +1,5 @@
 function getEventTime(video, event){
-    var diffColors =  ["opponent", "screenRecord", "shake_all", "decide_opponentlie"];
+    var diffColors =  ["opponent", "screenRecord", "shake_all", "shake_no", "shake_true", "decide_opponentlie"];
     if(diffColors.includes(video)){
         video = video + "_" + expt.humanColor;
     }
@@ -9,6 +9,7 @@ function getEventTime(video, event){
 
 var Timer = function(callback, delay) {
     var timerId, start, remaining = delay;
+
 
     this.reset = function() { //if user restarts video to 0, resets timer
         remaining = delay;
@@ -103,15 +104,6 @@ function loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc)
     }
 }
 
-// function loadVideo(vid, to, classtype){
-//     $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' type='video/mp4' controls autoplay></video>");
-//     $("#"+to).attr("src","video/"+vid+".mp4");
-//     $('.replayButton').css('display','none');
-//     document.getElementById(to).onended = function(){
-//         loadWaiting(vid, to, classtype);
-//     }
-// }
-
 function playVideo(to){ //plays or resumes video
     document.getElementById(to).play();
     $('.replayInstruct').css('display','none');
@@ -122,7 +114,6 @@ function pauseVideo(to, time=0){
     if(document.getElementById(to) != null){
         setTimeout(function(){
             document.getElementById(to).pause();
-            // $('#'+to).css('filter','brightness(0)');
         }, time)
     }
 }
@@ -133,15 +124,16 @@ function resumeVideo(to){ //plays or resumes video
 }
 
 function loadWaiting(vid, to, classtype){
+    let no_replay = ["shake_all_"+expt.humanColor, "shake_q_all_"+expt.humanColor, "shake_no_"+expt.humanColor, "shake_true_"+expt.humanColor, "tricktruth", "prompt_again"];
     //loadVideo("waiting", to);
     //$('#'+to).attr('loop','loop');
-    if(to == "practiceVid"){
-        $('#'+to+"div").html("<img class='"+classtype+"Vid' src='img/salt.gif'>");
+    if(no_replay.includes(vid)){
+        $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");
     } else if(to == "screenVid"){
         $("#"+to+"replay").css('display','block');
     }
     else{ //does not load wait gif for screen record
-        $('#'+to+"div").html("<img class='"+classtype+"Vid' src='img/salt.gif'>");
+        $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");
         $("#"+to+"replay").css('display','block');
     }
 }
@@ -149,6 +141,9 @@ function loadWaiting(vid, to, classtype){
 function clickReplay(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc){
     if(callResetFunc != null){
         callResetFunc();
+    } 
+    if(vid == "decide_lie"){
+        vid = "decide_lie_again";
     }
     loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc);
 }
@@ -386,49 +381,52 @@ function practiceHighlightChoice(choice){
     noAudio.currentTime = 0;
     if(!gotAll){
         if(choice == "6"){
+            clearInterval(replaytimer);
             yaAudio.play();
             gotAll = true;
             $('.choiceClass').attr('onclick', '');
             $('#practiceVid').attr('onplay','');
 
-            loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct");
-            document.getElementById("practiceVid").onended = function(){
-                resetHighlight();
-            }
+            var playFunc = function(){
+                var currVideo = document.getElementById('practiceVid');
+                var timer0 = new Timer(function(){
+                    resetHighlight();
+                }, getEventTime('shake_no','question'));
+
+                currVideo.onpause = function(){
+                    timer0.pause();
+                }
+                currVideo.onplay = function(){
+                    if(currVideo.currentTime == 0){
+                        timer0.reset();
+                    }
+                    timer0.resume();
+                }
+            };
+            var endFunc = function(){};
+            var resetFunc = function(){};
+            loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
+
+            replaytimer = setInterval(function(){
+                loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
+            }, 20000);            
         } else{
             noAudio.play();
         }
     } else{
         if(!gotNone){
             if(choice == "0"){
+                clearInterval(replaytimer);
                 yaAudio.play();
                 gotNone = true;
                 $('.choiceClass').attr('onclick', '');
 
-                loadVideo("shake_true_"+expt.humanColor, "practiceVid","sideInstruct");
-                document.getElementById("practiceVid").onended = function(){
-                    resetHighlight();
-                }
-            } else{
-                noAudio.play();
-            }
-        } else{
-            if(!gotTrue){
-                if(choice == "3"){
-                    yaAudio.play();
-                    gotTrue = true;
-
-                    $('.choiceClass').attr('onclick', '');
-                    loadVideo("decide_lie","practiceVid","sideInstruct");
-
+                var playFunc = function(){
+                    var currVideo = document.getElementById('practiceVid');
                     var timer0 = new Timer(function(){
-                        blink("choice6img", colors.funcblink, 30, 2, 0);
-                        setTimeout(function(){ //might need to get un-highlighted if player restarts video
-                            highlightChoice(6);
-                        }, 2000);
-                    }, getEventTime('decide_lie','lie'));
+                        resetHighlight();
+                    }, getEventTime('shake_true','question'));
 
-                    var currVideo = document.getElementById("practiceVid")
                     currVideo.onpause = function(){
                         timer0.pause();
                     }
@@ -438,23 +436,75 @@ function practiceHighlightChoice(choice){
                         }
                         timer0.resume();
                     }
+                };
+                var endFunc = function(){};
+                var resetFunc = function(){};
+
+                loadVideo("shake_true_"+expt.humanColor, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+                replaytimer = setInterval(function(){
+                    loadVideo("shake_true_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
+                }, 20000);   
+            } else{
+                noAudio.play();
+            }
+        } else{
+            if(!gotTrue){
+                if(choice == "3"){
+                    clearInterval(replaytimer);
+                    yaAudio.play();
+                    gotTrue = true;
+                    $('.choiceClass').attr('onclick', '');
+
+                    var playFunc = function(){
+                        var currVideo = document.getElementById('practiceVid');
+                        var timer0 = new Timer(function(){
+                            blink('choice6img', colors.funcblink, 30, 2, 0);
+                            setTimeout(function(){ //might need to get un-highlighted if player restarts video
+                                highlightChoice(6);
+                            }, 2000);
+                        }, getEventTime('decide_lie','lie'));
+                        var timer1 = new Timer(function(){
+                            gotTrick = true;
+                            $('#nextDrawer').prop('disabled',false);
+                            blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
+                        }, getEventTime('decide_lie','lie_next'));
+
+                        currVideo.onpause = function(){
+                            timer0.pause();
+                            timer1.pause();
+                        }
+                        currVideo.onplay = function(){
+                            if(currVideo.currentTime == 0){
+                                timer0.reset();
+                                timer1.reset();
+                            }
+                            timer0.resume();
+                            timer1.resume();
+                        }
+                    };
+                    var endFunc = function(){};
+                    var resetFunc = function(){
+                        clearInterval(blinktimer);
+                        $('#nextDrawer').prop('disabled',true);
+                        var currVideo = document.getElementById('practiceVid');
+                        var timer0 = new Timer(function(){ //CHECK
+                            $('#nextDrawer').prop('disabled',false);
+                            blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
+                        }, getEventTime('decide_lie_again','lie_next'));
+                        currVideo.onpause = function(){
+                            timer0.pause();
+                        }
+                        currVideo.onplay = function(){
+                            if(currVideo.currentTime == 0){
+                                timer0.reset();
+                            }
+                            timer0.resume();
+                        }
+                    };
+                    loadVideo("decide_lie","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
                 } else{
                     noAudio.play();
                 }
-            } else{
-                //force player to pick 6 
-               document.getElementById("practiceVid").onended = function(){
-                    blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
-                    gotTrick = true;
-                    $('#nextDrawer').prop('disabled',false);
-                }        
-                
-                // if(choice == "3"){
-                //     noAudio.play();
-                // } else{
-                //     yaAudio.play();
-                //     gotTrick = true;
-                // }
             }
         }
     }
@@ -468,6 +518,12 @@ function practiceHighlightChoice(choice){
 
 
 function highlightChoice(choice){
+    if(trial.exptPart != "practice"){
+        chooseAudio.pause();
+        chooseAudio.currentTime = 0;
+        chooseAudio.play();
+    }
+
     //if highlighted, unhighlighted
     if($('#choice'+choice).css('background-color')=='rgb(255, 255, 0)'){
         //$('#choice'+choice).css('background-color','white');
@@ -575,18 +631,61 @@ function report(){
 
     function liarWait() {
         flickerWait();
+        audioWait();
         
         trial.waitTime = 1000 + 1500*exponential(0.75);
         if(trial.exptPart == "practice"){
+            $('.replayButton').css('display','none');
             trial.waitTime = 6000;
-            pauseVideo("practiceVid");
             setTimeout(function(){
-                loadVideo("decide_switch", "practiceVid","sideInstruct");
-            }, 5000) //EDIT
+                //INSTRUCT ANIMATIONS
+                var playFunc = function(){
+                    if(expt.humanColor == "red"){
+                        var highlightHuman = colors.teamredblink;
+                        var highlightComp = colors.teamblueblink;
+                    } else{
+                        var highlightComp = colors.teamblueblink;
+                        var highlightHuman = colors.teamredblink;
+                    }
+                    var timer0 = new Timer(function(){
+                        blink("rightUpdateBucket", highlightComp, 40, 2, 0);
+                    }, getEventTime('decide_switch','opponent_allpoints'));
+                    var timer1 = new Timer(function(){
+                        blink("leftUpdateBucket", highlightHuman, 40, 2, 0);
+                    }, getEventTime('decide_switch','player_nopoints'));
+                    var timer2 = new Timer(function(){
+                        blink("nextKeep", colors.nextblink, 20, 2, 0, true);
+                        $('#nextKeep').prop('disabled',false);
+                    }, getEventTime('decide_switch','points_next'));
+
+                    var currVideo = document.getElementById("practiceVid")
+                    currVideo.onpause = function(){
+                        timer0.pause();
+                        timer1.pause();
+                    }
+                    currVideo.onplay = function(){
+                        if(currVideo.currentTime == 0){
+                            timer0.reset();
+                            timer1.reset();
+                        }
+                        timer0.resume();
+                        timer1.resume();
+                    }
+                };
+                var endFunc = function(){};
+                var resetFunc = function(){
+                    clearInterval(blinktimer);
+                    $('#nextKeep').prop('disabled',true);
+                };
+
+                loadVideo("decide_switch", "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+            }, 5500) //EDIT
         }
 
         setTimeout(function(){
             clearInterval(trial.timer);
+            clearInterval(trial.audiotimer);
+            
             $('.subjResponse').html("<p><br>They decided!<br><br></p>")
             $('.subjResponse').css('opacity','1');
             if(trial.exptPart == "practice"){
@@ -616,6 +715,12 @@ function computerDetect(){
 }
 
 function callout(call){
+    chooseAudio.pause();
+    chooseAudio.currentTime = 0;
+    chooseAudio.play();
+    if(trial.exptPart == "practice"){
+        clearInterval(replaytimer);
+    }
     trial.responseTime = Date.now() - trial.responseStartTime;
     $('.callout-button').prop('disabled', true);
     if(call == 'accept'){
@@ -632,7 +737,8 @@ function callout(call){
     trialDone();
 }
 
-function addPoints(player, points, prevPoints){    
+function addPoints(player, points, prevPoints){ 
+    pointsAudio.play();   
     if(trial.exptPart != "instruct"){
         $('.'+player+"TrialPt").css({'top': '-15%'}, 1000);
         $('.'+player+"TrialPt").animate({'opacity': 1}, 250);
@@ -679,12 +785,16 @@ function addPoints(player, points, prevPoints){
 
 function keepTurn(){
     document.getElementById('keep').style.display = 'none';
+    $('.replayButton').css('display','none');
+    clearInterval(blinktimer);
     if(trial.exptPart == "practice"){
         if(trial.roleCurrent == "liar" & trial.trialNumber == 0){
             trial.liarPlayer = expt.humanColor;
             liar();
         } else{
             if(trial.trialNumber == 1){
+                $('.redScore').css('height', 0);
+                $('.blueScore').css('height', 0);
                 trial.liarPlayer = expt.compColor;
                 restartTrial();
                 detector();
@@ -692,16 +802,33 @@ function keepTurn(){
                 $('.sideInstructVid').hide();
                 $('#postPractice').css('display','block');
                 $('#continuePost').prop('disabled',true);
-                loadVideo("summary","summaryVid","instruct");
-                document.getElementById('summaryVid').onended = function(){
-                    // $('#summaryVid').css('filter','brightness(0)');
-                    blink("continuePost",  20, 2, 0, true);
-                    $('#continuePost').prop('disabled',false);
-                }
+                var playFunc = function(){
+                    var currVideo = document.getElementById('summaryVid');
+                    var timer0 = new Timer(function(){
+                        blink('continuePost',  20, 2, 0, true);
+                        $('#continuePost').prop('disabled',false);
+                    }, getEventTime('summary','next'));
+
+                    currVideo.onpause = function(){
+                        timer0.pause();
+                    }
+                    currVideo.onplay = function(){
+                        if(currVideo.currentTime == 0){
+                            timer0.reset();
+                        }
+                        timer0.resume();
+                    }
+                };
+                var endFunc = function(){};
+                var resetFunc = function(){
+                    clearInterval(blinktimer);
+                    $('#continuePost').prop('disabled',true);
+                };
+                loadVideo("summary","summaryVid","instruct", playFunc, endFunc, resetFunc);
             }
         }
     }
-     else{
+    else{
         if(trial.roleCurrent == "liar"){
             liar();
         } else{
@@ -755,7 +882,19 @@ function flickerWait(){
     }
 }
 
+function audioWait(){
+    if(trial.exptPart == "trial"){
+        waitAudio.currentTime = 0;
+        waitAudio.play();
+        trial.audiotimer = setInterval(function(){
+            waitAudio.play();
+        }, 4000);
+    }
+}
+
+
 function computerReport(){
+
     //groundTruth
     for(var i=0; i<expt.marblesSampled; i++){
         if(Math.random() < trial.probabilityRed){
@@ -764,7 +903,7 @@ function computerReport(){
             trial.drawnBlue += 1;
         }
     }
-
+    debugLog("drawn red: " + trial.drawnRed + "; drawn blue: " + trial.drawnBlue);
     if(trial.exptPart == "practice"){
         //INSTRUCT ANIMATIONS
         $("#tubesvg1").css('opacity',1);
@@ -772,59 +911,85 @@ function computerReport(){
         trial.drawnRed = 3; //reported is a lie
         trial.drawnBlue = 3;
         $('.callout-button').prop('disabled',true);
-        
-        loadVideo("decide_opponentlie_"+expt.humanColor, "practiceVid","sideInstruct");
-        var timer0 = new Timer(function(){
-            blink("tube2", colors.funcblink, 20, 2, 0);
-        }, getEventTime('decide_opponentlie', 'opponent_lie'));
 
-        var currVideo = document.getElementById("practiceVid")
-        currVideo.onpause = function(){
-            timer0.pause();
-        }
-        currVideo.onplay = function(){
-            if(currVideo.currentTime == 0){
-                timer0.reset();
-            }
-            timer0.resume();
-        }
-
-        currVideo.onended = function(){
-            loadVideo('tricktruth','practiceVid',"sideInstruct");
+        var playFunc = function(){
             var timer0 = new Timer(function(){
-                blink("reject-button", colors.trickblink, 20, 2, 0);
-            }, getEventTime('tricktruth', 'orange_button'));
-            var timer1 = new Timer(function(){
-                blink("accept-button", colors.truthblink, 20, 2, 0);
-            }, getEventTime('tricktruth', 'green_button'));
+                blink("tube2", colors.funcblink, 20, 2, 0);
+            }, getEventTime('decide_opponentlie', 'opponent_lie'));
 
             var currVideo = document.getElementById("practiceVid")
             currVideo.onpause = function(){
                 timer0.pause();
-                timer1.pause();
             }
             currVideo.onplay = function(){
                 if(currVideo.currentTime == 0){
                     timer0.reset();
-                    timer1.reset();
                 }
                 timer0.resume();
-                timer1.resume();
             }
+        };
+        var endFunc = function(){
+            $('#practiceVid').attr('onplay','');
+            var playFunc = function(){
+                var timer0 = new Timer(function(){
+                    blink('reject-button', colors.trickblink, 20, 2, 0);
+                }, getEventTime('tricktruth', 'orange_button'));
+                var timer1 = new Timer(function(){
+                    blink('accept-button', colors.truthblink, 20, 2, 0);
+                }, getEventTime('tricktruth', 'green_button'));
 
-
-            currVideo.onended = function(){
+                var currVideo = document.getElementById('practiceVid');
+                currVideo.onpause = function(){
+                    timer0.pause();
+                    timer1.pause();
+                }
+                currVideo.onplay = function(){
+                    if(currVideo.currentTime == 0){
+                        timer0.reset();
+                        timer1.reset();
+                    }
+                    timer0.resume();
+                    timer1.resume();
+                }
+            };
+            var endFunc = function(){
                 $('#practiceVid').attr('onplay','');
                 $('.callout-button').prop('disabled',false);
-                setTimeout(function(){
-                    if(!$('.callout-button').prop('disabled')){
-                        loadVideo('prompt_again', 'practiceVid',"sideInstruct");
-                        blink("reject-button", colors.trickblink, 20, 2, getEventTime('prompt_again', 'orange_button'));
-                        blink("accept-button", colors.truthblink, 20, 2, getEventTime('prompt_again', 'green_button'));
-                    }
-                }, 10000);
-            }
-        }
+
+                replaytimer = setInterval(function(){
+                    var playFunc = function(){
+                        var timer0 = new Timer(function(){
+                            blink('reject-button', colors.trickblink, 20, 2, 0);
+                        }, getEventTime('prompt_again', 'orange_button'));
+                        var timer1 = new Timer(function(){
+                            blink('accept-button', colors.truthblink, 20, 2, 0);
+                        }, getEventTime('prompt_again', 'green_button'));
+                        var currVideo = document.getElementById('practiceVid');
+                        currVideo.onpause = function(){
+                            timer0.pause();
+                            timer1.pause();
+                        }
+                        currVideo.onplay = function(){
+                            if(currVideo.currentTime == 0){
+                                timer0.reset();
+                                timer1.reset();
+                            }
+                            timer0.resume();
+                            timer1.resume();
+                        }
+                    };
+                    var endFunc = function(){};
+                    var resetFunc = function(){};
+                    loadVideo('prompt_again', 'practiceVid',"sideInstruct", playFunc, endFunc, resetFunc);
+                }, 20000);
+            };
+            var resetFunc = function(){};
+            loadVideo('tricktruth','practiceVid',"sideInstruct", playFunc, endFunc, resetFunc);
+        };
+        var resetFunc = function(){};
+        
+        loadVideo("decide_opponentlie_"+expt.humanColor, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+
     } else if(expt.pseudo[trial.trialNumber] != -1){
         trial.reportedDrawn = expt.pseudo[trial.trialNumber];
         trial.pseudo = true;
@@ -852,7 +1017,7 @@ function computerReport(){
             }
             trial.compLie = lie;
             trial.compDetect = -1;
-            //console.log("CompLie: " + trial.compLie)
+            debugLog("Opponent's Internal Gen Lie: " + trial.compLie)
         }
     }
     if(expt.humanColor == 'red'){
@@ -863,18 +1028,29 @@ function computerReport(){
         trial.reportedBlue = expt.marblesSampled - trial.reportedDrawn;
     }
 
-    debugLog("computer report: " + trial.reportedDrawn);
+    debugLog("Opponent's report: " + trial.reportedDrawn);
 
 }
 
 function toWinnerCircle(){
     document.getElementById('keep').style.display = 'none';
+    let winnerPlayer = null;
     if(expt.stat.redTotalScore == expt.stat.blueTotalScore){
         $('#whowon').html("You tied!");
     } else if(expt.stat.redTotalScore > expt.stat.blueTotalScore){
         $('#whowon').html("<b style='color:red'>Red won the game!</b>");
+        if(expt.humanColor == "red"){
+            winnerPlayer = "player";
+        } else{
+            winnerPlayer = "opponent";
+        }
     } else{
         $('#whowon').html("<b style='color:blue'>Blue won the game!</b>");
+        if(expt.humanColor == "blue"){
+            winnerPlayer = "player";
+        } else{
+            winnerPlayer = "opponent";
+        }
     }
 
     //$('.scoreboardDiv').show();
@@ -885,16 +1061,31 @@ function toWinnerCircle(){
     // expt done
     data = {client: client, expt: expt, trials: trialData};
     //writeServer(data);
-    SaveData(data);
+    writeServer(data);
 
     document.getElementById('completed').style.display = 'block';
     winnerAudio.play();
+
+    $('#continueWinner').prop('disabled', true);
+    $('#winnerVid').css('display','none');
+
+    setTimeout(function(){
+        $('#winnerVid').css('display','block');
+        var playFunc = function(){};
+        var endFunc = function(){
+            blink("nextWinner", colors.nextblink, 20, 2, 0, true);
+            $('#continueWinner').prop('disabled',false);
+        };
+        var resetFunc = function(){
+            clearInterval(blinktimer);
+            $('#continueWinner').prop('disabled',true);
+        };
+        loadVideo('winner_'+winnerPlayer,'winnerVid',"instruct", playFunc, endFunc, resetFunc);
+    }, 2000);
+    
 }
 
 
-function experimentDone() {
-    submitExternal(client);
-}
 
 
 
