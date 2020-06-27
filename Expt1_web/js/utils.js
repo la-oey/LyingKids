@@ -61,11 +61,13 @@ function showCam(){
 }
 
 function quickCam() {
-    setupCam();
-    //probably should check for when camera is open, but for now turning on camera for 1 second
-    setTimeout(function(){ 
-        take_snapshot();
-    }, 2000);
+    if(demographicClient.videotaping == "yes"){
+        setupCam();
+        //probably should check for when camera is open, but for now turning on camera for 1 second
+        setTimeout(function(){ 
+            take_snapshot();
+        }, 2000);
+    }
 }
 
 var playerimage = [];
@@ -82,7 +84,11 @@ function take_snapshot() {
 }
 
 function replacePlayerPic() {
-    $('#playericon').attr('src',playerimage[(playerimage.length-1)]);
+    if(playerimage.length == 0){
+        $('#playericon').attr('src','img/anon_player.png'); //if no pictures taken, use stock pic
+    } else{
+        $('#playericon').attr('src',playerimage[(playerimage.length-1)]);
+    }
     $('#playerprof').css('display','block');
 }
 
@@ -264,7 +270,6 @@ function draw(){
         }
     }, shakeDelay);
 
-    
     setTimeout(function(){
         shakeAudio.play();
     }, 300);
@@ -340,6 +345,15 @@ function draw(){
     }
     multDraws();
 
+    if(trial.exptPart == "trial"){
+        clearInterval(remindertimer);
+        remindertimer = setInterval(function(){
+            for(var i=0; i<=6; i++){
+                blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
+            }
+        }, 10000);
+    }
+    
     
 }
 
@@ -522,6 +536,7 @@ function highlightChoice(choice){
         chooseAudio.pause();
         chooseAudio.currentTime = 0;
         chooseAudio.play();
+        clearInterval(remindertimer);
     }
 
     //if highlighted, unhighlighted
@@ -644,8 +659,8 @@ function report(){
                         var highlightHuman = colors.teamredblink;
                         var highlightComp = colors.teamblueblink;
                     } else{
-                        var highlightComp = colors.teamblueblink;
-                        var highlightHuman = colors.teamredblink;
+                        var highlightComp = colors.teamredblink;
+                        var highlightHuman = colors.teamblueblink;
                     }
                     var timer0 = new Timer(function(){
                         blink("rightUpdateBucket", highlightComp, 40, 2, 0);
@@ -715,12 +730,19 @@ function computerDetect(){
 }
 
 function callout(call){
-    chooseAudio.pause();
-    chooseAudio.currentTime = 0;
-    chooseAudio.play();
     if(trial.exptPart == "practice"){
         clearInterval(replaytimer);
+    } else if(trial.exptPart == "trial"){
+        clearInterval(remindertimer);
     }
+    console.log(trial.trialNumber);
+    if((trial.trialNumber+1)%5 != 0){
+        chooseAudio.pause();
+        chooseAudio.currentTime = 0;
+        chooseAudio.play();
+    }
+    
+    
     trial.responseTime = Date.now() - trial.responseStartTime;
     $('.callout-button').prop('disabled', true);
     if(call == 'accept'){
@@ -738,7 +760,6 @@ function callout(call){
 }
 
 function addPoints(player, points, prevPoints){ 
-    pointsAudio.play();   
     if(trial.exptPart != "instruct"){
         $('.'+player+"TrialPt").css({'top': '-15%'}, 1000);
         $('.'+player+"TrialPt").animate({'opacity': 1}, 250);
@@ -784,7 +805,7 @@ function addPoints(player, points, prevPoints){
 
 
 function keepTurn(){
-    document.getElementById('keep').style.display = 'none';
+    $('#keep').css('display','none');
     $('.replayButton').css('display','none');
     clearInterval(blinktimer);
     if(trial.exptPart == "practice"){
@@ -799,14 +820,15 @@ function keepTurn(){
                 restartTrial();
                 detector();
             } else{
-                $('.sideInstructVid').hide();
+                $('.sideInstructVid').css('display','none');
+
                 $('#postPractice').css('display','block');
                 $('#continuePost').prop('disabled',true);
                 var playFunc = function(){
                     var currVideo = document.getElementById('summaryVid');
                     var timer0 = new Timer(function(){
-                        blink('continuePost',  20, 2, 0, true);
                         $('#continuePost').prop('disabled',false);
+                        blink("continuePost", colors.nextblink, 20, 2, 0, true);
                     }, getEventTime('summary','next'));
 
                     currVideo.onpause = function(){
@@ -1029,6 +1051,15 @@ function computerReport(){
     }
 
     debugLog("Opponent's report: " + trial.reportedDrawn);
+
+    if(trial.exptPart == "trial"){
+        remindertimer = setInterval(function(){
+            blink("reject-button", colors.trickblink, 20, 2, 0);
+            blink("accept-button", colors.truthblink, 20, 2, 0);
+        }, 10000);
+    }
+    
+    
 
 }
 

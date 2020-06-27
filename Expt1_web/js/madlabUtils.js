@@ -12,10 +12,11 @@ var demographicClient = { //filled out by participant
 	vision: "",
 	visionExplain: "",
 	videotaping: "",
-	email: "",
-	futureContact: false,
+	futureEmail: "",
+	futurePhone: "",
 	otherName: "",
-	otherDOB: ""
+	otherDOB: "",
+	contactEmail: ""
 }
 
 function checkText(question, defaultA){
@@ -112,8 +113,12 @@ function submitDemo(){
 	demographicClient.vision = $('input[name = "vision"]:checked').val();
 	demographicClient.visionExplain = $('input[name = "visionExplain"]').val();
 	demographicClient.videotaping = $('input[name = "videotaping"]:checked').val();
-	demographicClient.email = $('input[name = "email"]').val();
-	demographicClient.futureContact = $('input[name = "checkcontact"]').prop("checked");
+	demographicClient.futureEmail = $('input[name = "futureEmail"]').val();
+	demographicClient.futurePhone = $('input[name = "futurePhone"]').val();
 	demographicClient.otherName = $('input[name = "otherName"]').val();
 	demographicClient.otherDOB = $('input[name = "otherDOB"]').val();
+}
+
+function submitContact(){
+	demographicClient.contactEmail = $('input[name = "email"]').val();
 }

@@ -1,7 +1,7 @@
 var saveInfo = {
-    dataURL: 'https://madlab.ucsd.edu/mturk/save.json.php', //'save.json.php', // 
+    dataURL: 'save.json.php', // 'https://madlab.ucsd.edu/mturk/save.json.php', //
     //videoURL: 'submit.video.php',
-    imgURL: 'https://madlab.ucsd.edu/mturk/save.image.php', //'save.image.php', // 
+    imgURL: 'save.image.php', // 'https://madlab.ucsd.edu/mturk/save.image.php', //
     experimenter: 'loey',
     experimentName: 'trick-or-truth-2'
 }
@@ -86,6 +86,7 @@ var client = parseClient();
 var trialData = []; // store of all trials
 var blinktimer = null;
 var replaytimer = null;
+var remindertimer = null;
 var yaAudio, noAudio, dropAudio, dropAudio2, chooseAudio, pointsAudio, shakeAudio, winnerAudio;
 var colors = {
 	warning: "#ffb3b3", //light red
@@ -113,11 +114,17 @@ function pageLoad() {
     shakeAudio = new Audio('audio/shake.wav');
     winnerAudio = new Audio('audio/winner.wav');
 
-    var startPage = "presetup";
-    var beforeParamInputs = ["setup","consent","demographic","start","photobooth","introduction","pickColor"];
+    var startPage = "trial";
+    var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
-        expt.humanColor = "red";
-        expt.compColor = "blue";
+        expt.humanColor = "blue";
+        expt.compColor = "red";
+        colors.teamplayerblink = colors.teamblueblink;
+        colors.teamopponentblink = colors.teamredblink;
+        $('#leftUpdateBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScore'></div>");
+        $('#rightUpdateBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScore'></div>");
+        $('.leftStaticBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore'></div>");
+        $('.rightStaticBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore'></div>");
     }
     clicksMap[startPage]();
 	console.log("debug: " + expt.debug);	
@@ -144,6 +151,11 @@ function clickConsent() {
 		$('#consent').css('display','none');
 		$('#demographic').css('display','block');
         window.scrollTo(0, 0);
+
+        //saves client data from 1st page of consent
+        client.demographic = demographicClient;
+        data = {client: client, expt: expt, trials: trialData};
+        writeServer(data);
 	} else{
 		if(!checkCheckbox("checkconsent")){
 			$('#checkconsentLabel').append("<b class='warning'>Please accept to continue</b>");
@@ -163,37 +175,44 @@ function clickDemo() {
     submitDemo();
     $('.warning').hide();
     $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
-    if(checkRadio("videotaping") & checkEmail("email")){
+    if(checkRadio("videotaping")){
         $('#demographic').css('display','none');
         $('#start').css('display','block');
         window.scrollTo(0, 0);
         blink("letsgo", colors.nextblink, 20, 2, 3000, true);
+
+        //saves client data from 2nd page of consent
+        client.demographic = demographicClient;
+        data = {client: client, expt: expt, trials: trialData};
+        writeServer(data);
     } else{
-        if(!checkRadio("videotaping")){
-            $('#videotapingLabel').after("<b class='warning'> Please select one</b>");
-        }
-        if(!checkEmail("email")){
-            $('#email').after('<b class="warning"> Please enter a valid email address or "not interested"</b>');
-            $('#email').css({"border":"2px solid red", "background-color":colors.warning});
-        }
+        $('#videotapingLabel').after("<b class='warning'> Please select one</b>");
     }
 }
 
 function clickStart() {
     $('#start').css('display','none');
-    $('#photobooth').css('display','block');
 
-    trial.startTime = Date.now();
-    showCam();
-    setupCam();
+    if(demographicClient.videotaping == "yes"){
+        $('#photobooth').css('display','block');
+
+        trial.startTime = Date.now();
+        showCam();
+        setupCam();
+        
+        $('#continuePicture').prop('disabled',true);
+        blink("clickclick", colors.camblink, 20, 2, 1000, true);
+        $('#clickclick').click(function(){
+            $('#clickclick').prop('disabled',true);
+            $('#continuePicture').prop('disabled',false);
+            blink("continuePicture", colors.nextblink, 20, 2, 3000, true);
+        })
+    } else{
+        
+        replacePlayerPic();
+        continueToIntro();
+    }
     
-    $('#continuePicture').prop('disabled',true);
-    blink("clickclick", colors.camblink, 20, 2, 1000, true);
-    $('#clickclick').click(function(){
-        $('#clickclick').prop('disabled',true);
-        $('#continuePicture').prop('disabled',false);
-        blink("continuePicture", colors.nextblink, 20, 2, 3000, true);
-    })
 }
 
 function clickPicture() {
@@ -203,12 +222,15 @@ function clickPicture() {
     $('#photobooth').css('display','none');
     $('#thecamera').css('display','none');
     $('#clickclick').css('display','none');
-    $('#introduction').css('display','block');
     replacePlayerPic();
     if(!expt.debug){
         $('#continueIntro').prop('disabled',true);
     }
+    continueToIntro();
+}
 
+function continueToIntro(){
+    $('#introduction').css('display','block');
     var playFunc = function(){};
     var endFunc = function(){
         $('#continueIntro').prop('disabled',false);
@@ -456,6 +478,12 @@ function clickInstruct() {
     loadVideo("shake_shakebutton","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
     
     $('#draw-button').click(function(){
+        if(trial.exptPart == "practice"){
+            practiceDraw();
+        }
+    });
+
+    var practiceDraw = function(){
         $('.replayButton').css('display','none');
         var delayTime = 5000;
         setTimeout(function(){
@@ -503,15 +531,14 @@ function clickInstruct() {
             loadVideo("shake_all_"+expt.humanColor,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
         }, delayTime);
         $('#draw-button').prop('disabled',true);
-        
-    });
+    }
 }
 
 function clickPostPractice(){
     $('#postPractice').css('display','none');
     $('#keep').css('display','block');
     
-    $('.sideInstructVid').hide();
+    $('.sideInstructVid').css('display','none');
 
 
     //expt.catchTrials = distributeChecks(expt.trials, 0.10); // 0.1 of expt trials have an attention check
@@ -577,6 +604,12 @@ function liar() {
     $('#nextDrawer').prop('disabled', true);
     $('#nextDrawer').css('opacity',0);
     $('#draw-button').attr('onclick','draw();');
+    if(trial.exptPart == "trial"){
+        remindertimer = setInterval(function(){
+            blink("draw-button", colors.nextblink, 20, 2, 0);
+        }, 10000);
+    }
+    
     $('.tube').css('top', '68%');
     $('#choices').empty();
     $('#choices').css('opacity',0);
@@ -612,10 +645,10 @@ function detector() {
             clearInterval(trial.audiotimer);
 
             $('.subjResponse').css('opacity','0');
-            computerReport();
             orderTube("detectRep", trial.liarPlayer, trial.reportedDrawn, expt.marbleSize);
             $('.callout-button').css('opacity','0.8');
             $('.callout-button').prop('disabled', false);
+            computerReport();
             // if(trial.exptPart == "practice"){ //previously blocked from clicking accept
             //     $('#accept-button').prop('disabled', true);
             // }
@@ -666,13 +699,16 @@ function trialDone() {
 
 
     if(trial.exptPart == "trial" & trial.trialNumber%5 == 0){
+        pointsAudio.play();   
         addPoints("red", expt.stat.redRunningScore, expt.stat.redTotalScore);
         addPoints("blue", expt.stat.blueRunningScore, expt.stat.blueTotalScore);
+        
         expt.stat.redTotalScore += expt.stat.redRunningScore;
         expt.stat.blueTotalScore += expt.stat.blueRunningScore;
         expt.stat.redRunningScore = 0;
         expt.stat.blueRunningScore = 0;
     } else if(trial.exptPart == "practice"){
+        pointsAudio.play();   
         addPoints("red", trial.redTrialScore, 0);
         addPoints("blue", trial.blueTrialScore, 0);
     } else{
@@ -694,8 +730,8 @@ function trialDone() {
         var highlightHuman = colors.teamredblink;
         var highlightComp = colors.teamblueblink;
     } else{
-        var highlightComp = colors.teamblueblink;
-        var highlightHuman = colors.teamredblink;
+        var highlightHuman = colors.teamblueblink;
+        var highlightComp = colors.teamredblink;
     }
 
     if(trial.exptPart == "practice"){
@@ -738,6 +774,7 @@ function trialDone() {
                     $('#nextKeep').prop('disabled',true);
                 };
                 loadVideo("prompt_trick","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+                
             } else{
                 $('#practiceOppDecision').html("<center><img src='img/thumbs-down.png' height='200'/><br><p>They tricked you!</p></center>");
                 var playFunc = function(){};
@@ -751,7 +788,7 @@ function trialDone() {
                 };
                 loadVideo("prompt_truth","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
             }
-            
+            $('#practiceOppDecision').show();
 
         }
         
@@ -802,7 +839,7 @@ function trialDone() {
     if(trial.exptPart == "practice"){
         $('.trialNum').html("Practice: <i>" + roletxt + "</i>");
     } else if(trial.trialNumber == expt.trials){
-    	$('.trialNum').html("End!");
+    	$('.trialNum').html("Who won?");
     } else if(trial.trialNumber == (expt.trials/2 + 1)){
         $('.trialNum').html("Round " + (trial.trialNumber+1) + " of " + expt.trials);
     } else{
