@@ -1,7 +1,7 @@
 var saveInfo = {
-    dataURL: 'save.json.php', // 'https://madlab.ucsd.edu/mturk/save.json.php', //
+    dataURL: 'https://madlab.ucsd.edu/mturk/save.json.php', //'save.json.php', // 
     //videoURL: 'submit.video.php',
-    imgURL: 'save.image.php', // 'https://madlab.ucsd.edu/mturk/save.image.php', //
+    imgURL: 'https://madlab.ucsd.edu/mturk/save.image.php', //'save.image.php', // 
     experimenter: 'loey',
     experimentName: 'trick-or-truth-2'
 }
@@ -10,7 +10,7 @@ var params = {
     minAge: 3,
     maxAge: 12,
     minWindowWidth: 980,
-    minWindowHeight: 630
+    minWindowHeight: 634
 }
 
 // experiment settings
@@ -114,7 +114,7 @@ function pageLoad() {
     shakeAudio = new Audio('audio/shake.wav');
     winnerAudio = new Audio('audio/winner.wav');
 
-    var startPage = "trial";
+    var startPage = "presetup";
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
         expt.humanColor = "blue";
@@ -125,6 +125,7 @@ function pageLoad() {
         $('#rightUpdateBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScore'></div>");
         $('.leftStaticBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore'></div>");
         $('.rightStaticBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore'></div>");
+        $('.scoreBoardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>");
     }
     clicksMap[startPage]();
 	console.log("debug: " + expt.debug);	
@@ -192,6 +193,7 @@ function clickDemo() {
 
 function clickStart() {
     $('#start').css('display','none');
+    $('#clickclick').prop('disabled',true);
 
     if(demographicClient.videotaping == "yes"){
         $('#photobooth').css('display','block');
@@ -199,6 +201,12 @@ function clickStart() {
         trial.startTime = Date.now();
         showCam();
         setupCam();
+        camLoadWait = setInterval(function(){ //checks if camera is loaded every 500 ms, then takes picture
+            console.log(Webcam.loaded);
+            if(Webcam.loaded){
+                $('#clickclick').prop('disabled',false);
+            }
+        }, 500);
         
         $('#continuePicture').prop('disabled',true);
         blink("clickclick", colors.camblink, 20, 2, 1000, true);
@@ -322,6 +330,7 @@ function pickCol(color){
         $('#rightUpdateBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScore'></div>");
         $('.leftStaticBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore'></div>");
         $('.rightStaticBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore'></div>");
+        $('.scoreBoardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>")
     }
 
       /////////////////
@@ -390,9 +399,9 @@ function clickColor() {
     pauseVideo("colorVid");
     $('#pickColor').css('display','none');
     $('#instructions').css('display','block');
-    //if(!expt.debug){
+    if(!expt.debug){
     	$('#continueInstruct').css('display','none');
-    //}
+    }
     $('.bottomCoverFullInstruct').css('display','none');
 
     var playFunc = function(){
@@ -600,6 +609,8 @@ function clickPostPractice(){
 
 
 function liar() {
+    $('#playerprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamplayerblink);
+    $('#opponentprof').css('box-shadow', "");
     $('#trialDrawer').css('display','block');
     $('#nextDrawer').prop('disabled', true);
     $('#nextDrawer').css('opacity',0);
@@ -636,11 +647,14 @@ function detector() {
     $('.callout-button').css('opacity','0');
     
     function detectWait() {
+        $('#playerprof').css('box-shadow', "");
+        $('#opponentprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamopponentblink);
         flickerWait();
         audioWait();
         
         trial.waitTime = 8000 + 1000*exponential(0.75);
         setTimeout(function(){
+            $('#opponentprof').css('box-shadow', "");
             clearInterval(trial.timer);
             clearInterval(trial.audiotimer);
 
@@ -892,10 +906,30 @@ function writeImgServer(data){
 
 function clickWinner(){
     $('#completed').css('display','none');
-    $('#debriefing').css('display','block');
+    $('#confirmation').css('display','block');
+    $('#playerprof').css('display','none');
+    $('#opponentprof').css('display','none');
+}
+
+function confirmEmail(){
+    submitContact();
+    $('.warning').hide();
+    $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
+    if(checkEmail("email")){
+        $('#confirmation').css('display','none');
+        $('#debriefing').css('display','block');
+        client.demographic = demographicClient;
+        data = {client: client, expt: expt, trials: trialData};
+        writeServer(data);
+    } else{
+        $('#email').after('<b class="warning">Please enter a valid email address or "not interested"</b>');
+        $('#email').css({"border":"2px solid red", "background-color":colors.warning});
+    }
+    
 }
 
 function experimentDone() {
+    $('#debriefing').css('display','none');
     submitExternal(client);
 }
 

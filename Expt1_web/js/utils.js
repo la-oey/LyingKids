@@ -60,13 +60,15 @@ function showCam(){
     })
 }
 
+var camLoadWait = null;
 function quickCam() {
     if(demographicClient.videotaping == "yes"){
         setupCam();
-        //probably should check for when camera is open, but for now turning on camera for 1 second
-        setTimeout(function(){ 
-            take_snapshot();
-        }, 2000);
+        camLoadWait = setInterval(function(){ //checks if camera is loaded every 500 ms, then takes picture
+            if(Webcam.loaded){
+                take_snapshot();
+            }
+        }, 500);
     }
 }
 
@@ -81,6 +83,7 @@ function take_snapshot() {
             writeImgServer(data_uri);
         }
     })
+    clearInterval(camLoadWait);
 }
 
 function replacePlayerPic() {
@@ -351,7 +354,7 @@ function draw(){
             for(var i=0; i<=6; i++){
                 blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
             }
-        }, 10000);
+        }, 15000);
     }
     
     
@@ -645,6 +648,8 @@ function report(){
     }
 
     function liarWait() {
+        $('#playerprof').css('box-shadow', "");
+        $('#opponentprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamopponentblink);
         flickerWait();
         audioWait();
         
@@ -698,6 +703,7 @@ function report(){
         }
 
         setTimeout(function(){
+            $('#opponentprof').css('box-shadow', "");
             clearInterval(trial.timer);
             clearInterval(trial.audiotimer);
             
@@ -730,12 +736,12 @@ function computerDetect(){
 }
 
 function callout(call){
+    $('#playerprof').css('box-shadow', "");
     if(trial.exptPart == "practice"){
         clearInterval(replaytimer);
     } else if(trial.exptPart == "trial"){
         clearInterval(remindertimer);
     }
-    console.log(trial.trialNumber);
     if((trial.trialNumber+1)%5 != 0){
         chooseAudio.pause();
         chooseAudio.currentTime = 0;
@@ -916,7 +922,8 @@ function audioWait(){
 
 
 function computerReport(){
-
+    $('#playerprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamplayerblink);
+    $('#opponentprof').css('box-shadow', "");
     //groundTruth
     for(var i=0; i<expt.marblesSampled; i++){
         if(Math.random() < trial.probabilityRed){

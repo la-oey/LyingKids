@@ -12,8 +12,11 @@ TODO:
 <html lang="en-US">
 <meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
+
 <head>
+    <title>Trick or Truth</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://madlab.ucsd.edu/favicon.png">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script type="text/javascript" src='js/client.js'></script>
@@ -35,6 +38,12 @@ TODO:
         });
         $(function(){
             $("#demoSurvey").load("madlab/demographic.html"); 
+        });
+        $(function(){
+            $("#debriefingText").load("madlab/debriefing.html"); 
+        });
+        $(function(){
+            $("#emailConfirmation").load("madlab/emailconfirm.html"); 
         });
         $(function(){
             $("#debriefingText").load("madlab/debriefing.html"); 
@@ -89,7 +98,8 @@ TODO:
 
     <div id="photobooth" class="screen">
         <p class="mtitle">
-            Take a picture! This will be your player icon!
+            Smile for the camera! We're checking that you're not a robot!<br><br>
+            <b style='color:red'>Please click "Allow" when asked if this website may use your webcam. If you are using Firefox, check off "Remember this decision".</b>
         </p>
         <center><button class="big-button active-button" id="continuePicture" onclick="clickPicture();">Done!</button></center>
     </div>
@@ -263,15 +273,23 @@ TODO:
             </div>
             <button class='replayButton replayInstruct active-button' id="winnerVidreplay">Replay</button>
         </center>
-        <button class="big-button active-button next" id="continueWinner" onclick="clickWinner();">Finished!</button>
+        <button class="big-button active-button next" id="continueWinner" onclick="clickWinner();">Continue</button>
+    </div>
+
+    <div id="confirmation" class="screen">
+        <p class="mtitle">
+            End of experiment
+        </p>
+        <div id="emailConfirmation"></div>
+        <center><button class="big-button active-button" id="" onclick="confirmEmail();">More Information About Our Study</button></center>
     </div>
 
     <div id="debriefing" class="screen">
         <p class="mtitle">
-            End of experiment
+            What we're studying
         </p>
         <div id="debriefingText"></div>
-        <center><button class="big-button active-button" id="" onclick="experimentDone();">Finished!</button></center>
+        <center><button class="big-button active-button" id="" onclick="experimentDone();">Finish And Return to Experiment Home Page</button></center>
     </div>
     <div id="playerprof"><img id="playericon" src=""></div>
     <div id="opponentprof"><img id="opponenticon" src=""></div>

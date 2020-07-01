@@ -38,7 +38,8 @@
     height: 105px;
     position: absolute;
     top: 5%;
-    left: 6%;    
+    left: 6%;
+    text-align: center;    
     display: none;
     z-index: 1;
 }
@@ -107,8 +108,8 @@
     position: absolute;
     z-index: 1;
     width: 60%;
-    height: 10%;
-    top: 75%;
+    height: 15%;
+    top: 70%;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -708,6 +709,7 @@ body {
     border: 2px solid black;
     padding-top: 1px;
     padding-bottom: 1px;
+    cursor: pointer;
 }
 
 .choiceClassTop {
@@ -786,6 +788,7 @@ body {
     padding: 20px;
     margin-left: 5%;
     margin-right: 5%;
+    cursor: pointer;
 }
 
 #accept-button {
@@ -853,5 +856,16 @@ body {
     top: 600px;
 }
 
+#debrief {
+    margin: 1em 8% 1em 8%;
+    font-size: 16px;
+    font-family: verdana;
+}
 
+textarea {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
 

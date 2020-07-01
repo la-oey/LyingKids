@@ -2,9 +2,14 @@ var clicksMap = {
 	"presetup": function(){$('#presetup').css('display','block')},
 	"setup": clickPreSetup,
 	"consent": clickSetup,
-	"demographic": clickConsent,
+	"demographic": function(){
+		$('#demographic').css('display','block');
+	},
 	"start": clickDemo,
-	"photobooth": clickStart,
+	"photobooth": function(){
+		demographicClient.videotaping = "yes";
+		clickStart();
+	},
 	"introduction": clickPicture,
 	"pickColor": clickIntro,
 	"instructions": clickColor,
@@ -13,9 +18,12 @@ var clicksMap = {
 		$('#practiceViddiv').css('display','block');
 		trial.exptPart = "practice";
 		trial.liarPlayer = expt.compColor;
+		trial.trialNumber = 1;
         restartTrial();
         detector();
         $('.replayButton').css('display','none');
 	},
-	"trial": clickPostPractice
+	"trial": clickPostPractice,
+	"confirmation": clickWinner,
+	"debriefing": confirmEmail
 }

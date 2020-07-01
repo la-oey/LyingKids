@@ -88,12 +88,12 @@ var events = [
 	{
 		video: 'shake_all_blue.mp4',
 		event: 'sample',
-		time: '4110'
+		time: '3910'
 	},
 	{
 		video: 'shake_all_blue.mp4',
 		event: 'choices',
-		time: '6050'
+		time: '5850'
 	},
 	{
 		video: 'shake_all_blue.mp4',

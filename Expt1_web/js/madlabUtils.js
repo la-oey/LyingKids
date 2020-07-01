@@ -16,7 +16,8 @@ var demographicClient = { //filled out by participant
 	futurePhone: "",
 	otherName: "",
 	otherDOB: "",
-	contactEmail: ""
+	contactEmail: "",
+	comments: ""
 }
 
 function checkText(question, defaultA){
@@ -121,4 +122,5 @@ function submitDemo(){
 
 function submitContact(){
 	demographicClient.contactEmail = $('input[name = "email"]').val();
+	demographicClient.comments = $('input[name = "comments"]').val();
 }
