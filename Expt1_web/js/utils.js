@@ -102,10 +102,27 @@ function loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc)
     $("#"+to).attr("src","video/"+vid+".mp4");
     $("#"+to+"replay").attr('onclick',"clickReplay(\""+vid+"\",\""+to+"\",\""+classtype+"\","+callPlayFunc+","+callEndFunc+","+callResetFunc+");");
     $('.replayButton').css('display','none');
+
+    var vids = document.getElementById(to);
+    var supposedCurrentTime = 0;
+    vids.addEventListener('timeupdate', function() {
+        if (!vids.seeking) {
+            supposedCurrentTime = vids.currentTime;
+        }
+    });
+    vids.addEventListener('seeking', function() {
+          // guard agains infinite recursion:
+          // user seeks, seeking is fired, currentTime is modified, seeking is fired, current time is modified, ....
+        var delta = vids.currentTime - supposedCurrentTime;
+        if (Math.abs(delta) > 0.01) {
+            vids.currentTime = supposedCurrentTime;
+        }
+    });
+
     if(callPlayFunc != null){
         callPlayFunc();
     }
-    document.getElementById(to).onended = function(){
+    vids.onended = function(){
         loadWaiting(vid, to, classtype);
         if(callEndFunc != null){
             callEndFunc();
@@ -116,7 +133,6 @@ function loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc)
 function playVideo(to){ //plays or resumes video
     document.getElementById(to).play();
     $('.replayInstruct').css('display','none');
-    // $('#'+to).css('filter','brightness(1)');
 }
 
 function pauseVideo(to, time=0){
@@ -782,12 +798,6 @@ function addPoints(player, points, prevPoints){
             }, 1000)
             $('.'+player+'Score').css('height', (points+prevPoints)/maxPoints*$('.updateBucket').height());
         }, 1250);
-
-        if(trial.exptPart == "trial"){
-            setTimeout(function(){
-                $('#nextKeep').prop('disabled',false);
-            }, 3000);
-        }
     } else{ //instruct
         $('#'+player+"InstrPt").css({'top': '-15%'}, 1000);
         $('#'+player+"InstrPt").animate({'opacity': 1}, 250);
@@ -1075,6 +1085,7 @@ function toWinnerCircle(){
     let winnerPlayer = null;
     if(expt.stat.redTotalScore == expt.stat.blueTotalScore){
         $('#whowon').html("You tied!");
+        winnerPlayer = "both";
     } else if(expt.stat.redTotalScore > expt.stat.blueTotalScore){
         $('#whowon').html("<b style='color:red'>Red won the game!</b>");
         if(expt.humanColor == "red"){
@@ -1107,6 +1118,7 @@ function toWinnerCircle(){
     $('#continueWinner').prop('disabled', true);
     $('#winnerVid').css('display','none');
 
+    winnerPlayer= "both";
     setTimeout(function(){
         $('#winnerVid').css('display','block');
         var playFunc = function(){};

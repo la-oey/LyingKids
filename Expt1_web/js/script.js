@@ -1,7 +1,7 @@
 var saveInfo = {
-    dataURL: 'https://madlab.ucsd.edu/mturk/save.json.php', //'save.json.php', // 
+    dataURL: 'save.json.php', // 'https://madlab.ucsd.edu/mturk/save.json.php', //
     //videoURL: 'submit.video.php',
-    imgURL: 'https://madlab.ucsd.edu/mturk/save.image.php', //'save.image.php', // 
+    imgURL: 'save.image.php', // 'https://madlab.ucsd.edu/mturk/save.image.php', //
     experimenter: 'loey',
     experimentName: 'trick-or-truth-2'
 }
@@ -15,7 +15,7 @@ var params = {
 
 // experiment settings
 var expt = {
-    trials: 20, //switched from 100
+    trials: 10, //switched from 100
     marblesSampled: 6, //total number of marbles drawn per trial
     numPerDrawn: 2,
     marbleSize: 15,
@@ -114,7 +114,7 @@ function pageLoad() {
     shakeAudio = new Audio('audio/shake.wav');
     winnerAudio = new Audio('audio/winner.wav');
 
-    var startPage = "presetup";
+    var startPage = "photobooth";
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
         expt.humanColor = "blue";
@@ -125,7 +125,7 @@ function pageLoad() {
         $('#rightUpdateBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScore'></div>");
         $('.leftStaticBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore'></div>");
         $('.rightStaticBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore'></div>");
-        $('.scoreBoardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>");
+        $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>");
     }
     clicksMap[startPage]();
 	console.log("debug: " + expt.debug);	
@@ -202,7 +202,6 @@ function clickStart() {
         showCam();
         setupCam();
         camLoadWait = setInterval(function(){ //checks if camera is loaded every 500 ms, then takes picture
-            console.log(Webcam.loaded);
             if(Webcam.loaded){
                 $('#clickclick').prop('disabled',false);
             }
@@ -239,6 +238,7 @@ function clickPicture() {
 
 function continueToIntro(){
     $('#introduction').css('display','block');
+    
     var playFunc = function(){};
     var endFunc = function(){
         $('#continueIntro').prop('disabled',false);
@@ -330,7 +330,7 @@ function pickCol(color){
         $('#rightUpdateBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScore'></div>");
         $('.leftStaticBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore'></div>");
         $('.rightStaticBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore'></div>");
-        $('.scoreBoardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>")
+        $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>")
     }
 
       /////////////////
@@ -721,12 +721,17 @@ function trialDone() {
         expt.stat.blueTotalScore += expt.stat.blueRunningScore;
         expt.stat.redRunningScore = 0;
         expt.stat.blueRunningScore = 0;
+        if(trial.trialNumber != expt.trials/2){
+        	setTimeout(function(){
+	            $('#nextKeep').prop('disabled',false);
+	        }, 3000);
+        }
     } else if(trial.exptPart == "practice"){
         pointsAudio.play();   
         addPoints("red", trial.redTrialScore, 0);
         addPoints("blue", trial.blueTrialScore, 0);
     } else{
-        setTimeout(function(){
+    	setTimeout(function(){
             $('#nextKeep').prop('disabled',false);
         }, 1000);
     }
