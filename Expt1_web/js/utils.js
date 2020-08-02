@@ -1,5 +1,7 @@
+
+
 function getEventTime(video, event){
-    var diffColors =  ["opponent", "screenRecord", "shake_all", "shake_no", "shake_true", "decide_opponentlie"];
+    var diffColors =  ["opponent", "screenRecord", "shake_all", "shake_no", "shake_true", "decide_opponentlie", "decide_opponentlie_comb"];
     if(diffColors.includes(video)){
         video = video + "_" + expt.humanColor;
     }
@@ -76,7 +78,9 @@ var playerimage = [];
 
 function take_snapshot() {
     Webcam.snap(function(data_uri){
-        Webcam.reset('#thecamera');
+        if(!client.tablet){
+            Webcam.reset('#thecamera');
+        }
         playerimage.push(data_uri);        
         $('#thecamera').html('<img src="'+data_uri+'"/>');
         if(!expt.debug){
@@ -105,20 +109,22 @@ function loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc)
 
     var vids = document.getElementById(to);
     var supposedCurrentTime = 0;
-    vids.addEventListener('timeupdate', function() {
-        if (!vids.seeking) {
-            supposedCurrentTime = vids.currentTime;
-        }
-    });
-    vids.addEventListener('seeking', function() {
-          // guard agains infinite recursion:
-          // user seeks, seeking is fired, currentTime is modified, seeking is fired, current time is modified, ....
-        var delta = vids.currentTime - supposedCurrentTime;
-        if (Math.abs(delta) > 0.01) {
-            vids.currentTime = supposedCurrentTime;
-        }
-    });
-
+    if(!expt.debug){
+        vids.addEventListener('timeupdate', function() {
+            if (!vids.seeking) {
+                supposedCurrentTime = vids.currentTime;
+            }
+        });
+        vids.addEventListener('seeking', function() {
+              // guard agains infinite recursion:
+              // user seeks, seeking is fired, currentTime is modified, seeking is fired, current time is modified, ....
+            var delta = vids.currentTime - supposedCurrentTime;
+            if (Math.abs(delta) > 0.01) {
+                vids.currentTime = supposedCurrentTime;
+            }
+        });
+    }
+    
     if(callPlayFunc != null){
         callPlayFunc();
     }
@@ -149,7 +155,7 @@ function resumeVideo(to){ //plays or resumes video
 }
 
 function loadWaiting(vid, to, classtype){
-    let no_replay = ["shake_all_"+expt.humanColor, "shake_q_all_"+expt.humanColor, "shake_no_"+expt.humanColor, "shake_true_"+expt.humanColor, "tricktruth", "prompt_again"];
+    let no_replay = ["shake_all_"+expt.humanColor, "shake_q_all_"+expt.humanColor, "shake_no_"+expt.humanColor, "shake_true_"+expt.humanColor, "decide_opponentlie_comb_"+expt.humanColor, "prompt_again"];
     //loadVideo("waiting", to);
     //$('#'+to).attr('loop','loop');
     if(no_replay.includes(vid)){
@@ -673,8 +679,8 @@ function report(){
         if(trial.exptPart == "practice"){
             $('.replayButton').css('display','none');
             trial.waitTime = 6000;
-            setTimeout(function(){
-                //INSTRUCT ANIMATIONS
+            //INSTRUCT ANIMATIONS
+            var setDecideSwitch = function(){
                 var playFunc = function(){
                     if(expt.humanColor == "red"){
                         var highlightHuman = colors.teamredblink;
@@ -715,7 +721,20 @@ function report(){
                 };
 
                 loadVideo("decide_switch", "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
-            }, 5500) //EDIT
+            }
+            
+            if(client.tablet){
+                setDecideSwitch();
+                pauseVideo("practiceVid");
+                setTimeout(function(){
+                    playVideo("practiceVid");
+                }, 5500);
+            } else{
+                setTimeout(function(){
+                    setDecideSwitch();
+                }, 5500);
+            }
+            
         }
 
         setTimeout(function(){
@@ -950,85 +969,6 @@ function computerReport(){
         trial.drawnRed = 3; //reported is a lie
         trial.drawnBlue = 3;
         $('.callout-button').prop('disabled',true);
-
-        var playFunc = function(){
-            var timer0 = new Timer(function(){
-                blink("tube2", colors.funcblink, 20, 2, 0);
-            }, getEventTime('decide_opponentlie', 'opponent_lie'));
-
-            var currVideo = document.getElementById("practiceVid")
-            currVideo.onpause = function(){
-                timer0.pause();
-            }
-            currVideo.onplay = function(){
-                if(currVideo.currentTime == 0){
-                    timer0.reset();
-                }
-                timer0.resume();
-            }
-        };
-        var endFunc = function(){
-            $('#practiceVid').attr('onplay','');
-            var playFunc = function(){
-                var timer0 = new Timer(function(){
-                    blink('reject-button', colors.trickblink, 20, 2, 0);
-                }, getEventTime('tricktruth', 'orange_button'));
-                var timer1 = new Timer(function(){
-                    blink('accept-button', colors.truthblink, 20, 2, 0);
-                }, getEventTime('tricktruth', 'green_button'));
-
-                var currVideo = document.getElementById('practiceVid');
-                currVideo.onpause = function(){
-                    timer0.pause();
-                    timer1.pause();
-                }
-                currVideo.onplay = function(){
-                    if(currVideo.currentTime == 0){
-                        timer0.reset();
-                        timer1.reset();
-                    }
-                    timer0.resume();
-                    timer1.resume();
-                }
-            };
-            var endFunc = function(){
-                $('#practiceVid').attr('onplay','');
-                $('.callout-button').prop('disabled',false);
-
-                replaytimer = setInterval(function(){
-                    var playFunc = function(){
-                        var timer0 = new Timer(function(){
-                            blink('reject-button', colors.trickblink, 20, 2, 0);
-                        }, getEventTime('prompt_again', 'orange_button'));
-                        var timer1 = new Timer(function(){
-                            blink('accept-button', colors.truthblink, 20, 2, 0);
-                        }, getEventTime('prompt_again', 'green_button'));
-                        var currVideo = document.getElementById('practiceVid');
-                        currVideo.onpause = function(){
-                            timer0.pause();
-                            timer1.pause();
-                        }
-                        currVideo.onplay = function(){
-                            if(currVideo.currentTime == 0){
-                                timer0.reset();
-                                timer1.reset();
-                            }
-                            timer0.resume();
-                            timer1.resume();
-                        }
-                    };
-                    var endFunc = function(){};
-                    var resetFunc = function(){};
-                    loadVideo('prompt_again', 'practiceVid',"sideInstruct", playFunc, endFunc, resetFunc);
-                }, 20000);
-            };
-            var resetFunc = function(){};
-            loadVideo('tricktruth','practiceVid',"sideInstruct", playFunc, endFunc, resetFunc);
-        };
-        var resetFunc = function(){};
-        
-        loadVideo("decide_opponentlie_"+expt.humanColor, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
-
     } else if(expt.pseudo[trial.trialNumber] != -1){
         trial.reportedDrawn = expt.pseudo[trial.trialNumber];
         trial.pseudo = true;

@@ -1,13 +1,13 @@
 var saveInfo = {
-    dataURL: 'save.json.php', // 'https://madlab.ucsd.edu/mturk/save.json.php', //
+    dataURL: 'https://madlab.ucsd.edu/mturk/save.json.php', //'save.json.php', // 
     //videoURL: 'submit.video.php',
-    imgURL: 'save.image.php', // 'https://madlab.ucsd.edu/mturk/save.image.php', //
+    imgURL: 'https://madlab.ucsd.edu/mturk/save.image.php', //'save.image.php', // 
     experimenter: 'loey',
     experimentName: 'trick-or-truth-2'
 }
 
 var params = {
-    minAge: 3,
+    minAge: 4,
     maxAge: 12,
     minWindowWidth: 980,
     minWindowHeight: 634
@@ -15,7 +15,7 @@ var params = {
 
 // experiment settings
 var expt = {
-    trials: 10, //switched from 100
+    trials: 20,
     marblesSampled: 6, //total number of marbles drawn per trial
     numPerDrawn: 2,
     marbleSize: 15,
@@ -114,7 +114,7 @@ function pageLoad() {
     shakeAudio = new Audio('audio/shake.wav');
     winnerAudio = new Audio('audio/winner.wav');
 
-    var startPage = "photobooth";
+    var startPage = "practiceDrawer";
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
         expt.humanColor = "blue";
@@ -126,6 +126,10 @@ function pageLoad() {
         $('.leftStaticBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore'></div>");
         $('.rightStaticBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore'></div>");
         $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>");
+    }
+    adaptCSS();
+    window.onresize = function(){
+        console.log($(window).width());
     }
     clicksMap[startPage]();
 	console.log("debug: " + expt.debug);	
@@ -225,7 +229,7 @@ function clickStart() {
 function clickPicture() {
     //expt.trialProbs = sample(expt.allTrialProbs);
     //expt.humanColor = sample(expt.humanColor); //assigns human to play as red or blue
-    
+    // Webcam.reset('#thecamera');
     $('#photobooth').css('display','none');
     $('#thecamera').css('display','none');
     $('#clickclick').css('display','none');
@@ -254,6 +258,7 @@ function continueToIntro(){
 
 function clickIntro() {
     pauseVideo("introVid");
+    quickCam();
     $('#introduction').css('display','none');
     $('#pickColor').css('display','block');
 
@@ -494,8 +499,7 @@ function clickInstruct() {
 
     var practiceDraw = function(){
         $('.replayButton').css('display','none');
-        var delayTime = 5000;
-        setTimeout(function(){
+        var setShake = function(){
             var playFunc = function(){
                 var currVideo = document.getElementById('practiceVid');
                 var timer0 = new Timer(function(){
@@ -538,7 +542,19 @@ function clickInstruct() {
             var resetFunc = function(){};
             
             loadVideo("shake_all_"+expt.humanColor,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
-        }, delayTime);
+        }
+        if(client.tablet){
+            setShake();
+            pauseVideo("practiceVid");
+            setTimeout(function(){
+                playVideo("practiceVid");
+            }, 5000);
+        } else{
+            setTimeout(function(){
+                setShake();
+            }, 5000);
+        }
+        
         $('#draw-button').prop('disabled',true);
     }
 }
@@ -670,6 +686,86 @@ function detector() {
         }, trial.waitTime);
     }
     detectWait();
+
+    if(trial.exptPart == "practice"){
+        var setDecideOppLie = function(){
+            var resetFunc = function(){};
+            var playFunc = function(){
+                var timer0 = new Timer(function(){
+                    blink("tube2", colors.funcblink, 20, 2, 0);
+                }, getEventTime('decide_opponentlie', 'opponent_lie'));
+                var timer1 = new Timer(function(){
+                    blink('reject-button', colors.trickblink, 20, 2, 0);
+                }, getEventTime('decide_opponentlie_comb', 'orange_button'));
+                var timer2 = new Timer(function(){
+                    blink('accept-button', colors.truthblink, 20, 2, 0);
+                }, getEventTime('decide_opponentlie_comb', 'green_button'));
+
+                var currVideo = document.getElementById("practiceVid")
+                currVideo.onpause = function(){
+                    timer0.pause();
+                    timer1.pause();
+                    timer2.pause();
+                }
+                currVideo.onplay = function(){
+                    if(currVideo.currentTime == 0){
+                        timer0.reset();
+                        timer1.reset();
+                        timer2.reset();
+                    }
+                    timer0.resume();
+                    timer1.resume();
+                    timer2.resume();
+                }
+            };
+            var endFunc = function(){
+                $('#practiceVid').attr('onplay','');
+                $('.callout-button').prop('disabled',false);
+
+                replaytimer = setInterval(function(){
+                    var playFunc = function(){
+                        var timer0 = new Timer(function(){
+                            blink('reject-button', colors.trickblink, 20, 2, 0);
+                        }, getEventTime('prompt_again', 'orange_button'));
+                        var timer1 = new Timer(function(){
+                            blink('accept-button', colors.truthblink, 20, 2, 0);
+                        }, getEventTime('prompt_again', 'green_button'));
+                        var currVideo = document.getElementById('practiceVid');
+                        currVideo.onpause = function(){
+                            timer0.pause();
+                            timer1.pause();
+                        }
+                        currVideo.onplay = function(){
+                            if(currVideo.currentTime == 0){
+                                timer0.reset();
+                                timer1.reset();
+                            }
+                            timer0.resume();
+                            timer1.resume();
+                        }
+                    };
+                    var endFunc = function(){};
+                    var resetFunc = function(){};
+                    loadVideo('prompt_again', 'practiceVid',"sideInstruct", playFunc, endFunc, resetFunc);
+                }, 20000);
+            };
+            loadVideo("decide_opponentlie_comb_"+expt.humanColor, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+        }
+
+        if(client.tablet){
+            setDecideOppLie();
+            pauseVideo("practiceVid");
+            setTimeout(function(){
+                playVideo("practiceVid");
+            }, trial.waitTime);
+        } else{
+            setTimeout(function(){
+                setDecideOppLie();
+            }, trial.waitTime)
+        }
+        
+    }
+    
 }
 
 
@@ -938,3 +1034,26 @@ function experimentDone() {
     submitExternal(client);
 }
 
+function adaptCSS(){
+    client.tablet = client.userAgent.includes("iPad") || client.userAgent.includes("CrOS");
+    client.mobile = client.userAgent.includes("iPhone") || client.userAgent.includes("Android");
+
+    if(client.tablet){
+        $('#presetupTxt').append(' tablet test');
+        //$('.instructVid').css({'width':'190.4px', 'height':'228.2px'});
+        // $('#practiceViddiv').addClass('sideInstructViddivTablet').removeClass('sideInstructViddiv');
+        // $('#wrapper').addClass('wrapperClassTablet').removeClass('wrapperClass');
+        // $('#choices').addClass('choiceDivTablet').removeClass('choiceDiv');
+        $('.color-button').css({'height':'150px'})
+    } else if(client.mobile){
+        $('#presetupTxt').append(' new mobile test');
+        params.minWindowWidth = 0;
+        params.minWindowHeight = 0;
+        // $('#practiceViddiv').addClass('sideInstructViddivMobile').removeClass('sideInstructViddiv');
+        // $('#wrapper').addClass('wrapperClassMobile').removeClass('wrapperClass');
+    } else{
+        $('#presetupTxt').append(' general test');
+        
+
+    }
+}

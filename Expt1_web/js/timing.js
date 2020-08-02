@@ -176,6 +176,27 @@ var events = [
 		time: '14601'
 	},
 
+	{
+		video: 'decide_opponentlie_comb_red.mp4',
+		event: 'orange_button',
+		time: '18910'
+	},
+	{
+		video: 'decide_opponentlie_comb_red.mp4',
+		event: 'green_button',
+		time: '25680'
+	},
+	{
+		video: 'decide_opponentlie_comb_blue.mp4',
+		event: 'orange_button',
+		time: '18900'
+	},
+	{
+		video: 'decide_opponentlie_comb_blue.mp4',
+		event: 'green_button',
+		time: '25420'
+	},
+
 
 	{
 		video: 'prompt_again.mp4',
