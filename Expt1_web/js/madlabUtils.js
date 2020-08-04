@@ -97,6 +97,10 @@ function checkWindowDimensionsDynamic(minWidth, minHeight) {
     window.onload = assessWindowSize();
 }
 
+function openForm(){
+	window.open("madlab/pdf/consent.pdf", '_blank');
+}
+
 function submitConsent(){
 	demographicClient.consent = $('input[name = "checkconsent"]').prop("checked");
 	demographicClient.parentName = $('input[name = "parentName"]').val();
