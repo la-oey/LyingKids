@@ -1,4 +1,158 @@
 
+body {
+    background-color: white;
+}
+
+
+
+.instructVid {
+    border: 2px solid black;
+    width: 272px;
+    height: 326px;
+}
+
+.big-button {
+    position: absolute;
+    bottom: 5%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    padding: 10px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1.25em;
+    font-family: "Helvetica", sans-serif;
+}
+
+.replaySideInstruct {
+    position: absolute;
+    padding: 10px 10px;
+    left: 11%;
+    z-index: 1;
+    top: 53%;
+}
+
+.sideInstructOverlay{
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index: 3;
+}
+
+#blackbox {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 176.8px;
+    height: 211.9px;
+    object-fit:cover;
+    pointer-events:none;
+    z-index: 2;
+}
+
+
+
+/* #### Mobile Phones Landscape #### */
+@media only screen and (min-device-width: 320px) and (max-device-width : 480px){
+    .sideInstructVid{
+        width: 79.56px;
+        height: 95.355px;
+        border: 2px solid black;
+    }
+
+    .big-button {
+        position: relative;
+    }
+
+    #turnVidreplay {
+        top: 180px;
+    }
+
+    #winnerVidreplay {
+        top: 150px;
+    }
+}
+
+
+/* #### Tablets Portrait or Landscape #### */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px){
+    .sideInstructVid{
+        width: 123.76px;
+        height: 148.33px;
+        border: 2px solid black;
+    }
+
+    .replaySideInstruct {
+        left: 6%;
+    }
+
+    .choiceDiv {
+        position: absolute;
+        top: 55%;
+        width: 84%;
+        height: 30%;
+        left: 14%;
+        right: 2%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .instructVid {
+        border: 2px solid black;
+        width: 190.4px;
+        height: 228.2px;
+    }
+
+    #turnVidreplay {
+        top: 420px;
+    }
+
+    #winnerVidreplay {
+        top: 350px;
+    }
+}
+
+
+/* #### Desktops #### */
+@media only screen and (min-width: 1025px){
+    .sideInstructVid {
+        float: left;
+        width: 176.8px;
+        height: 211.9px;
+        border: 2px solid black;
+    }
+
+    .choiceDiv {
+        position: absolute;
+        top: 60%;
+        width: 84%;
+        height: 30%;
+        left: 14%;
+        right: 2%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #turnVidreplay {
+        top: 500px;
+    }
+
+    #winnerVidreplay {
+        top: 600px;
+    }
+}
+
+
+
+
+
+
+
 #thecamera {
    width: 320px;
    height: 240px;
@@ -83,17 +237,25 @@
 
 
 
-.instructVid {
+/*.instructVid {
     border: 2px solid black;
     width: 272px;
     height: 326px;
-    /*top: 30%;*/
-    /*top: 500px;*/
-}
+}*/
 
-.instructViddiv {
-    width: 60%;
-    /*margin: 30% 30% 50% 30%;*/
+/*.instructViddiv {
+    height: 20%;
+    width: 25%;
+    margin: 30% 30% 50% 30%;
+}*/
+
+.sideInstructViddiv {
+    position: absolute;
+    /*width: 176.8px;
+    height: 211.9px;*/
+    top: 25%;
+    left: 6%;
+    display: none;
 }
 
 .fullInstructVid {
@@ -114,18 +276,9 @@
     transform: translateX(-50%);
 }
 
-.sideInstructViddiv {
-    position: absolute;
-    top: 25%;
-    left: 6%;
-    display: none;
-}
 
-.sideInstructVid {
-    width: 176.8px;
-    height: 211.9px;
-    border: 2px solid black;
-}
+
+
 
 #practiceVidreplay {
     display: none;
@@ -134,9 +287,10 @@
 .replayInstruct {
     position: absolute;
     padding: 10px 10px;
+    top: 22%;
     left: 65%;
     z-index: 1;
-    top: 275px;
+    
 }
 
 .replayFullInstruct {
@@ -147,25 +301,17 @@
     top: 80%;
 }
 
-.replaySideInstruct {
-    position: absolute;
-    padding: 10px 10px;
-    left: 11%;
-    z-index: 1;
-    top: 53%;
-}
+
 
 #introVidreplay {
-    top: 350px;
+    top: 30%;
 }
 
 #summaryVidreplay {
     top: 350px;
 }
 
-#turnVidreplay {
-    top: 500px;
-}
+
 
 
 
@@ -241,7 +387,7 @@ input[type=date]::-webkit-datetime-edit {
 }
 
 p {
-    font-size: 30px;
+    font-size: 26px;
     font-family: verdana;
     margin: 1em 10% 1em 10%;
 }
@@ -361,9 +507,7 @@ ul {
     text-align: center;
 }
 
-body {
-    background-color: white;
-}
+
 
 .screen {
     display: none;
@@ -403,21 +547,7 @@ body {
 }
 
 
-.big-button {
-    position: absolute;
-    bottom: 5%;
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    /*margin-top: 1%;*/
-    width: 50%;
-    padding: 10px 32px;
-    text-align: center;
-    text-decoration: none;
-    font-size: 1.25em;
-    font-family: "Helvetica", sans-serif;
-}
+
 
 .active-button {
     border: 2px solid #4CAF50;
@@ -587,31 +717,50 @@ body {
     background-color: blue;
 }
 
-#wrapper {
+.wrapperClass {
     margin-left: auto;
     margin-right: auto;
-    width: 60%;
+    width: 45%;
+}
+
+.wrapperClassTablet {
+    margin-left: auto;
+    margin-right: auto;
+    width: 400px;
+}
+
+.wrapperClassMobile {
+    /*margin-left: auto;
+    margin-right: auto;*/
+    width: 20%;
+    height: 20%;
 }
 
 /*.urn {
     margin-left: auto;
     margin-right: auto;
-    width: 60%;
+    width: 100px;
+    /*height: 300px;
 }*/
 
-/*#suburn {
-    margin: auto;
+
+
+#suburn {
+    width: 100%;
+    height: 100%;
+    /*margin: auto;
     left: 0;
     right: 0;
     margin-left: auto;
-    margin-right: auto;
-}*/
+    margin-right: auto;*/
+    /*height: 100px;*/
+}
 
 .cover{
     position:absolute;
     top: -10%;
     z-index: 1;
-    height: 55%;
+    height: 58%;
     width: 52%;
     left: 0;
     right: 0;
@@ -675,16 +824,7 @@ body {
     opacity: 0;
 }
 
-#choices {
-    position: absolute;
-    top: 60%;
-    width: 84%;
-    height: 30%;
-    left: 14%;
-    right: 2%;
-    margin-left: auto;
-    margin-right: auto;
-}
+
 
 .choiceClass:hover{
     background-color: #FFFFCC;
@@ -852,9 +992,7 @@ body {
     top: 35%;
 }
 
-#winnerVidreplay {
-    top: 600px;
-}
+
 
 #debrief {
     margin: 1em 8% 1em 8%;
@@ -868,4 +1006,6 @@ textarea {
        -moz-box-sizing: border-box;
             box-sizing: border-box;
 }
+
+
 

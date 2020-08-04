@@ -154,17 +154,20 @@ function resumeVideo(to){ //plays or resumes video
     $('#'+to).css('filter','brightness(1)');
 }
 
+
 function loadWaiting(vid, to, classtype){
-    let no_replay = ["shake_all_"+expt.humanColor, "shake_q_all_"+expt.humanColor, "shake_no_"+expt.humanColor, "shake_true_"+expt.humanColor, "decide_opponentlie_comb_"+expt.humanColor, "prompt_again"];
-    //loadVideo("waiting", to);
-    //$('#'+to).attr('loop','loop');
-    if(no_replay.includes(vid)){
-        $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");
+    let no_replay = ["shake_all_"+expt.humanColor, "shake_all_"+expt.humanColor+"_again", "shake_q_all_"+expt.humanColor, "shake_no_"+expt.humanColor, "shake_true_"+expt.humanColor, "decide_opponentlie_comb_"+expt.humanColor, "prompt_again"];
+    if(no_replay.includes(vid) & !client.tablet){
+        $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");  
     } else if(to == "screenVid"){
         $("#"+to+"replay").css('display','block');
     }
     else{ //does not load wait gif for screen record
-        $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");
+        if(client.tablet){
+            $('#'+to+"div").html("<img class='"+classtype+"Vid' id='"+to+"' src='img/waiting.gif'>");
+        } else {
+            $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");
+        }
         $("#"+to+"replay").css('display','block');
     }
 }
@@ -175,6 +178,33 @@ function clickReplay(vid, to, classtype, callPlayFunc, callEndFunc, callResetFun
     } 
     if(vid == "decide_lie"){
         vid = "decide_lie_again";
+    } else if(client.tablet & vid == "shake_all_"+expt.humanColor){
+        vid = "shake_all_"+expt.humanColor+"_again";
+        callPlayFunc = null;
+    } else if(client.tablet & vid=="decide_opponentlie_comb_"+expt.humanColor){
+        vid = "prompt_again";
+        callPlayFunc = function(){
+            var timer0 = new Timer(function(){
+                blink('reject-button', colors.trickblink, 20, 2, 0);
+            }, getEventTime('prompt_again', 'orange_button'));
+            var timer1 = new Timer(function(){
+                blink('accept-button', colors.truthblink, 20, 2, 0);
+            }, getEventTime('prompt_again', 'green_button'));
+            var currVideo = document.getElementById('practiceVid');
+            currVideo.onpause = function(){
+                timer0.pause();
+                timer1.pause();
+            }
+            currVideo.onplay = function(){
+                if(currVideo.currentTime == 0){
+                    timer0.reset();
+                    timer1.reset();
+                }
+                timer0.resume();
+                timer1.resume();
+            }
+        };
+        callEndFunc = null;
     }
     loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc);
 }
@@ -295,6 +325,13 @@ function draw(){
         }
     }, shakeDelay);
 
+    dropAudio.play();
+    dropAudio2.play();
+    dropAudio3.play();
+    dropAudio.pause();
+    dropAudio2.pause();
+    dropAudio3.pause();
+
     setTimeout(function(){
         shakeAudio.play();
     }, 300);
@@ -318,16 +355,31 @@ function draw(){
             marble('#marble'+turn.numDrawn+trial.exptPart+'svg', color, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((turn.numDrawn+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
             $('#marble'+turn.numDrawn+trial.exptPart).animate({'top':'0%'}, 500);
             turn.numDrawn += 1;
-            if(turn.numDrawn % 2 == 0){
-                setTimeout(function(){
-                    dropAudio.play();
-                }, 200);
+            if(client.tablet){
+                if(turn.numDrawn % 3 == 0){
+                    setTimeout(function(){
+                        dropAudio.play();
+                    }, 60);
+                } else if(turn.numDrawn % 3 == 1){
+                    setTimeout(function(){
+                        dropAudio2.play();
+                    }, 60);
+                } else{
+                    setTimeout(function(){
+                        dropAudio3.play();
+                    }, 60);
+                }
             } else{
-                setTimeout(function(){
-                    dropAudio2.play();
-                }, 200);
+                if(turn.numDrawn % 2 == 0){
+                    setTimeout(function(){
+                        dropAudio.play();
+                    }, 200);
+                } else{
+                    setTimeout(function(){
+                        dropAudio2.play();
+                    }, 200);
+                }
             }
-            
         }
     }
 
@@ -446,9 +498,11 @@ function practiceHighlightChoice(choice){
             var resetFunc = function(){};
             loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
 
-            replaytimer = setInterval(function(){
-                loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
-            }, 20000);            
+            if(!client.tablet){
+                replaytimer = setInterval(function(){
+                    loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
+                }, 20000);
+            }       
         } else{
             noAudio.play();
         }
@@ -480,9 +534,11 @@ function practiceHighlightChoice(choice){
                 var resetFunc = function(){};
 
                 loadVideo("shake_true_"+expt.humanColor, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
-                replaytimer = setInterval(function(){
-                    loadVideo("shake_true_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
-                }, 20000);   
+                if(!client.tablet){
+                    replaytimer = setInterval(function(){
+                        loadVideo("shake_true_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
+                    }, 20000); 
+                }
             } else{
                 noAudio.play();
             }
@@ -679,6 +735,7 @@ function report(){
         if(trial.exptPart == "practice"){
             $('.replayButton').css('display','none');
             trial.waitTime = 6000;
+            var timer0, timer1, timer2;
             //INSTRUCT ANIMATIONS
             var setDecideSwitch = function(){
                 var playFunc = function(){
@@ -689,13 +746,13 @@ function report(){
                         var highlightComp = colors.teamredblink;
                         var highlightHuman = colors.teamblueblink;
                     }
-                    var timer0 = new Timer(function(){
+                    timer0 = new Timer(function(){
                         blink("rightUpdateBucket", highlightComp, 40, 2, 0);
                     }, getEventTime('decide_switch','opponent_allpoints'));
-                    var timer1 = new Timer(function(){
+                    timer1 = new Timer(function(){
                         blink("leftUpdateBucket", highlightHuman, 40, 2, 0);
                     }, getEventTime('decide_switch','player_nopoints'));
-                    var timer2 = new Timer(function(){
+                    timer2 = new Timer(function(){
                         blink("nextKeep", colors.nextblink, 20, 2, 0, true);
                         $('#nextKeep').prop('disabled',false);
                     }, getEventTime('decide_switch','points_next'));
@@ -704,14 +761,17 @@ function report(){
                     currVideo.onpause = function(){
                         timer0.pause();
                         timer1.pause();
+                        timer2.pause();
                     }
                     currVideo.onplay = function(){
                         if(currVideo.currentTime == 0){
                             timer0.reset();
                             timer1.reset();
+                            timer2.reset();
                         }
                         timer0.resume();
                         timer1.resume();
+                        timer2.resume();
                     }
                 };
                 var endFunc = function(){};
@@ -726,6 +786,9 @@ function report(){
             if(client.tablet){
                 setDecideSwitch();
                 pauseVideo("practiceVid");
+                timer0.pause();
+                timer1.pause();
+                timer2.pause();
                 setTimeout(function(){
                     playVideo("practiceVid");
                 }, 5500);
@@ -1058,8 +1121,7 @@ function toWinnerCircle(){
     $('#continueWinner').prop('disabled', true);
     $('#winnerVid').css('display','none');
 
-    winnerPlayer= "both";
-    setTimeout(function(){
+    var setWinner = function(){
         $('#winnerVid').css('display','block');
         var playFunc = function(){};
         var endFunc = function(){
@@ -1071,7 +1133,20 @@ function toWinnerCircle(){
             $('#continueWinner').prop('disabled',true);
         };
         loadVideo('winner_'+winnerPlayer,'winnerVid',"instruct", playFunc, endFunc, resetFunc);
-    }, 2000);
+    }
+
+    if(client.tablet){
+        setWinner();
+        pauseVideo("winnerVid");
+        setTimeout(function(){
+            playVideo("winnerVid");
+        }, 2000);
+    } else{
+        setTimeout(function(){
+            setWinnder();
+        }, 2000);
+    }
+    
     
 }
 

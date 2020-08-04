@@ -12,6 +12,7 @@ TODO:
 <html lang="en-US">
 <meta charset="UTF-8">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 
 <head>
     <title>Trick or Truth</title>
@@ -49,6 +50,7 @@ TODO:
             $("#debriefingText").load("madlab/debriefing.html"); 
         });
     </script>
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
 </head>
 
 
@@ -64,7 +66,7 @@ TODO:
     </div>
     <button class='replayButton replaySideInstruct active-button' id="practiceVidreplay">Replay</button>
     <div id="presetup" class="screen">
-        <center><p>Welcome, parent! For now, you'll be doing set up! You do not need your child yet, but we will let you know when it will be a good time to get your child.</p></center><br>
+        <center><p id='presetupTxt'>Welcome, parent! For now, you'll be doing set up! You do not need your child yet, but we will let you know when it will be a good time to get your child.</p></center><br>
         <center><button class="big-button active-button" id="continuePreSetup" onclick="clickPreSetup();">Continue</button></center>
     </div>
 
@@ -190,7 +192,7 @@ TODO:
     <div id="trialDrawer" class="screen">
         <p class="mtitle trialNum">Round</p>
         <center>
-        <div id="wrapper">
+        <div id="wrapper" class="wrapperClass">
             <img class="cover" src="img/tablecloth.png">
             <br>
             <div class="urn">
@@ -204,7 +206,7 @@ TODO:
             </div>
         </div></center>
 
-        <center><div id="choices"><div id="labelChoices"></div></div></center>
+        <center><div id="choices" class="choiceDiv"><div id="labelChoices"></div></div></center>
         <center><div class="subjResponse"></div></center>
         <div class="scoreBucket leftBucket leftStaticBucket">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">

@@ -87,7 +87,7 @@ var trialData = []; // store of all trials
 var blinktimer = null;
 var replaytimer = null;
 var remindertimer = null;
-var yaAudio, noAudio, dropAudio, dropAudio2, chooseAudio, pointsAudio, shakeAudio, winnerAudio;
+var yaAudio, noAudio, dropAudio, dropAudio2, dropAudio3, chooseAudio, pointsAudio, shakeAudio, winnerAudio;
 var colors = {
 	warning: "#ffb3b3", //light red
     nextblink: "#82ec8e", //light green
@@ -108,13 +108,14 @@ function pageLoad() {
     noAudio = new Audio("audio/incorrect.wav");
     dropAudio = new Audio("audio/drop.wav");
     dropAudio2 = new Audio("audio/drop.wav");
+    dropAudio3 = new Audio("audio/drop.wav");
     waitAudio = new Audio("audio/wait.wav");
     chooseAudio = new Audio("audio/choose.wav");
     pointsAudio = new Audio("audio/points.wav");
     shakeAudio = new Audio('audio/shake.wav');
     winnerAudio = new Audio('audio/winner.wav');
 
-    var startPage = "practiceDrawer";
+    var startPage = "trial";
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
         expt.humanColor = "blue";
@@ -358,10 +359,10 @@ function pickCol(color){
             var opponentGender = 'female';
         }
         var timer1 = new Timer(function(){
-            showOpponent(opponentGender,expt.compColor, true); //EDIT gender after demographic form
+            showOpponent(opponentGender,expt.compColor, true);
         }, getEventTime(opponent_vid, 'other_player'));
         var timer2 = new Timer(function(){
-            showOpponent(opponentGender,expt.compColor); //EDIT gender after demographic form //include other option
+            showOpponent(opponentGender,expt.compColor);
             blink('opponentprof', colors.teamopponentblink, 20, 2, 0);
         }, getEventTime(opponent_vid, 'opponent_team'));
         var timer3 = new Timer(function(){
@@ -499,20 +500,21 @@ function clickInstruct() {
 
     var practiceDraw = function(){
         $('.replayButton').css('display','none');
+        var timer0, timer1, timer2;
         var setShake = function(){
             var playFunc = function(){
                 var currVideo = document.getElementById('practiceVid');
-                var timer0 = new Timer(function(){
+                timer0 = new Timer(function(){
                     blink('tube1', colors.funcblink, 30, 2, 0);
                 }, getEventTime('shake_all','sample'));
 
-                var timer1 = new Timer(function(){
+                timer1 = new Timer(function(){
                     for(var i=0; i<=6; i++){
                         blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
                     }
                 }, getEventTime('shake_all','choices'));
 
-                var timer2 = new Timer(function(){
+                timer2 = new Timer(function(){
                     resetHighlight();
                 }, getEventTime('shake_all','question'));
 
@@ -533,11 +535,13 @@ function clickInstruct() {
                 }
             };
             var endFunc = function(){
-                var currVideo = document.getElementById('practiceVid');
                 $('#practiceVid').attr('onplay','');
-                replaytimer = setInterval(function(){
-                    loadVideo('shake_all_'+expt.humanColor+'_again', 'practiceVid','sideInstruct', null, null, null);
-                }, 20000);
+
+                if(!client.tablet){
+                    replaytimer = setInterval(function(){
+                        loadVideo('shake_all_'+expt.humanColor+'_again', 'practiceVid','sideInstruct', null, null, null);
+                    }, 20000);
+                }
             };
             var resetFunc = function(){};
             
@@ -546,6 +550,9 @@ function clickInstruct() {
         if(client.tablet){
             setShake();
             pauseVideo("practiceVid");
+            timer0.pause();
+            timer1.pause();
+            timer2.pause();
             setTimeout(function(){
                 playVideo("practiceVid");
             }, 5000);
@@ -688,16 +695,17 @@ function detector() {
     detectWait();
 
     if(trial.exptPart == "practice"){
+        var timer0, timer1, timer2;
         var setDecideOppLie = function(){
             var resetFunc = function(){};
             var playFunc = function(){
-                var timer0 = new Timer(function(){
+                timer0 = new Timer(function(){
                     blink("tube2", colors.funcblink, 20, 2, 0);
                 }, getEventTime('decide_opponentlie', 'opponent_lie'));
-                var timer1 = new Timer(function(){
+                timer1 = new Timer(function(){
                     blink('reject-button', colors.trickblink, 20, 2, 0);
                 }, getEventTime('decide_opponentlie_comb', 'orange_button'));
-                var timer2 = new Timer(function(){
+                timer2 = new Timer(function(){
                     blink('accept-button', colors.truthblink, 20, 2, 0);
                 }, getEventTime('decide_opponentlie_comb', 'green_button'));
 
@@ -722,32 +730,34 @@ function detector() {
                 $('#practiceVid').attr('onplay','');
                 $('.callout-button').prop('disabled',false);
 
-                replaytimer = setInterval(function(){
-                    var playFunc = function(){
-                        var timer0 = new Timer(function(){
-                            blink('reject-button', colors.trickblink, 20, 2, 0);
-                        }, getEventTime('prompt_again', 'orange_button'));
-                        var timer1 = new Timer(function(){
-                            blink('accept-button', colors.truthblink, 20, 2, 0);
-                        }, getEventTime('prompt_again', 'green_button'));
-                        var currVideo = document.getElementById('practiceVid');
-                        currVideo.onpause = function(){
-                            timer0.pause();
-                            timer1.pause();
-                        }
-                        currVideo.onplay = function(){
-                            if(currVideo.currentTime == 0){
-                                timer0.reset();
-                                timer1.reset();
+                if(!client.tablet){
+                    replaytimer = setInterval(function(){
+                        var playFunc = function(){
+                            timer0 = new Timer(function(){
+                                blink('reject-button', colors.trickblink, 20, 2, 0);
+                            }, getEventTime('prompt_again', 'orange_button'));
+                            timer1 = new Timer(function(){
+                                blink('accept-button', colors.truthblink, 20, 2, 0);
+                            }, getEventTime('prompt_again', 'green_button'));
+                            var currVideo = document.getElementById('practiceVid');
+                            currVideo.onpause = function(){
+                                timer0.pause();
+                                timer1.pause();
                             }
-                            timer0.resume();
-                            timer1.resume();
-                        }
-                    };
-                    var endFunc = function(){};
-                    var resetFunc = function(){};
-                    loadVideo('prompt_again', 'practiceVid',"sideInstruct", playFunc, endFunc, resetFunc);
-                }, 20000);
+                            currVideo.onplay = function(){
+                                if(currVideo.currentTime == 0){
+                                    timer0.reset();
+                                    timer1.reset();
+                                }
+                                timer0.resume();
+                                timer1.resume();
+                            }
+                        };
+                        var endFunc = function(){};
+                        var resetFunc = function(){};
+                        loadVideo('prompt_again', 'practiceVid',"sideInstruct", playFunc, endFunc, resetFunc);
+                    }, 20000);
+                }
             };
             loadVideo("decide_opponentlie_comb_"+expt.humanColor, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
         }
@@ -755,6 +765,9 @@ function detector() {
         if(client.tablet){
             setDecideOppLie();
             pauseVideo("practiceVid");
+            timer0.pause();
+            timer1.pause();
+            timer2.pause();
             setTimeout(function(){
                 playVideo("practiceVid");
             }, trial.waitTime);
@@ -1039,21 +1052,13 @@ function adaptCSS(){
     client.mobile = client.userAgent.includes("iPhone") || client.userAgent.includes("Android");
 
     if(client.tablet){
-        $('#presetupTxt').append(' tablet test');
-        //$('.instructVid').css({'width':'190.4px', 'height':'228.2px'});
-        // $('#practiceViddiv').addClass('sideInstructViddivTablet').removeClass('sideInstructViddiv');
-        // $('#wrapper').addClass('wrapperClassTablet').removeClass('wrapperClass');
-        // $('#choices').addClass('choiceDivTablet').removeClass('choiceDiv');
+        // $('#presetupTxt').append(' tablet test');
         $('.color-button').css({'height':'150px'})
     } else if(client.mobile){
-        $('#presetupTxt').append(' new mobile test');
+        // $('#presetupTxt').append(' new mobile test');
         params.minWindowWidth = 0;
         params.minWindowHeight = 0;
-        // $('#practiceViddiv').addClass('sideInstructViddivMobile').removeClass('sideInstructViddiv');
-        // $('#wrapper').addClass('wrapperClassMobile').removeClass('wrapperClass');
     } else{
-        $('#presetupTxt').append(' general test');
-        
-
+        // $('#presetupTxt').append(' general test');
     }
 }
