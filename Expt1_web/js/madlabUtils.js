@@ -97,6 +97,18 @@ function checkWindowDimensionsDynamic(minWidth, minHeight) {
     window.onload = assessWindowSize();
 }
 
+function checkOrientation(){ //mode = {'portrait','landscape'}
+	function assessOrientation(){
+	    if(Math.abs(window.orientation) == 90){
+	        $('#continuePreSetup').prop('disabled', false);
+	    } else{
+	        $('#continuePreSetup').prop('disabled', true);
+	    }
+	}
+	window.onorientationchange = assessOrientation;
+	window.onload = assessOrientation();
+}
+
 function openForm(){
 	window.open("madlab/pdf/consent.pdf", '_blank');
 }

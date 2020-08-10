@@ -15,7 +15,7 @@ var params = {
 
 // experiment settings
 var expt = {
-    trials: 20,
+    trials: 10,
     marblesSampled: 6, //total number of marbles drawn per trial
     numPerDrawn: 2,
     marbleSize: 15,
@@ -115,7 +115,7 @@ function pageLoad() {
     shakeAudio = new Audio('audio/shake.wav');
     winnerAudio = new Audio('audio/winner.wav');
 
-    var startPage = "trial";
+    var startPage = "presetup";
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
         expt.humanColor = "blue";
@@ -129,9 +129,6 @@ function pageLoad() {
         $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>");
     }
     adaptCSS();
-    window.onresize = function(){
-        console.log($(window).width());
-    }
     clicksMap[startPage]();
 	console.log("debug: " + expt.debug);	
 }
@@ -1048,17 +1045,27 @@ function experimentDone() {
 }
 
 function adaptCSS(){
-    client.tablet = client.userAgent.includes("iPad") || client.userAgent.includes("CrOS");
     client.mobile = client.userAgent.includes("iPhone") || client.userAgent.includes("Android");
+    client.tablet = !client.mobile & (client.userAgent.includes("iPad") || client.userAgent.includes("CrOS") || client.screen.width <= 1024)
 
     if(client.tablet){
-        // $('#presetupTxt').append(' tablet test');
-        $('.color-button').css({'height':'150px'})
-    } else if(client.mobile){
-        // $('#presetupTxt').append(' new mobile test');
+        $('.color-button').css({'height':'150px'});
         params.minWindowWidth = 0;
         params.minWindowHeight = 0;
-    } else{
-        // $('#presetupTxt').append(' general test');
+    }
+
+    //$('#presetupTxt').html(client.userAgent);
+    // Errors if using the wrong browser
+    if(client.mobile){
+        $('#presetupTxt').html('<b>Uh oh!</b> We noticed that you seem to be using a mobile device. To continue with the task, we ask that you please switch to a tablet, laptop, or desktop. Thank you.');
+        $('#presetupTxt').append('<br><br>Experiencing problems? Email us at <a href="mailto:MaDlab@ucsd.edu">MaDlab@ucsd.edu</a>.');
+        $('#presetupButtonDiv').html('<a href="https://madlab.ucsd.edu/experiments/trick-or-truth-2/"><button class="big-button active-button" id="continuePreSetup">Return to study info</button></a>');
+    } else if((client.userAgent.includes("iPad") || (client.userAgent.includes("Macintosh") & client.screen.width <= 1024)) & client.userAgent.includes("CriOS")){
+        $('#presetupTxt').html('<b>Uh oh!</b> We noticed that you seem to be using Google Chrome on an iPad. To continue with the task, we ask that you please switch your browser to Safari. Thank you.');
+        $('#presetupTxt').append('<br><br>Experiencing problems? Email us at <a href="mailto:MaDlab@ucsd.edu">MaDlab@ucsd.edu</a>.');
+        $('#presetupButtonDiv').html('<a href="https://madlab.ucsd.edu/experiments/trick-or-truth-2/"><button class="big-button active-button" id="continuePreSetup">Return to study info</button></a>');
+    } else if(client.tablet){
+        $('#presetupTxt').append('<br><br>Please keep your tablet in landscape mode. Thanks!<br><br><img src="img/rotateIpad.gif">');
+        checkOrientation();
     }
 }

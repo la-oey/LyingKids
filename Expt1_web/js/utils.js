@@ -68,7 +68,9 @@ function quickCam() {
         setupCam();
         camLoadWait = setInterval(function(){ //checks if camera is loaded every 500 ms, then takes picture
             if(Webcam.loaded){
-                take_snapshot();
+                setTimeout(function(){
+                    take_snapshot();
+                }, 500)
             }
         }, 500);
     }
@@ -1143,7 +1145,7 @@ function toWinnerCircle(){
         }, 2000);
     } else{
         setTimeout(function(){
-            setWinnder();
+            setWinner();
         }, 2000);
     }
     

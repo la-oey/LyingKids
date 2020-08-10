@@ -34,30 +34,7 @@ function readServer(request){
         }
       });
 }
-
-
-///// From Tim's Code //////
-// function SaveData(curData) {
-//    var dataToServer = {
-//        'id': client.sid,
-//        'experimenter': 'loey',
-//        'experimentName': 'trick-or-truth-2',
-//        'curData': curData
-//    };
-  
-//    $.post('https://madlab.ucsd.edu/mturk/save.php',
-//        dataToServer,
-//        function(data) {
-//       var newDoc = document.open('text/html', 'replace');
-//       newDoc.write('All done, thanks! To submit the HIT, paste this code into Turk: ' + client.sid);
-//       newDoc.close();
-//        }
-//      ).fail(function(data) {
-//       var newDoc = document.open('text/html', 'replace');
-//       newDoc.write('All done, thanks! To submit the HIT, paste this code into Turk: ' + client.sid);
-//       newDoc.close();
-//     });
-// }            
+      
 
 // function writeServer(data){
 //     debugLog('initiate server write');
