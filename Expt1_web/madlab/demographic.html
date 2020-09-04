@@ -289,23 +289,34 @@
 			<label class="explain">Please explain </label><input id="visionExplain" class="explainInput" type="text" name="visionExplain" value="" size="40" disabled>
 		</label>
 		<div class="boxConsent">
-			<b>Videotaping.</b> We would like to video record the study session for our records (for example, using your computer’s webcam). It will be possible to identify your child or yourself in the video; however we will keep the videos confidential and only approved study staff will be able to see the videos. We will store the videos on our secure and password protected server, on a password-protected computer in a locked room, and/or in a locked cabinet, and label videos with a code instead of your name. Videos will be securely stored for ten years, and then deleted.<br><br>
+			<b>Videotaping.</b> We would like to video record the study session for our records (for example, using your computer’s webcam), as a video, still images, or audio. In a video recording or in an image, it will be possible to identify your child or yourself; however we will keep the recordings confidential and only approved study staff will be able to see them. We will store the recordings on our secure and password protected server, on a password-protected computer in a locked room, and/or in a locked cabinet, and label them with a code instead of your name. The recordings will be securely stored for ten years, and then deleted.<br><br>
+			<b style='color:red'>*</b>Do you agree to let us record the study session? If so, how?<br><br>
 			<label>
-				<b style='color:red'>*</b>Do you agree to let us videotape the study session?<br><br>
-				<input type="radio" name="videotaping" value="yes"><label for="yes">Yes</label>
-				<input type="radio" name="videotaping" value="no"><label id="videotapingLabel" for="no">No</label>
+				Video and audio (preferred)
+				<input type="radio" name="videoaudio" value="yes"><label for="yes">Yes</label>
+				<input type="radio" name="videoaudio" value="no"><label id="videotapingLabel" for="no">No</label>
+				<br><br>
+			</label>
+			<label>
+				Audio-only
+				<input type="radio" name="audioonly" value="yes"><label for="yes">Yes</label>
+				<input type="radio" name="audioonly" value="no"><label id="audiotapingLabel" for="no">No</label>
+				<br><br>
+			</label>
+			<label>
+				Still images from the video
+				<input type="radio" name="stillimages" value="yes"><label for="yes">Yes</label>
+				<input type="radio" name="stillimages" value="no"><label id="imagetapingLabel" for="no">No</label>
 				<br><br>
 			</label>
 		</div>
 		<div class="boxConsent">
 			<b>Future Contact.</b> Would you like to be contacted about future opportunities for your child to participate in research studies with the Kid Science Labs at UC San Diego? By providing information, you are not committing to participate in other studies – we’ll just ask you if you’re interested, when a new study is available.<br><br>
 			If you think you might be interested, please provide us with some contact information:<br><br>
-			<label>
-				<label>Email address: </label><input type="text" id="futureEmail" name="futureEmail" value="" size="40">
-				<label> or Phone: </label><input type="tel" id="futurePhone" name="futurePhone" placeholder="(123) 456-7890" size="14" onkeyup="reformatPhone();"><br><br>
-				Other children's name(s) (if any): <input type="text" name="otherName" value="" size="40"><br><br>
-				<label> Other children's birth date(s): </label><input type="tel" name="otherDOB" value="" size="20"><br><br>
-			</label>
+			<label for="futureEmail">Email address: </label><input type="text" id="futureEmail" name="futureEmail" value="" size="40">
+			<label for="futurePhone"> or Phone: </label><input type="tel" id="futurePhone" name="futurePhone" placeholder="(123) 456-7890" size="14" onkeyup="reformatPhone();"><br><br>
+			<label for="otherName">Other children's name(s) (if any): </label><input type="text" name="otherName" value="" size="40"><br><br>
+			<label forr="otherDOB"> Other children's birth date(s): </label><input type="tel" name="otherDOB" value="" size="20"><br><br>
 		</div>
 	</form>
 </body>
