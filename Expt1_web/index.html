@@ -21,7 +21,6 @@ TODO:
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script type="text/javascript" src='js/client.js'></script>
-    <script type="text/javascript" src='js/dataio.js'></script>
     <script type="text/javascript" src='js/velocity.min.js'></script>
     <script type="text/javascript" src='js/webcamjs-master/webcam.js'></script>
     <script type="text/javascript" src='js/script.js'></script>
@@ -208,13 +207,13 @@ TODO:
 
         <center><div id="choices" class="choiceDiv"><div id="labelChoices"></div></div></center>
         <center><div class="subjResponse"></div></center>
-        <div class="scoreBucket leftBucket leftStaticBucket">
+        <div class="scoreBucket leftBucket updateBucketliar" id="leftUpdateBucketliar">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
-            <div class="playerScore redScore"></div>
+            <div class="playerScore redScore" id="redUpdateScoreliar"></div>
         </div>
-        <div class="scoreBucket rightBucket rightStaticBucket">
+        <div class="scoreBucket rightBucket updateBucketliar" id="rightUpdateBucketliar">
             <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
-            <div class="playerScore blueScore"></div>
+            <div class="playerScore blueScore" id="blueUpdateScoreliar"></div>
         </div>
         <button class="big-button active-button next" id="nextDrawer" type="button" onclick="report();">Done!</button>
     </div>
@@ -249,13 +248,13 @@ TODO:
             </div>
         </center>
         <center><div class="subjResponse"></div></center>
-        <div class="scoreBucket leftBucket leftStaticBucket">
-            <img class="imgPt redPt" src="img/redpoint.png" width="100%">
-            <div class="playerScore redScore"></div>
+        <div class="scoreBucket leftBucket updateBucketdetector" id="leftUpdateBucketdetector">
+            <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
+            <div class="playerScore redScore" id="redUpdateScoredetector"></div>
         </div>
-        <div class="scoreBucket rightBucket rightStaticBucket">
-            <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
-            <div class="playerScore blueScore"></div>
+        <div class="scoreBucket rightBucket updateBucketdetector" id="rightUpdateBucketdetector">
+            <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
+            <div class="playerScore blueScore" id="blueUpdateScoredetector"></div>
         </div>
     <!--     <button class="big-button active-button next" id="nextResponder" type="button" onclick="keepTurn();">Next!</button> -->
     </div>

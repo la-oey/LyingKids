@@ -1,7 +1,7 @@
 var saveInfo = {
-    dataURL: 'https://madlab.ucsd.edu/mturk/save.json.php', //'save.json.php', // 
+    dataURL: 'save.json.php', //'https://madlab-research.ucsd.edu/save.json.php',  //'https://madlab.ucsd.edu/mturk/save.json.php', //
     //videoURL: 'submit.video.php',
-    imgURL: 'https://madlab.ucsd.edu/mturk/save.image.php', //'save.image.php', // 
+    imgURL: 'save.image.php', //'https://madlab-research.ucsd.edu/save.image.php', //'https://madlab.ucsd.edu/mturk/save.image.php', //
     experimenter: 'loey',
     experimentName: 'trick-or-truth-2'
 }
@@ -15,7 +15,7 @@ var params = {
 
 // experiment settings
 var expt = {
-    trials: 10,
+    trials: 8,
     marblesSampled: 6, //total number of marbles drawn per trial
     numPerDrawn: 2,
     marbleSize: 15,
@@ -75,6 +75,10 @@ var trial = {
         responseStartTime: 0,
         responseTime: 0
     },
+    scoreHeight: {
+        "red": 0,
+        "blue": 0,
+    },
     redTrialScore: 0,
     blueTrialScore: 0
 };
@@ -89,7 +93,7 @@ var replaytimer = null;
 var remindertimer = null;
 var yaAudio, noAudio, dropAudio, dropAudio2, dropAudio3, chooseAudio, pointsAudio, shakeAudio, winnerAudio;
 var colors = {
-	warning: "#ffb3b3", //light red
+    warning: "#ffb3b3", //light red
     nextblink: "#82ec8e", //light green
     camblink: "#42BBE2", //light blue
     teamredblink: "#ffcccb",
@@ -104,6 +108,7 @@ var data = [];
 
 
 function pageLoad() {
+
     yaAudio = new Audio("audio/correct.wav");
     noAudio = new Audio("audio/incorrect.wav");
     dropAudio = new Audio("audio/drop.wav");
@@ -115,7 +120,7 @@ function pageLoad() {
     shakeAudio = new Audio('audio/shake.wav');
     winnerAudio = new Audio('audio/winner.wav');
 
-    var startPage = "presetup";
+    var startPage = "trial";
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
         expt.humanColor = "blue";
@@ -124,13 +129,15 @@ function pageLoad() {
         colors.teamopponentblink = colors.teamredblink;
         $('#leftUpdateBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScore'></div>");
         $('#rightUpdateBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScore'></div>");
-        $('.leftStaticBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore'></div>");
-        $('.rightStaticBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore'></div>");
+        $('#leftUpdateBucketliar').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScoreliar'></div>");
+        $('#rightUpdateBucketliar').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScoreliar'></div>");
+        $('#leftUpdateBucketdetector').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScoredetector'></div>");
+        $('#rightUpdateBucketdetector').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScoredetector'></div>");
         $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>");
     }
     adaptCSS();
     clicksMap[startPage]();
-	console.log("debug: " + expt.debug);	
+    console.log("debug: " + expt.debug);    
 }
 
 function clickPreSetup() {
@@ -150,35 +157,35 @@ function clickConsent() {
     submitConsent();
     $('.warning').hide();
     $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
-	if(checkCheckbox("checkconsent") & checkDOB("DOB",3,12)){
-		$('#consent').css('display','none');
-		$('#demographic').css('display','block');
+    if(checkCheckbox("checkconsent") & checkDOB("DOB",3,12)){
+        $('#consent').css('display','none');
+        $('#demographic').css('display','block');
         window.scrollTo(0, 0);
 
         //saves client data from 1st page of consent
         client.demographic = demographicClient;
         data = {client: client, expt: expt, trials: trialData};
         writeServer(data);
-	} else{
-		if(!checkCheckbox("checkconsent")){
-			$('#checkconsentLabel').append("<b class='warning'>Please accept to continue</b>");
-			$('#checkconsent').css({"border":"2px solid red", "background-color":colors.warning});
-		}
+    } else{
+        if(!checkCheckbox("checkconsent")){
+            $('#checkconsentLabel').append("<b class='warning'>Please accept to continue</b>");
+            $('#checkconsent').css({"border":"2px solid red", "background-color":colors.warning});
+        }
         if(!checkText("DOB","")){
             $('#DOB').after("<b class='warning'> Please enter a valid date</b>");
             $('#DOB').css({"border":"2px solid red", "background-color":colors.warning});
         } else if(!checkDOB("DOB", minAge, maxAge)){
-			$('#DOB').after("<b class='warning'> Child participants must be between the ages of " + minAge + " and " + maxAge + "</b>");
-			$('#DOB').css({"border":"2px solid red", "background-color":colors.warning});
-		}
-	}
+            $('#DOB').after("<b class='warning'> Child participants must be between the ages of " + minAge + " and " + maxAge + "</b>");
+            $('#DOB').css({"border":"2px solid red", "background-color":colors.warning});
+        }
+    }
 }
 
 function clickDemo() {
     submitDemo();
     $('.warning').hide();
     $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
-    if(checkRadio("videotaping")){
+    if(checkRadio("videoaudio") || checkRadio("audioonly") || checkRadio("stillimages")){
         $('#demographic').css('display','none');
         $('#start').css('display','block');
         window.scrollTo(0, 0);
@@ -197,9 +204,8 @@ function clickStart() {
     $('#start').css('display','none');
     $('#clickclick').prop('disabled',true);
 
-    if(demographicClient.videotaping == "yes"){
+    if(demographicClient.imageAllowed == "yes"){
         $('#photobooth').css('display','block');
-
         trial.startTime = Date.now();
         showCam();
         setupCam();
@@ -217,11 +223,9 @@ function clickStart() {
             blink("continuePicture", colors.nextblink, 20, 2, 3000, true);
         })
     } else{
-        
         replacePlayerPic();
         continueToIntro();
     }
-    
 }
 
 function clickPicture() {
@@ -324,15 +328,17 @@ function pickCol(color){
     }
     
     if(expt.humanColor == 'red'){
-    	colors.teamplayerblink = colors.teamredblink;
-    	colors.teamopponentblink = colors.teamblueblink;
+        colors.teamplayerblink = colors.teamredblink;
+        colors.teamopponentblink = colors.teamblueblink;
     } else{
-    	colors.teamplayerblink = colors.teamblueblink;
-    	colors.teamopponentblink = colors.teamredblink;
+        colors.teamplayerblink = colors.teamblueblink;
+        colors.teamopponentblink = colors.teamredblink;
         $('#leftUpdateBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScore'></div>");
         $('#rightUpdateBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScore'></div>");
-        $('.leftStaticBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore'></div>");
-        $('.rightStaticBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore'></div>");
+        $('#leftUpdateBucketliar').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScoreliar'></div>");
+        $('#rightUpdateBucketliar').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScoreliar'></div>");
+        $('#leftUpdateBucketdetector').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScoredetector'></div>");
+        $('#rightUpdateBucketdetector').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScoredetector'></div>");
         $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>")
     }
 
@@ -403,7 +409,7 @@ function clickColor() {
     $('#pickColor').css('display','none');
     $('#instructions').css('display','block');
     if(!expt.debug){
-    	$('#continueInstruct').css('display','none');
+        $('#continueInstruct').css('display','none');
     }
     $('.bottomCoverFullInstruct').css('display','none');
 
@@ -780,9 +786,10 @@ function detector() {
 
 
 function trialDone() {
-    $('#keep').css('display','block');
-    $('#keepDiv').css('opacity',0);
-    $('#nextKeep').prop('disabled',true);
+    //$('#keep').css('display','block');
+    //$('#trialResponder').css('display','block');
+    //$('#keepDiv').css('opacity',0);
+    //$('#nextKeep').prop('disabled',true);
     quickCam();
 
     trial.trialTime = Date.now() - trial.startTime;
@@ -818,29 +825,29 @@ function trialDone() {
     expt.stat.blueRunningScore += trial.blueTrialScore;
 
 
-    if(trial.exptPart == "trial" & trial.trialNumber%5 == 0){
-        pointsAudio.play();   
-        addPoints("red", expt.stat.redRunningScore, expt.stat.redTotalScore);
-        addPoints("blue", expt.stat.blueRunningScore, expt.stat.blueTotalScore);
+    // if(trial.exptPart == "trial" & trial.trialNumber%(expt.trials/4) == 0){
+    //     pointsAudio.play();   
+    //     addPoints("red", expt.stat.redRunningScore, expt.stat.redTotalScore, trial.roleCurrent);
+    //     addPoints("blue", expt.stat.blueRunningScore, expt.stat.blueTotalScore, trial.roleCurrent);
         
-        expt.stat.redTotalScore += expt.stat.redRunningScore;
-        expt.stat.blueTotalScore += expt.stat.blueRunningScore;
-        expt.stat.redRunningScore = 0;
-        expt.stat.blueRunningScore = 0;
-        if(trial.trialNumber != expt.trials/2){
-        	setTimeout(function(){
-	            $('#nextKeep').prop('disabled',false);
-	        }, 3000);
-        }
-    } else if(trial.exptPart == "practice"){
-        pointsAudio.play();   
-        addPoints("red", trial.redTrialScore, 0);
-        addPoints("blue", trial.blueTrialScore, 0);
-    } else{
-    	setTimeout(function(){
-            $('#nextKeep').prop('disabled',false);
-        }, 1000);
-    }
+    //     expt.stat.redTotalScore += expt.stat.redRunningScore;
+    //     expt.stat.blueTotalScore += expt.stat.blueRunningScore;
+    //     expt.stat.redRunningScore = 0;
+    //     expt.stat.blueRunningScore = 0;
+    //     if(trial.trialNumber != expt.trials/2){
+    //         setTimeout(function(){
+    //             //$('#nextKeep').prop('disabled',false);
+    //             keepTurn();
+    //         }, 3000);
+    //     }
+    // } else if(trial.exptPart == "practice"){
+        
+    // } else{
+    //     setTimeout(function(){
+    //         //$('#nextKeep').prop('disabled',false);
+    //         keepTurn();
+    //     }, 1000);
+    // }
 
     trial.currEndTime = Date.now();
     recordData();
@@ -860,6 +867,10 @@ function trialDone() {
     }
 
     if(trial.exptPart == "practice"){
+        pointsAudio.play();   
+        addPoints("red", trial.redTrialScore, 0, trial.roleCurrent);
+        addPoints("blue", trial.blueTrialScore, 0, trial.roleCurrent);
+
         $('#turnVid').css('display','none');
         if(trial.roleCurrent == "liar"){
             trial.liarPlayer = expt.compColor;
@@ -919,8 +930,10 @@ function trialDone() {
         
     } else if(trial.trialNumber == expt.trials){
         $('#keepDiv').hide();
-        $('#nextKeep').attr('onclick','toWinnerCircle();');
+        toWinnerCircle();
+        //$('#nextKeep').attr('onclick','toWinnerCircle();');
     } else {
+
         if(trial.trialNumber == expt.trials/2){
             if(trial.liarPlayer == 'red'){
                 trial.liarPlayer = 'blue';
@@ -930,14 +943,22 @@ function trialDone() {
             if(trial.roleCurrent == "liar"){ //switch roles halfway through
                 trial.roleCurrent = "detector";
                 var roletxt = "Decider"
+                $('#trialDrawer').css('display','none');
+                //$('#trialResponder').css('display','block');
+
             } else{
                 trial.roleCurrent = "liar";
                 var roletxt = "Marble-Picker"
+                $('#trialResponder').css('display','none');
+                //$('#trialDrawer').css('display','block');
             }
+            $('#keep').css('display','block');
             $('#keepDiv').css('opacity',1);
-            if(!expt.debug){
-                $('#nextKeep').prop('disabled',true);
-            }
+            $('#nextKeep').prop('disabled',true);
+            // $('#keepDiv').css('opacity',1);
+            // if(!expt.debug){
+            //     $('#nextKeep').prop('disabled',true);
+            // }
 
             $('#turnVid').css('display','block');
             var playFunc = function(){};
@@ -951,9 +972,38 @@ function trialDone() {
             };
             loadVideo('switch_'+expt.humanColor+'_'+ trial.roleCurrent,'turnVid',"instruct", playFunc, endFunc, resetFunc);
         }
+
+        if(trial.trialNumber%(expt.trials/4) == 0){
+            pointsAudio.play();   
+            if(trial.trialNumber == expt.trials/2){
+                addPoints("red", expt.stat.redRunningScore, expt.stat.redTotalScore, "");
+                addPoints("blue", expt.stat.blueRunningScore, expt.stat.blueTotalScore, "");
+            } else{
+                addPoints("red", expt.stat.redRunningScore, expt.stat.redTotalScore, trial.roleCurrent);
+                addPoints("blue", expt.stat.blueRunningScore, expt.stat.blueTotalScore, trial.roleCurrent);
+            }
+            
+            expt.stat.redTotalScore += expt.stat.redRunningScore;
+            expt.stat.blueTotalScore += expt.stat.blueRunningScore;
+            expt.stat.redRunningScore = 0;
+            expt.stat.blueRunningScore = 0;
+            if(trial.trialNumber != expt.trials/2){
+                setTimeout(function(){
+                    //$('#nextKeep').prop('disabled',false);
+                    keepTurn();
+                }, 3000);
+            }
+        } else{
+            setTimeout(function(){
+                //$('#nextKeep').prop('disabled',false);
+                keepTurn();
+            }, 1000);
+        }
+
         $('#humanRole').html(roletxt);
         $('#humanRole').css('color', expt.humanColor);
     }
+
 
     if(trial.roleCurrent == "liar"){
         var roletxt = "Marble-Picker"
@@ -964,7 +1014,7 @@ function trialDone() {
     if(trial.exptPart == "practice"){
         $('.trialNum').html("Practice: <i>" + roletxt + "</i>");
     } else if(trial.trialNumber == expt.trials){
-    	$('.trialNum').html("Who won?");
+        $('.trialNum').html("Who won?");
     } else if(trial.trialNumber == (expt.trials/2 + 1)){
         $('.trialNum').html("Round " + (trial.trialNumber+1) + " of " + expt.trials);
     } else{
@@ -1010,7 +1060,7 @@ function writeImgServer(data){
             experimenter: saveInfo.experimenter,
             experimentName: saveInfo.experimentName},
         }).done(function(o) {
-           console.log('saved'); 
+           debugLog('saved'); 
        })
     }
 }

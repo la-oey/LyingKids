@@ -64,15 +64,13 @@ function showCam(){
 
 var camLoadWait = null;
 function quickCam() {
-    if(demographicClient.videotaping == "yes"){
+    if(demographicClient.imageAllowed == "yes"){
         setupCam();
         camLoadWait = setInterval(function(){ //checks if camera is loaded every 500 ms, then takes picture
             if(Webcam.loaded){
-                setTimeout(function(){
-                    take_snapshot();
-                }, 500)
+                take_snapshot();
             }
-        }, 500);
+        }, 1000);
     }
 }
 
@@ -817,7 +815,7 @@ function report(){
             
             //$('#next').prop('disabled',false);
             setTimeout(function(){
-                document.getElementById('trialDrawer').style.display = 'none';
+                //document.getElementById('trialDrawer').style.display = 'none';
                 trialDone();
             }, 2000);
         }, trial.waitTime);
@@ -861,11 +859,11 @@ function callout(call){
         trial.callBS = true;
     }
     $('#nextResponder').prop('disabled',false);
-    document.getElementById('trialResponder').style.display = 'none';
+    //$('#trialResponder').css('display','none');
     trialDone();
 }
 
-function addPoints(player, points, prevPoints){ 
+function addPoints(player, points, prevPoints, role){ 
     if(trial.exptPart != "instruct"){
         $('.'+player+"TrialPt").css({'top': '-15%'}, 1000);
         $('.'+player+"TrialPt").animate({'opacity': 1}, 250);
@@ -876,11 +874,12 @@ function addPoints(player, points, prevPoints){
         }
         var maxPoints = expt.marblesSampled * expt.trials;
         setTimeout(function(){
-            $('.'+player+"TrialPt").animate({'opacity': 0}, 250)
-            $('#'+player+'UpdateScore').animate({
-                'height': (points+prevPoints)/maxPoints*$('.updateBucket').height()
+            $('.'+player+"TrialPt").animate({'opacity': 0}, 250);
+            trial.scoreHeight[player] = (points+prevPoints)/maxPoints*$('.updateBucket'+role).height();
+            $('#'+player+'UpdateScore'+role).animate({
+                'height': trial.scoreHeight[player]
             }, 1000)
-            $('.'+player+'Score').css('height', (points+prevPoints)/maxPoints*$('.updateBucket').height());
+            $('.'+player+'Score').css('height', trial.scoreHeight[player]);
         }, 1250);
     } else{ //instruct
         $('#'+player+"InstrPt").css({'top': '-15%'}, 1000);
