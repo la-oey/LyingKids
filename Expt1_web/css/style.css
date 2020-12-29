@@ -26,34 +26,53 @@ body {
     font-family: "Helvetica", sans-serif;
 }
 
+#practiceVidreplay {
+    display: none;
+}
+
+.replayInstruct {
+    position: absolute;
+    /*padding: 10px 10px;*/
+    top: 22%;
+    left: 65%;
+    z-index: 1;
+}
+
+.replayButton {
+    border: 0;
+    height: 120px;
+    width: 100px;
+    background: url('../img/replay_black.png');
+    color: black;
+    display: inline-block;
+    font-family: "Helvetica", sans-serif;
+    cursor: pointer;
+}
+
+.replayButton:hover {
+    background: url("../img/replay_white.png");
+    color: white;
+    background-color: #4CAF50;
+}
+
+
 .replaySideInstruct {
     position: absolute;
-    padding: 10px 10px;
-    left: 11%;
+    left: 9.5%;
     z-index: 1;
     top: 53%;
+    height: 84px;
+    width: 70px;
+    background-size: 70px 84px;
+    font-size: 11px;
 }
 
-.sideInstructOverlay{
-    position: absolute;
-    top: 0%;
-    left: 0%;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    z-index: 3;
+.replaySideInstruct:hover {
+    background-size: 70px 84px;
 }
 
-#blackbox {
-    position: absolute;
-    top: 0%;
-    left: 0%;
-    width: 176.8px;
-    height: 211.9px;
-    object-fit:cover;
-    pointer-events:none;
-    z-index: 2;
-}
+
+
 
 
 
@@ -173,7 +192,6 @@ body {
     border-radius: 50%;
     display: none;
     cursor: pointer;
-    /*display: inline-block;*/
 }
 
 #clickclick:hover {
@@ -201,7 +219,6 @@ body {
 #playericon {
     height:100%;
     margin: 0 auto;
-    /*z-index: 1;*/
 }
 
 #opponentprof {
@@ -217,7 +234,6 @@ body {
     display: none;
     height:100%;
     margin: 0 auto;
-    /*z-index: 1;*/
 }
 
 /*.videostream {
@@ -236,19 +252,6 @@ body {
 }
 
 
-
-/*.instructVid {
-    border: 2px solid black;
-    width: 272px;
-    height: 326px;
-}*/
-
-/*.instructViddiv {
-    height: 20%;
-    width: 25%;
-    margin: 30% 30% 50% 30%;
-}*/
-
 .sideInstructViddiv {
     position: absolute;
     /*width: 176.8px;
@@ -258,7 +261,7 @@ body {
     display: none;
 }
 
-.fullInstructVid {
+/*.fullInstructVid {
     height:75%;
     position: absolute;
     left: 50%;
@@ -274,32 +277,13 @@ body {
     top: 70%;
     left: 50%;
     transform: translateX(-50%);
-}
+}*/
 
 
 
 
 
-#practiceVidreplay {
-    display: none;
-}
 
-.replayInstruct {
-    position: absolute;
-    padding: 10px 10px;
-    top: 22%;
-    left: 65%;
-    z-index: 1;
-    
-}
-
-.replayFullInstruct {
-    position: absolute;
-    padding: 10px 10px;
-    left: 80%;
-    z-index: 1;
-    top: 80%;
-}
 
 
 
@@ -319,12 +303,9 @@ video::end {
     controls: false;
 }
 
-
 video::-webkit-media-controls-fullscreen-button {
     display: none;
 }
-
-
 
 input[type=range] {
     -webkit-appearance: none;
@@ -590,13 +571,20 @@ ul {
     opacity: 0.6;
     width: 200px;
     height: 200px;
-    color: black;
     font-size: 48px;
     padding: 20px;
     margin-left: 10%;
     margin-right: 10%;
+    cursor: pointer;
 }
 
+.color-button:disabled {
+    cursor: default;
+}
+
+.color-button:hover {
+    opacity: 1;
+}
 
 #red-button {
     background-color: red;
@@ -612,44 +600,8 @@ ul {
     width: 90%;
 }
 
-.instructImages {
-    display: block;
-    /*margin-top: 0%;*/
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
-}
-
-.instructMove {
-    position: relative;
-    margin-top: -10%;
-}
 
 
-#left-move {
-    float: left;
-    border-top: 60px solid transparent;
-    border-bottom: 60px solid transparent; 
-    border-right:60px solid deepskyblue;
-    
-}
-
-#right-move {
-    float: right;
-    border-top: 60px solid transparent;
-    border-bottom: 60px solid transparent;
-    border-left: 60px solid deepskyblue;
-    /*margin-top: auto;
-    margin-bottom: auto;*/
-}
-
-#left-move:hover {
-    border-right:60px solid #99e6ff;
-}
-
-#right-move:hover {
-    border-left:60px solid #99e6ff;
-}
 
 
 .declareplayer {
@@ -929,6 +881,10 @@ ul {
     margin-left: 5%;
     margin-right: 5%;
     cursor: pointer;
+}
+
+.callout-button:disabled {
+    cursor: default;
 }
 
 #accept-button {

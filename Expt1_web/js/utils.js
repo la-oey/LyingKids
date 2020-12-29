@@ -1,9 +1,8 @@
 
 
 function getEventTime(video, event){
-    var diffColors =  ["opponent", "screenRecord", "shake_all", "shake_no", "shake_true", "decide_opponentlie", "decide_opponentlie_comb"];
-    if(diffColors.includes(video)){
-        video = video + "_" + expt.humanColor;
+    if(vidColors.includes(video)){
+        video = video + "_" + expt.human.color;
     }
     var item = events.find(obj => { return obj.video === (video + ".mp4") && obj.event === event});
     return(item.time);
@@ -156,7 +155,7 @@ function resumeVideo(to){ //plays or resumes video
 
 
 function loadWaiting(vid, to, classtype){
-    let no_replay = ["shake_all_"+expt.humanColor, "shake_all_"+expt.humanColor+"_again", "shake_q_all_"+expt.humanColor, "shake_no_"+expt.humanColor, "shake_true_"+expt.humanColor, "decide_opponentlie_comb_"+expt.humanColor, "prompt_again"];
+    
     if(no_replay.includes(vid) & !client.tablet){
         $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");  
     } else if(to == "screenVid"){
@@ -178,10 +177,10 @@ function clickReplay(vid, to, classtype, callPlayFunc, callEndFunc, callResetFun
     } 
     if(vid == "decide_lie"){
         vid = "decide_lie_again";
-    } else if(client.tablet & vid == "shake_all_"+expt.humanColor){
-        vid = "shake_all_"+expt.humanColor+"_again";
+    } else if(client.tablet & vid == "shake_all_"+expt.human.color){
+        vid = "shake_all_"+expt.human.color+"_again";
         callPlayFunc = null;
-    } else if(client.tablet & vid=="decide_opponentlie_comb_"+expt.humanColor){
+    } else if(client.tablet & vid=="decide_opponentlie_"+expt.human.color){
         vid = "prompt_again";
         callPlayFunc = function(){
             var timer0 = new Timer(function(){
@@ -213,7 +212,7 @@ function showPlayer(color){
     $('#playerprof').css('border','5px solid ' + color);
 }
 
-function showOpponent(gender, color, teamless=false){
+function showOpponent(gender, color, action, teamless=false){
     if(teamless){
         $('#opponentprof').css('border','5px solid black');
     } else{
@@ -221,10 +220,8 @@ function showOpponent(gender, color, teamless=false){
     }
     $('#opponentprof').css('display','block');
     $('#opponenticon').css('display','block');
-    $('#opponenticon').attr('src','img/'+gender+'_'+color+'.jpg');
+    $('#opponenticon').attr('src','img/'+gender+'_'+color+'_'+action+'.jpg');
 }
-
-
 
 function blink(elem, color, thic, freq, timeStart, interval=false){
     function ablink(){
@@ -257,6 +254,7 @@ function marble(container, color, size, locX, locY){
 }
 
 function drape(){
+    showOpponent(expt.comp.gender,expt.comp.color,'eyes'); //set opponent icon
     $('#draw-button').animate({'opacity': 0});
     $('.cover').css('z-index', 1);
     $('.cover').animate({
@@ -264,12 +262,9 @@ function drape(){
         "top": "10%"
     }, 1000, function(){
         $('.urn').css('opacity', 0);
-        if(trial.exptPart == "instruct"){
-            $('#instructImg1').animate({'opacity':0});
-        }
     })
 
-    if(trial.exptPart == "instruct" || trial.exptPart == "practice"){
+    if(trial.exptPart == "practice"){
         trial.drawnRed = 3;
         trial.drawnBlue = 3;
     } else{
@@ -303,7 +298,6 @@ function drape(){
             trial.marblesDrawn.push("red");
         }
     }
-
 }
 
 
@@ -311,6 +305,7 @@ function draw(){
     $('#draw-button').animate({'opacity': 0});
     drape();
     $('#draw-button').attr('onclick','');
+    sayAudio.ShakeTheBox.pause();
 
     var shakeDelay = 1000;
 
@@ -325,13 +320,6 @@ function draw(){
         }
     }, shakeDelay);
 
-    dropAudio.play();
-    dropAudio2.play();
-    dropAudio3.play();
-    dropAudio.pause();
-    dropAudio2.pause();
-    dropAudio3.pause();
-
     setTimeout(function(){
         shakeAudio.play();
     }, 300);
@@ -341,14 +329,8 @@ function draw(){
         if(turn.numDrawn < expt.marblesSampled){
             color = trial.marblesDrawn[turn.numDrawn];
             var rollMarble = "<div class='sampMarble' id='marble"+turn.numDrawn+trial.exptPart+"'><svg class='marblesvg' id='marble"+turn.numDrawn+trial.exptPart+"svg'></svg></div>";
-            
-            if(trial.exptPart == "instruct"){
-                var thetube = '#tube0';
-                var thetubesvg = "#tubesvg0";
-            } else{
-                var thetube = '#tube1';
-                var thetubesvg = "#tubesvg1";
-            }
+            var thetube = '#tube1';
+            var thetubesvg = "#tubesvg1";
 
             $(thetube).append(rollMarble);
             
@@ -396,18 +378,9 @@ function draw(){
                     'z-index': 0
                 }, 1000);
                 $('.tube').animate({'top': '15%'}, moveTime);
-                if(trial.exptPart == "instruct"){
-                    setTimeout(function(){
-                        $('#left-move').css('opacity', 1);
-                        $('#left-move').attr('onclick','prevInstruct("1");');
-                        $('#right-move').css('opacity', 1);
-                        $('#right-move').attr('onclick','nextInstruct("1");');
-                    }, showChoiceTime)
-                } else{
-                    setTimeout(function(){
-                        showChoices();
-                    }, showChoiceTime)
-                }
+                setTimeout(function(){
+                    showChoices();
+                }, showChoiceTime)
             }, 1000)
         } else{
             var delay = initDrawDelay;
@@ -429,6 +402,8 @@ function draw(){
                 blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
             }
         }, 15000);
+    } else{
+        $('.replayButton').css('display','none');
     }
     
     
@@ -496,11 +471,11 @@ function practiceHighlightChoice(choice){
             };
             var endFunc = function(){};
             var resetFunc = function(){};
-            loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
+            loadVideo("shake_no_"+expt.human.color, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
 
             if(!client.tablet){
                 replaytimer = setInterval(function(){
-                    loadVideo("shake_no_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
+                    loadVideo("shake_no_"+expt.human.color, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
                 }, 20000);
             }       
         } else{
@@ -533,10 +508,10 @@ function practiceHighlightChoice(choice){
                 var endFunc = function(){};
                 var resetFunc = function(){};
 
-                loadVideo("shake_true_"+expt.humanColor, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+                loadVideo("shake_true_"+expt.human.color, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
                 if(!client.tablet){
                     replaytimer = setInterval(function(){
-                        loadVideo("shake_true_"+expt.humanColor, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
+                        loadVideo("shake_true_"+expt.human.color, "practiceVid", "sideInstruct", playFunc, endFunc, resetFunc);
                     }, 20000); 
                 }
             } else{
@@ -708,12 +683,10 @@ function report(){
         trial.reportedRed = expt.marblesSampled-trial.reportedDrawn;
     }
 
-    if(trial.exptPart == "instruct"){
-        var thetube = '#tube0';
-        var thetubesvg = "#tubesvg0";
-    } else{
-        var thetube = '#tube1';
-        var thetubesvg = "#tubesvg1";
+    var thetube = '#tube1';
+    var thetubesvg = "#tubesvg1";
+    if(trial.exptPart == "practice"){
+        $('.replayButton').css('display','none');
     }
 
     //transforms reported to what other play should see
@@ -726,6 +699,7 @@ function report(){
     }
 
     function liarWait() {
+        showOpponent(expt.comp.gender,expt.comp.color,'think');
         $('#playerprof').css('box-shadow', "");
         $('#opponentprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamopponentblink);
         flickerWait();
@@ -733,13 +707,15 @@ function report(){
         
         trial.waitTime = 1000 + 1500*exponential(0.75);
         if(trial.exptPart == "practice"){
-            $('.replayButton').css('display','none');
+            $('#nextDrawer').css('opacity',1);
+            $('#nextDrawer').attr('onclick', 'keepTurn();'); //temporarily change function
             trial.waitTime = 6000;
             var timer0, timer1, timer2;
             //INSTRUCT ANIMATIONS
             var setDecideSwitch = function(){
+                waitAudio.pause();
                 var playFunc = function(){
-                    if(expt.humanColor == "red"){
+                    if(expt.human.color == "red"){
                         var highlightHuman = colors.teamredblink;
                         var highlightComp = colors.teamblueblink;
                     } else{
@@ -747,14 +723,17 @@ function report(){
                         var highlightHuman = colors.teamblueblink;
                     }
                     timer0 = new Timer(function(){
-                        blink("rightUpdateBucket", highlightComp, 40, 2, 0);
+                        blink("rightUpdateBucketliar", highlightComp, 40, 2, 0);
                     }, getEventTime('decide_switch','opponent_allpoints'));
                     timer1 = new Timer(function(){
-                        blink("leftUpdateBucket", highlightHuman, 40, 2, 0);
+                        blink("leftUpdateBucketliar", highlightHuman, 40, 2, 0);
                     }, getEventTime('decide_switch','player_nopoints'));
                     timer2 = new Timer(function(){
-                        blink("nextKeep", colors.nextblink, 20, 2, 0, true);
-                        $('#nextKeep').prop('disabled',false);
+                        blink('opponentprof', colors.teamopponentblink, 20, 2, 0);
+                    }, getEventTime('decide_switch','other_player'));
+                    timer3 = new Timer(function(){
+                        blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
+                        $('#nextDrawer').prop('disabled',false);
                     }, getEventTime('decide_switch','points_next'));
 
                     var currVideo = document.getElementById("practiceVid")
@@ -762,25 +741,28 @@ function report(){
                         timer0.pause();
                         timer1.pause();
                         timer2.pause();
+                        timer3.pause();
                     }
                     currVideo.onplay = function(){
                         if(currVideo.currentTime == 0){
                             timer0.reset();
                             timer1.reset();
                             timer2.reset();
+                            timer3.reset();
                         }
                         timer0.resume();
                         timer1.resume();
                         timer2.resume();
+                        timer3.resume();
                     }
                 };
                 var endFunc = function(){};
                 var resetFunc = function(){
                     clearInterval(blinktimer);
-                    $('#nextKeep').prop('disabled',true);
+                    $('#nextDrawer').prop('disabled',true);
                 };
 
-                loadVideo("decide_switch", "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+                loadVideo("decide_switch_"+expt.human.color, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
             }
             
             if(client.tablet){
@@ -802,6 +784,7 @@ function report(){
 
         setTimeout(function(){
             $('#opponentprof').css('box-shadow', "");
+            showOpponent(expt.comp.gender,expt.comp.color,'neutral');
             clearInterval(trial.timer);
             clearInterval(trial.audiotimer);
             
@@ -810,22 +793,22 @@ function report(){
             if(trial.exptPart == "practice"){
                 trial.callBS = true;
             } else{
+                sayAudio.OpponentDecided.play();
                 computerDetect();
             }
-            
-            //$('#next').prop('disabled',false);
             setTimeout(function(){
-                //document.getElementById('trialDrawer').style.display = 'none';
                 trialDone();
-            }, 2000);
+            }, 4000);
         }, trial.waitTime);
     }
     liarWait();
 }
 
 function computerDetect(){
+    let a = 0.1;
+    let b = 0.6
     trial.callBS = false;
-    trial.compDetect = cbinom(expt.marblesSampled, trial.probabilityRed, trial.reportedDrawn) * .6 //lowers and flattens diff in prob of calling out by multiplying cbinom by .7
+    trial.compDetect = (b - a) * cbinom(expt.marblesSampled, trial.probabilityRed, trial.reportedDrawn) + a //lowers and flattens diff in prob of calling out by multiplying cbinom by .7
     trial.compLie = -1;
     //console.log("CompDetect: " + trial.compDetect)
     if(Math.random() < trial.compDetect){
@@ -834,18 +817,20 @@ function computerDetect(){
 }
 
 function callout(call){
+    showOpponent(expt.comp.gender,expt.comp.color,'neutral');
     $('#playerprof').css('box-shadow', "");
     if(trial.exptPart == "practice"){
         clearInterval(replaytimer);
     } else if(trial.exptPart == "trial"){
+        sayAudio.OpponentReported.pause();
+        sayAudio.TrickOrTruth.pause();
         clearInterval(remindertimer);
     }
-    if((trial.trialNumber+1)%5 != 0){
+    if((trial.trialNumber+1)%(expt.trials/4) != 0){
         chooseAudio.pause();
         chooseAudio.currentTime = 0;
         chooseAudio.play();
     }
-    
     
     trial.responseTime = Date.now() - trial.responseStartTime;
     $('.callout-button').prop('disabled', true);
@@ -859,47 +844,27 @@ function callout(call){
         trial.callBS = true;
     }
     $('#nextResponder').prop('disabled',false);
-    //$('#trialResponder').css('display','none');
     trialDone();
 }
 
 function addPoints(player, points, prevPoints, role){ 
-    if(trial.exptPart != "instruct"){
-        $('.'+player+"TrialPt").css({'top': '-15%'}, 1000);
-        $('.'+player+"TrialPt").animate({'opacity': 1}, 250);
-        if(points > 0){
-            $('.'+player+"TrialPt").animate({'top': '10%'}, 1000);
-        } else if(points < 0){
-            $('.'+player+"TrialPt").animate({'top': '-40%'}, 1000);
-        }
-        var maxPoints = expt.marblesSampled * expt.trials;
-        setTimeout(function(){
-            $('.'+player+"TrialPt").animate({'opacity': 0}, 250);
-            trial.scoreHeight[player] = (points+prevPoints)/maxPoints*$('.updateBucket'+role).height();
-            $('#'+player+'UpdateScore'+role).animate({
-                'height': trial.scoreHeight[player]
-            }, 1000)
-            $('.'+player+'Score').css('height', trial.scoreHeight[player]);
-        }, 1250);
-    } else{ //instruct
-        $('#'+player+"InstrPt").css({'top': '-15%'}, 1000);
-        $('#'+player+"InstrPt").animate({'opacity': 1}, 250);
-        if(points > 0){
-            $('#'+player+"InstrPt").animate({'top': '10%'}, 1000);
-        } else if(points < 0){
-            $('#'+player+"InstrPt").animate({'top': '-40%'}, 1000);
-        }
-        var maxPoints = 20;
-        setTimeout(function(){
-            $('#'+player+"InstrPt").animate({'opacity': 0}, 250)
-            $('#'+player+'InstrScore').animate({
-                'height': (points+prevPoints)/maxPoints*$('.scoreInstrBucket').height()
-            }, 1000)
-            $('#'+player+'InstrScore').css('height', (points+prevPoints)/maxPoints*$('.scoreInstrBucket').height());
-        }, 1250);
-
+    showOpponent(expt.comp.gender,expt.comp.color,'hands');
+    $('.'+player+"TrialPt").css({'top': '-15%'}, 1000);
+    $('.'+player+"TrialPt").animate({'opacity': 1}, 250);
+    if(points > 0){
+        $('.'+player+"TrialPt").animate({'top': '10%'}, 1000);
+    } else if(points < 0){
+        $('.'+player+"TrialPt").animate({'top': '-40%'}, 1000);
     }
-    
+    var maxPoints = expt.marblesSampled * expt.trials;
+    setTimeout(function(){
+        $('.'+player+"TrialPt").animate({'opacity': 0}, 250);
+        trial.scoreHeight[player] = (points+prevPoints)/maxPoints*$('.updateBucket'+role).height();
+        $('#'+player+'UpdateScore'+role).animate({
+            'height': trial.scoreHeight[player]
+        }, 1000)
+        $('.'+player+'Score').css('height', trial.scoreHeight[player]);
+    }, 1250);
 }
 
 
@@ -909,13 +874,16 @@ function keepTurn(){
     clearInterval(blinktimer);
     if(trial.exptPart == "practice"){
         if(trial.roleCurrent == "liar" & trial.trialNumber == 0){
-            trial.liarPlayer = expt.humanColor;
+            trial.liarPlayer = expt.human.color;
             liar();
         } else{
             if(trial.trialNumber == 1){
+                $('#trialDrawer').css('display','none');
+                $('#nextDrawer').attr('onclick', 'report();'); //convert back to normal function
+                $('#nextDrawer').css('opacity',1);
                 $('.redScore').css('height', 0);
                 $('.blueScore').css('height', 0);
-                trial.liarPlayer = expt.compColor;
+                trial.liarPlayer = expt.comp.color;
                 restartTrial();
                 detector();
             } else{
@@ -974,9 +942,6 @@ function restartTrial(){
     trial.drawnRed = 0;
     trial.drawnBlue = 0;
     
-    //fillUrn(250,trial.probabilityRed);
-    //marble(".urnbottom", "black", expt.marbleSize*1.2, 0.5*$('.urnbottom').width(), 0.5*$('.urnbottom').height());
-
     trial.catch.key = -1;
     trial.catch.response = -1;
     trial.catch.responseTime = -1;
@@ -1004,17 +969,16 @@ function flickerWait(){
 }
 
 function audioWait(){
-    if(trial.exptPart == "trial"){
-        waitAudio.currentTime = 0;
+    waitAudio.currentTime = 0;
+    waitAudio.play();
+    trial.audiotimer = setInterval(function(){
         waitAudio.play();
-        trial.audiotimer = setInterval(function(){
-            waitAudio.play();
-        }, 4000);
-    }
+    }, 4000);
 }
 
 
 function computerReport(){
+    showOpponent(expt.comp.gender,expt.comp.color,'eyes');
     $('#playerprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamplayerblink);
     $('#opponentprof').css('box-shadow', "");
     //groundTruth
@@ -1032,19 +996,19 @@ function computerReport(){
         trial.reportedDrawn = 6;
         trial.drawnRed = 3; //reported is a lie
         trial.drawnBlue = 3;
-        $('.callout-button').prop('disabled',true);
+        //$('.callout-button').prop('disabled',true);
     } else if(expt.pseudo[trial.trialNumber] != -1){
         trial.reportedDrawn = expt.pseudo[trial.trialNumber];
         trial.pseudo = true;
     } else{
         trial.pseudo = false;
-        if(Math.random() < 0.2){
+        if(Math.random() < 0.5){
             trial.compUnifLie = true;
             trial.reportedDrawn = Math.floor(randomDouble(0,expt.marblesSampled+1));
         } else{
             var rand = Math.random();
             var lie = getK(expt.marblesSampled, trial.probabilityRed, rand);
-            if(expt.humanColor == 'blue'){
+            if(expt.human.color == 'blue'){
                 if(lie <= trial.drawnRed){
                     trial.reportedDrawn = trial.drawnRed;
                 } else{
@@ -1063,9 +1027,10 @@ function computerReport(){
             debugLog("Opponent's Internal Gen Lie: " + trial.compLie)
         }
     }
-    if(expt.humanColor == 'red'){
+    if(expt.human.color == 'red'){
         trial.reportedBlue = trial.reportedDrawn;
         trial.reportedRed = expt.marblesSampled - trial.reportedDrawn;
+
     } else{
         trial.reportedRed = trial.reportedDrawn;
         trial.reportedBlue = expt.marblesSampled - trial.reportedDrawn;
@@ -1074,6 +1039,13 @@ function computerReport(){
     debugLog("Opponent's report: " + trial.reportedDrawn);
 
     if(trial.exptPart == "trial"){
+        sayAudio.TrickOrTruth.currentTime = 0;
+        sayAudio.OpponentReported = new Audio("audio/say_"+trial.reportedDrawn+expt.comp.color+"_"+(expt.marblesSampled-trial.reportedDrawn)+expt.human.color+".wav");
+        sayAudio.OpponentReported.play();
+        sayAudio.OpponentReported.onended = function(){
+            sayAudio.TrickOrTruth.play();
+        }
+        
         remindertimer = setInterval(function(){
             blink("reject-button", colors.trickblink, 20, 2, 0);
             blink("accept-button", colors.truthblink, 20, 2, 0);
@@ -1085,38 +1057,37 @@ function computerReport(){
 }
 
 function toWinnerCircle(){
-    document.getElementById('keep').style.display = 'none';
+    //document.getElementById('keep').style.display = 'none';
     let winnerPlayer = null;
     if(expt.stat.redTotalScore == expt.stat.blueTotalScore){
         $('#whowon').html("You tied!");
         winnerPlayer = "both";
     } else if(expt.stat.redTotalScore > expt.stat.blueTotalScore){
         $('#whowon').html("<b style='color:red'>Red won the game!</b>");
-        if(expt.humanColor == "red"){
+        if(expt.human.color == "red"){
             winnerPlayer = "player";
         } else{
             winnerPlayer = "opponent";
         }
     } else{
         $('#whowon').html("<b style='color:blue'>Blue won the game!</b>");
-        if(expt.humanColor == "blue"){
+        if(expt.human.color == "blue"){
             winnerPlayer = "player";
         } else{
             winnerPlayer = "opponent";
         }
     }
 
-    //$('.scoreboardDiv').show();
-
     $('.redFinalScore').html(expt.stat.redTotalScore);
     $('.blueFinalScore').html(expt.stat.blueTotalScore);
 
     // expt done
     data = {client: client, expt: expt, trials: trialData};
-    //writeServer(data);
     writeServer(data);
 
-    document.getElementById('completed').style.display = 'block';
+    $('#trialResponder').css('display','none');
+    $('#completed').css('display','block');
+
     winnerAudio.play();
 
     $('#continueWinner').prop('disabled', true);
@@ -1177,8 +1148,8 @@ function shuffle(set){
 
 function recordData(){
     trialData.push({
-        playerColor: expt.humanColor,
-        compColor: expt.compColor,
+        playerColor: expt.human.color,
+        compColor: expt.comp.color,
         exptPart: trial.exptPart,
         trialNumber: trial.trialNumber,
         playerRole: trial.roleCurrent,

@@ -1,130 +1,12 @@
-var saveInfo = {
-    dataURL: 'save.json.php', //'https://madlab-research.ucsd.edu/save.json.php',  //'https://madlab.ucsd.edu/mturk/save.json.php', //
-    //videoURL: 'submit.video.php',
-    imgURL: 'save.image.php', //'https://madlab-research.ucsd.edu/save.image.php', //'https://madlab.ucsd.edu/mturk/save.image.php', //
-    experimenter: 'loey',
-    experimentName: 'trick-or-truth-2'
-}
-
-var params = {
-    minAge: 4,
-    maxAge: 12,
-    minWindowWidth: 980,
-    minWindowHeight: 634
-}
-
-// experiment settings
-var expt = {
-    trials: 8,
-    marblesSampled: 6, //total number of marbles drawn per trial
-    numPerDrawn: 2,
-    marbleSize: 15,
-    roles: ['liar', 'detector'],
-    roleFirst: ['liar', 'detector'],
-    humanColor: ['red', 'blue'],
-    compColor: ['red', 'blue'],
-    trialProbs: 0.5,//[0.2,0.5,0.8],
-    pseudo: [],
-    choiceArr: "oneRow",
-    catchTrials: [],
-    stat: {
-        redTotalScore: 0,
-        blueTotalScore: 0,
-        redRunningScore: 0,
-        blueRunningScore: 0
-    },
-    // sona: {
-    //     experiment_id: 1505,
-    //     credit_token: 'b20092f9d3b34a378ee654bcc50710ea'
-    // },
-    debug: false // false //
-};
-var trial = {
-    exptPart: 'instruct', //parts: {'instruct', 'practice','trial'}
-    roleCurrent: 'liar',
-    liarPlayer: 'red', // {red, blue} ~ player1 vs player2
-    trialNumber: 0,
-    pseudo: false,
-    startTime: 0,
-    trialTime: 0,
-    responseStartTime: 0,
-    responseTime: 0,
-    currEndTime: 0,
-    timer: 0,
-    audiotimer: 0,
-    probabilityRed: 0.5,
-    probabilityBlue: 0.5,
-    marblesDrawn: [],
-    urnRed: 0,
-    urnBlue: 0,
-    drawnRed: 0,
-    drawnBlue: 0,
-    highlightedDrawn: 0,
-    reportedDrawn: 0,
-    reportedRed: 0,
-    reportedBlue: 0,
-    compLie: 0,
-    compUnifLie: false,
-    compDetect: 0,
-    callBS: false,
-    callBStxt: '',
-    catch: {
-        question: '',
-        response: 0,
-        key: 0,
-        responseStartTime: 0,
-        responseTime: 0
-    },
-    scoreHeight: {
-        "red": 0,
-        "blue": 0,
-    },
-    redTrialScore: 0,
-    blueTrialScore: 0
-};
-var turn = {
-    numDrawn: 0,
-    practiceOrder: 'NA'
-}
-var client = parseClient();
-var trialData = []; // store of all trials
-var blinktimer = null;
-var replaytimer = null;
-var remindertimer = null;
-var yaAudio, noAudio, dropAudio, dropAudio2, dropAudio3, chooseAudio, pointsAudio, shakeAudio, winnerAudio;
-var colors = {
-    warning: "#ffb3b3", //light red
-    nextblink: "#82ec8e", //light green
-    camblink: "#42BBE2", //light blue
-    teamredblink: "#ffcccb",
-    teamblueblink: "#add8e6",
-    funcblink: "yellow",
-    truthblink: "#6b8e23", //light forest green
-    trickblink: "#f59c49", //light orange
-    teamplayerblink: null,
-    teamopponentblink: null
-}
-var data = [];
 
 
 function pageLoad() {
+    var startPage = "consent";
 
-    yaAudio = new Audio("audio/correct.wav");
-    noAudio = new Audio("audio/incorrect.wav");
-    dropAudio = new Audio("audio/drop.wav");
-    dropAudio2 = new Audio("audio/drop.wav");
-    dropAudio3 = new Audio("audio/drop.wav");
-    waitAudio = new Audio("audio/wait.wav");
-    chooseAudio = new Audio("audio/choose.wav");
-    pointsAudio = new Audio("audio/points.wav");
-    shakeAudio = new Audio('audio/shake.wav');
-    winnerAudio = new Audio('audio/winner.wav');
-
-    var startPage = "trial";
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
-        expt.humanColor = "blue";
-        expt.compColor = "red";
+        expt.human.color = "blue";
+        expt.comp.color = "red";
         colors.teamplayerblink = colors.teamblueblink;
         colors.teamopponentblink = colors.teamredblink;
         $('#leftUpdateBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScore'></div>");
@@ -229,8 +111,6 @@ function clickStart() {
 }
 
 function clickPicture() {
-    //expt.trialProbs = sample(expt.allTrialProbs);
-    //expt.humanColor = sample(expt.humanColor); //assigns human to play as red or blue
     // Webcam.reset('#thecamera');
     $('#photobooth').css('display','none');
     $('#thecamera').css('display','none');
@@ -298,12 +178,10 @@ function clickIntro() {
 
     var endFunc = function(){
         $('.color-button').prop('disabled',false);
-        $('.color-button').css('opacity',0.8);
     };
 
     var resetFunc = function(){
         $('.color-button').prop('disabled',true);
-        $('.color-button').css('opacity',0.6);
     };
 
     loadVideo("color","colorVid","instruct", playFunc, endFunc, resetFunc);
@@ -313,13 +191,13 @@ function pickCol(color){
     if(color == 'red'){
         $('#red-button').css('opacity','1');
         $('#blue-button').css('opacity','0.4');
-        expt.humanColor = "red";
-        expt.compColor = "blue";
+        expt.human.color = "red";
+        expt.comp.color = "blue";
     } else{
         $('#blue-button').css('opacity','1');
         $('#red-button').css('opacity','0.4');
-        expt.humanColor = "blue";
-        expt.compColor = "red";
+        expt.human.color = "blue";
+        expt.comp.color = "red";
     }
 
     // INSTRUCT ANIMATIONS
@@ -327,7 +205,7 @@ function pickCol(color){
         $('.color-button').prop('disabled',true);
     }
     
-    if(expt.humanColor == 'red'){
+    if(expt.human.color == 'red'){
         colors.teamplayerblink = colors.teamredblink;
         colors.teamopponentblink = colors.teamblueblink;
     } else{
@@ -341,37 +219,34 @@ function pickCol(color){
         $('#rightUpdateBucketdetector').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScoredetector'></div>");
         $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>")
     }
+    if(['male','female'].includes(demographicClient.gender)){
+        expt.comp.gender = demographicClient.gender;
+    } else{
+        expt.comp.gender = sample(['male','female']);
+    }
 
       /////////////////
      /// animation ///
     /////////////////
     
     var playFunc = function(){
-        var opponent_vid = "opponent_"+expt.humanColor;
         var currVideo = document.getElementById('colorVid');
         var timer0 = new Timer(function(){
-            showPlayer(expt.humanColor);
+            showPlayer(expt.human.color);
             blink('playerprof', colors.teamplayerblink, 20, 2, 0);
-        }, getEventTime(opponent_vid, 'player_team'));
-
-        if(demographicClient.gender == 'other' || demographicClient.gender == null){
-            var opponentGender = sample(['male','female']);
-        } else if(demographicClient.gender != ''){
-            var opponentGender = demographicClient.gender;
-        } else{
-            var opponentGender = 'female';
-        }
+        }, getEventTime("opponent", 'player_team'));
+        
         var timer1 = new Timer(function(){
-            showOpponent(opponentGender,expt.compColor, true);
-        }, getEventTime(opponent_vid, 'other_player'));
+            showOpponent(expt.comp.gender,expt.comp.color,'neutral',true);
+        }, getEventTime("opponent", 'other_player'));
         var timer2 = new Timer(function(){
-            showOpponent(opponentGender,expt.compColor);
+            showOpponent(expt.comp.gender,expt.comp.color,'neutral');
             blink('opponentprof', colors.teamopponentblink, 20, 2, 0);
-        }, getEventTime(opponent_vid, 'opponent_team'));
+        }, getEventTime("opponent", 'opponent_team'));
         var timer3 = new Timer(function(){
             $('#continueColor').prop('disabled',false);
             blink('continueColor', colors.nextblink, 20, 2, 0, true);
-        }, getEventTime(opponent_vid, 'opponent_button'));
+        }, getEventTime("opponent", 'opponent_button'));
 
         currVideo.onpause = function(){
             timer0.pause();
@@ -400,52 +275,16 @@ function pickCol(color){
         clearInterval(blinktimer);
     };
 
-    var opponent_vid = "opponent_"+expt.humanColor;
-    loadVideo(opponent_vid,"colorVid","instruct", playFunc, endFunc, resetFunc);    
+    loadVideo("opponent_"+expt.human.color,"colorVid","instruct", playFunc, endFunc, resetFunc);    
 }
+
+
 
 function clickColor() {
     pauseVideo("colorVid");
     $('#pickColor').css('display','none');
-    $('#instructions').css('display','block');
-    if(!expt.debug){
-        $('#continueInstruct').css('display','none');
-    }
-    $('.bottomCoverFullInstruct').css('display','none');
-
-    var playFunc = function(){
-        var currVideo = document.getElementById('screenVid');
-        var timer0 = new Timer(function(){
-            $('.bottomCoverFullInstruct').css('display','block');
-        }, getEventTime('screenRecord', 'hide_button'));
-
-        currVideo.onpause = function(){
-            timer0.pause();
-        }
-        currVideo.onplay = function(){
-            if(currVideo.currentTime == 0){
-                timer0.reset();
-            }
-            timer0.resume();
-        }
-    };
-    var endFunc = function(){
-        $('#continueInstruct').css('display','block');
-        //$('#continueInstruct').prop('disabled',false);
-        blink('continueInstruct', colors.nextblink, 20, 2, 0, true);
-    };
-    var resetFunc = function(){
-        $('.bottomCoverFullInstruct').css('display','none');
-        //$('#continueInstruct').css('display','none'); //this one I'm having that participants can skip ahead whenever?
-        clearInterval(blinktimer);
-    };   
-
-    loadVideo("screenRecord_"+expt.humanColor,"screenVid","fullInstruct", playFunc, endFunc, resetFunc);
-}
-
-function clickInstruct() {
-    pauseVideo("screenVid");
-    $('#instructions').css('display','none');
+    //pauseVideo("screenVid");
+    //$('#instructions').css('display','none');
     $('.tube').show();
     $('.tubesvg').empty();
     $('.marblesvg').empty();
@@ -454,7 +293,7 @@ function clickInstruct() {
 
     //document.getElementById('keep').style.display = 'block';
     keepTurn();
-    trial.liarPlayer = expt.humanColor;
+    trial.liarPlayer = expt.human.color;
     $('#liarplayer').html(trial.liarPlayer);
     $('#liarplayer').css('color', trial.liarPlayer);
     $('.trialNum').html("Practice: <i>Marble-Picker</i>");
@@ -542,13 +381,13 @@ function clickInstruct() {
 
                 if(!client.tablet){
                     replaytimer = setInterval(function(){
-                        loadVideo('shake_all_'+expt.humanColor+'_again', 'practiceVid','sideInstruct', null, null, null);
+                        loadVideo('shake_all_'+expt.human.color+'_again', 'practiceVid','sideInstruct', null, null, null);
                     }, 20000);
                 }
             };
             var resetFunc = function(){};
             
-            loadVideo("shake_all_"+expt.humanColor,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+            loadVideo("shake_all_"+expt.human.color,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
         }
         if(client.tablet){
             setShake();
@@ -582,9 +421,9 @@ function clickPostPractice(){
     trial.roleCurrent = expt.roleFirst;
 
     if(trial.roleCurrent == "liar"){
-        trial.liarPlayer = expt.humanColor;
+        trial.liarPlayer = expt.human.color;
     } else{
-        trial.liarPlayer = expt.compColor;
+        trial.liarPlayer = expt.comp.color;
     }
 
     if(trial.roleCurrent == "liar"){
@@ -593,17 +432,15 @@ function clickPostPractice(){
         var roletxt = "Decider"
     }
     $('#turnVid').css('display','block');
-    if(!expt.debug){
-        $('#nextKeep').prop('disabled',true);
-    }
     var playFunc = function(){};
     var endFunc = function(){
-        $('#nextKeep').prop('disabled',false);
+        setTimeout(function(){
+            keepTurn();
+        }, 1000);
     };
-    var resetFunc = function(){
-        $('#nextKeep').prop('disabled',true);
-    };
-    loadVideo('start_'+expt.humanColor+'_'+ trial.roleCurrent,'turnVid',"instruct", playFunc, endFunc, resetFunc);
+    var resetFunc = function(){};
+    loadVideo('start_'+expt.human.color+'_'+ trial.roleCurrent,'turnVid',"instruct", playFunc, endFunc, resetFunc);
+
     trial.exptPart = "trial";
     trial.trialNumber = 0;
     $('.trialNum').html("Round 1 of "+expt.trials);
@@ -627,7 +464,7 @@ function clickPostPractice(){
     }
     $('#keepDiv').css('opacity',1);
     $('#humanRole').html(roletxt);
-    $('#humanRole').css('color', expt.humanColor);
+    $('#humanRole').css('color', expt.human.color);
     quickCam();
 }
 
@@ -635,6 +472,7 @@ function clickPostPractice(){
 
 
 function liar() {
+    showOpponent(expt.comp.gender,expt.comp.color,'neutral');
     $('#playerprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamplayerblink);
     $('#opponentprof').css('box-shadow', "");
     $('#trialDrawer').css('display','block');
@@ -642,6 +480,8 @@ function liar() {
     $('#nextDrawer').css('opacity',0);
     $('#draw-button').attr('onclick','draw();');
     if(trial.exptPart == "trial"){
+        sayAudio.ShakeTheBox.currentTime = 0;
+        sayAudio.ShakeTheBox.play();
         remindertimer = setInterval(function(){
             blink("draw-button", colors.nextblink, 20, 2, 0);
         }, 10000);
@@ -665,7 +505,6 @@ function liar() {
 
 function detector() {
     $('#trialResponder').css('display','block');
-    
     $('#nextResponder').prop('disabled', true);
     trial.roleCurrent = "detector";
     $('.tube').css('top', '15%');
@@ -673,6 +512,7 @@ function detector() {
     $('.callout-button').css('opacity','0');
     
     function detectWait() {
+        showOpponent(expt.comp.gender,expt.comp.color,'think');
         $('#playerprof').css('box-shadow', "");
         $('#opponentprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamopponentblink);
         flickerWait();
@@ -685,13 +525,11 @@ function detector() {
             clearInterval(trial.audiotimer);
 
             $('.subjResponse').css('opacity','0');
-            orderTube("detectRep", trial.liarPlayer, trial.reportedDrawn, expt.marbleSize);
             $('.callout-button').css('opacity','0.8');
             $('.callout-button').prop('disabled', false);
             computerReport();
-            // if(trial.exptPart == "practice"){ //previously blocked from clicking accept
-            //     $('#accept-button').prop('disabled', true);
-            // }
+            orderTube("detectRep", trial.liarPlayer, trial.reportedDrawn, expt.marbleSize);
+
             trial.responseStartTime = Date.now();
         }, trial.waitTime);
     }
@@ -707,10 +545,10 @@ function detector() {
                 }, getEventTime('decide_opponentlie', 'opponent_lie'));
                 timer1 = new Timer(function(){
                     blink('reject-button', colors.trickblink, 20, 2, 0);
-                }, getEventTime('decide_opponentlie_comb', 'orange_button'));
+                }, getEventTime('decide_opponentlie', 'orange_button'));
                 timer2 = new Timer(function(){
                     blink('accept-button', colors.truthblink, 20, 2, 0);
-                }, getEventTime('decide_opponentlie_comb', 'green_button'));
+                }, getEventTime('decide_opponentlie', 'green_button'));
 
                 var currVideo = document.getElementById("practiceVid")
                 currVideo.onpause = function(){
@@ -762,7 +600,7 @@ function detector() {
                     }, 20000);
                 }
             };
-            loadVideo("decide_opponentlie_comb_"+expt.humanColor, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+            loadVideo("decide_opponentlie_"+expt.human.color, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
         }
 
         if(client.tablet){
@@ -786,10 +624,6 @@ function detector() {
 
 
 function trialDone() {
-    //$('#keep').css('display','block');
-    //$('#trialResponder').css('display','block');
-    //$('#keepDiv').css('opacity',0);
-    //$('#nextKeep').prop('disabled',true);
     quickCam();
 
     trial.trialTime = Date.now() - trial.startTime;
@@ -824,41 +658,14 @@ function trialDone() {
     expt.stat.redRunningScore += trial.redTrialScore;
     expt.stat.blueRunningScore += trial.blueTrialScore;
 
-
-    // if(trial.exptPart == "trial" & trial.trialNumber%(expt.trials/4) == 0){
-    //     pointsAudio.play();   
-    //     addPoints("red", expt.stat.redRunningScore, expt.stat.redTotalScore, trial.roleCurrent);
-    //     addPoints("blue", expt.stat.blueRunningScore, expt.stat.blueTotalScore, trial.roleCurrent);
-        
-    //     expt.stat.redTotalScore += expt.stat.redRunningScore;
-    //     expt.stat.blueTotalScore += expt.stat.blueRunningScore;
-    //     expt.stat.redRunningScore = 0;
-    //     expt.stat.blueRunningScore = 0;
-    //     if(trial.trialNumber != expt.trials/2){
-    //         setTimeout(function(){
-    //             //$('#nextKeep').prop('disabled',false);
-    //             keepTurn();
-    //         }, 3000);
-    //     }
-    // } else if(trial.exptPart == "practice"){
-        
-    // } else{
-    //     setTimeout(function(){
-    //         //$('#nextKeep').prop('disabled',false);
-    //         keepTurn();
-    //     }, 1000);
-    // }
-
     trial.currEndTime = Date.now();
     recordData();
 
     // start incrementally writing data after each trial, starting at the test trials
-    if(trial.exptPart == "trial"){
-        data = {client: client, expt: expt, trials: trialData};
-        writeServer(data);
-    }
+    data = {client: client, expt: expt, trials: trialData};
+    writeServer(data);
     
-    if(expt.humanColor == "red"){
+    if(expt.human.color == "red"){
         var highlightHuman = colors.teamredblink;
         var highlightComp = colors.teamblueblink;
     } else{
@@ -867,25 +674,23 @@ function trialDone() {
     }
 
     if(trial.exptPart == "practice"){
-        pointsAudio.play();   
+        pointsAudio.play();  
         addPoints("red", trial.redTrialScore, 0, trial.roleCurrent);
         addPoints("blue", trial.blueTrialScore, 0, trial.roleCurrent);
 
         $('#turnVid').css('display','none');
         if(trial.roleCurrent == "liar"){
-            trial.liarPlayer = expt.compColor;
+            trial.liarPlayer = expt.comp.color;
             trial.roleCurrent = "detector";
-            $('#practiceOppDecision').show();
         } else{
-            if(trial.callBS){
-                $('#practiceOppDecision').html("<center><img src='img/thumbs-up.png' height='200'/><br><p>You caught them!</p></center>");
+            if(trial.callBS){   
                 var playFunc = function(){
                     var currVideo = document.getElementById('practiceVid');
                     var timer0 = new Timer(function(){
-                        blink("leftUpdateBucket", highlightHuman, 40, 2, 0);
+                        blink("leftUpdateBucketdetector", highlightHuman, 40, 2, 0);
                     }, getEventTime('prompt_trick','player_allpoints'));
                     var timer1 = new Timer(function(){
-                        blink("rightUpdateBucket", highlightComp, 40, 2, 0);
+                        blink("rightUpdateBucketdetector", highlightComp, 40, 2, 0);
                     }, getEventTime('prompt_trick','opponent_nopoints'));
 
                     currVideo.onpause = function(){
@@ -902,38 +707,48 @@ function trialDone() {
                     }
                 };
                 var endFunc = function(){
-                    blink("nextKeep", colors.nextblink, 20, 2, 0, true);
-                    $('#nextKeep').prop('disabled',false);
+                    setTimeout(function(){
+                        $('#trialResponder').css('display','none');
+                        keepTurn();
+                    }, 1000);
                 };
-                var resetFunc = function(){
-                    clearInterval(blinktimer);
-                    $('#nextKeep').prop('disabled',true);
-                };
+                var resetFunc = function(){};
                 loadVideo("prompt_trick","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
                 
             } else{
-                $('#practiceOppDecision').html("<center><img src='img/thumbs-down.png' height='200'/><br><p>They tricked you!</p></center>");
-                var playFunc = function(){};
+                var playFunc = function(){
+                    var currVideo = document.getElementById('practiceVid');
+                    var timer0 = new Timer(function(){
+                        blink("rightUpdateBucketdetector", highlightComp, 40, 2, 0);
+                    }, getEventTime('prompt_truth','opponent_allpoints'));
+                    var timer1 = new Timer(function(){
+                        blink("leftUpdateBucketdetector", highlightHuman, 40, 2, 0);
+                    }, getEventTime('prompt_truth','player_nopoints'));
+
+                    currVideo.onpause = function(){
+                        timer0.pause();
+                        timer1.pause();
+                    }
+                    currVideo.onplay = function(){
+                        if(currVideo.currentTime == 0){
+                            timer0.reset();
+                            timer1.reset();
+                        }
+                        timer0.resume();
+                        timer1.resume();
+                    }
+                };
                 var endFunc = function(){
-                    blink("nextKeep", colors.nextblink, 20, 2, 0, true);
-                    $('#nextKeep').prop('disabled',false);
+                    setTimeout(function(){
+                        $('#trialResponder').css('display','none');
+                        keepTurn();
+                    }, 1000);
                 };
-                var resetFunc = function(){
-                    clearInterval(blinktimer);
-                    $('#nextKeep').prop('disabled',true);
-                };
-                loadVideo("prompt_truth","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+                var resetFunc = function(){};
+                loadVideo("prompt_truth_"+expt.human.color,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
             }
-            $('#practiceOppDecision').show();
-
         }
-        
-    } else if(trial.trialNumber == expt.trials){
-        $('#keepDiv').hide();
-        toWinnerCircle();
-        //$('#nextKeep').attr('onclick','toWinnerCircle();');
-    } else {
-
+    } else { // "trial"
         if(trial.trialNumber == expt.trials/2){
             if(trial.liarPlayer == 'red'){
                 trial.liarPlayer = 'blue';
@@ -944,37 +759,34 @@ function trialDone() {
                 trial.roleCurrent = "detector";
                 var roletxt = "Decider"
                 $('#trialDrawer').css('display','none');
-                //$('#trialResponder').css('display','block');
 
             } else{
                 trial.roleCurrent = "liar";
                 var roletxt = "Marble-Picker"
                 $('#trialResponder').css('display','none');
-                //$('#trialDrawer').css('display','block');
             }
             $('#keep').css('display','block');
             $('#keepDiv').css('opacity',1);
-            $('#nextKeep').prop('disabled',true);
-            // $('#keepDiv').css('opacity',1);
-            // if(!expt.debug){
-            //     $('#nextKeep').prop('disabled',true);
-            // }
 
             $('#turnVid').css('display','block');
             var playFunc = function(){};
             var endFunc = function(){
-                blink("nextKeep", colors.nextblink, 20, 2, 0, true);
-                $('#nextKeep').prop('disabled',false);
+                setTimeout(function(){
+                    keepTurn();
+                }, 1000);
             };
-            var resetFunc = function(){
-                clearInterval(blinktimer);
-                $('#nextKeep').prop('disabled',true);
-            };
-            loadVideo('switch_'+expt.humanColor+'_'+ trial.roleCurrent,'turnVid',"instruct", playFunc, endFunc, resetFunc);
+            var resetFunc = function(){};
+            loadVideo('switch_'+expt.human.color+'_'+ trial.roleCurrent,'turnVid',"instruct", playFunc, endFunc, resetFunc);
         }
 
         if(trial.trialNumber%(expt.trials/4) == 0){
-            pointsAudio.play();   
+            pointsAudio.play();  
+            if(trial.trialNumber%(expt.trials/2) != 0){
+                sayAudio.Points.play(); //play simultaneously
+                // pointsAudio.onended = function(){ //play sequentially
+                //     sayAudio.Points.play();
+                // }
+            }
             if(trial.trialNumber == expt.trials/2){
                 addPoints("red", expt.stat.redRunningScore, expt.stat.redTotalScore, "");
                 addPoints("blue", expt.stat.blueRunningScore, expt.stat.blueTotalScore, "");
@@ -987,21 +799,29 @@ function trialDone() {
             expt.stat.blueTotalScore += expt.stat.blueRunningScore;
             expt.stat.redRunningScore = 0;
             expt.stat.blueRunningScore = 0;
-            if(trial.trialNumber != expt.trials/2){
+            if(trial.trialNumber == expt.trials){
+                // $('#keepDiv').hide();
+                $('#insideDrawer').css('display','none');
+                $('#insideResponder').css('display','none');
+                setTimeout(function(){
+                    toWinnerCircle();
+                }, 3000);
+            } else if(trial.trialNumber != expt.trials/2){
                 setTimeout(function(){
                     //$('#nextKeep').prop('disabled',false);
                     keepTurn();
-                }, 3000);
+                }, 3500); //3000 without Vivian audio
             }
-        } else{
+        } else {
             setTimeout(function(){
                 //$('#nextKeep').prop('disabled',false);
                 keepTurn();
             }, 1000);
         }
 
+
         $('#humanRole').html(roletxt);
-        $('#humanRole').css('color', expt.humanColor);
+        $('#humanRole').css('color', expt.human.color);
     }
 
 

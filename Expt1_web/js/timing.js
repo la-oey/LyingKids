@@ -139,29 +139,44 @@ var events = [
 		time: '10540'
 	},
 	{
-		video: 'decide_switch.mp4',
+		video: 'decide_switch_red.mp4',
 		event: 'opponent_allpoints',
-		time: '6180'
+		time: '6640'
 	},
 	{
-		video: 'decide_switch.mp4',
+		video: 'decide_switch_red.mp4',
 		event: 'player_nopoints',
-		time: '7960'
+		time: '8000'
 	},
 	{
-		video: 'decide_switch.mp4',
+		video: 'decide_switch_red.mp4',
+		event: 'other_player',
+		time: '34200'
+	},
+	{
+		video: 'decide_switch_red.mp4',
 		event: 'points_next',
-		time: '22340'
+		time: '42490'
 	},
 	{
-		video: 'decide_opponentlie_red.mp4',
-		event: 'opponent_lie',
-		time: '7810'
+		video: 'decide_switch_blue.mp4',
+		event: 'opponent_allpoints',
+		time: '6380'
 	},
 	{
-		video: 'decide_opponentlie_blue.mp4',
-		event: 'opponent_lie',
-		time: '4430'
+		video: 'decide_switch_blue.mp4',
+		event: 'player_nopoints',
+		time: '8790'
+	},
+	{
+		video: 'decide_switch_blue.mp4',
+		event: 'other_player',
+		time: '35690'
+	},
+	{
+		video: 'decide_switch_blue.mp4',
+		event: 'points_next',
+		time: '45440'
 	},
 
 
@@ -177,24 +192,34 @@ var events = [
 	},
 
 	{
-		video: 'decide_opponentlie_comb_red.mp4',
+		video: 'decide_opponentlie_red.mp4',
+		event: 'opponent_lie',
+		time: '7810'
+	},
+	{
+		video: 'decide_opponentlie_red.mp4',
 		event: 'orange_button',
 		time: '18910'
 	},
 	{
-		video: 'decide_opponentlie_comb_red.mp4',
+		video: 'decide_opponentlie_red.mp4',
 		event: 'green_button',
 		time: '25680'
 	},
 	{
-		video: 'decide_opponentlie_comb_blue.mp4',
-		event: 'orange_button',
-		time: '18900'
+		video: 'decide_opponentlie_blue.mp4',
+		event: 'opponent_lie',
+		time: '4430'
 	},
 	{
-		video: 'decide_opponentlie_comb_blue.mp4',
+		video: 'decide_opponentlie_blue.mp4',
+		event: 'orange_button',
+		time: '15900'
+	},
+	{
+		video: 'decide_opponentlie_blue.mp4',
 		event: 'green_button',
-		time: '25420'
+		time: '22420'
 	},
 
 
@@ -211,19 +236,39 @@ var events = [
 	{
 		video: 'prompt_trick.mp4',
 		event: 'player_allpoints',
-		time: '6950'
+		time: '6640'
 	},
 	{
 		video: 'prompt_trick.mp4',
 		event: 'opponent_nopoints',
-		time: '9900'
+		time: '8930'
+	},
+	{
+		video: 'prompt_truth_red.mp4',
+		event: 'opponent_allpoints',
+		time: '7070'
+	},
+	{
+		video: 'prompt_truth_red.mp4',
+		event: 'player_nopoints',
+		time: '11090'
+	},
+	{
+		video: 'prompt_truth_blue.mp4',
+		event: 'opponent_allpoints',
+		time: '6990'
+	},
+	{
+		video: 'prompt_truth_blue.mp4',
+		event: 'player_nopoints',
+		time: '11470'
 	},
 
 	{
 		video: 'summary.mp4',
 		event: 'next',
 		time: '44600'
-	},
+	}
 ]
 
 

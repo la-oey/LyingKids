@@ -12,8 +12,7 @@ var clicksMap = {
 	},
 	"introduction": clickPicture,
 	"pickColor": clickIntro,
-	"instructions": clickColor,
-	"practiceDrawer": clickInstruct,
+	"practiceDrawer": clickColor,
 	"practiceResponder": function(){
 		$('#practiceViddiv').css('display','block');
 		trial.exptPart = "practice";

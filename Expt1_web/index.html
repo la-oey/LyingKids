@@ -21,6 +21,7 @@ TODO:
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script type="text/javascript" src='js/client.js'></script>
+    <script type="text/javascript" src='js/vars.js'></script>
     <script type="text/javascript" src='js/velocity.min.js'></script>
     <script type="text/javascript" src='js/webcamjs-master/webcam.js'></script>
     <script type="text/javascript" src='js/script.js'></script>
@@ -63,7 +64,7 @@ TODO:
     <div class="sideInstructViddiv" id="practiceViddiv">
         <video class="sideInstructVid" id="practiceVid" type="video/mp4" controls autoplay></video>
     </div>
-    <button class='replayButton replaySideInstruct active-button' id="practiceVidreplay">Replay</button>
+    <button class='replayButton replaySideInstruct' id="practiceVidreplay">Replay</button>
     <div id="presetup" class="screen">
         <center><p id='presetupTxt'>Welcome, parent! For now, you'll be doing set up! You do not need your child yet, but we will let you know when it will be a good time to get your child.</p></center><br>
         <center><div id="presetupButtonDiv"><button class="big-button active-button" id="continuePreSetup" onclick="clickPreSetup();">Continue</button></div></center>
@@ -113,7 +114,7 @@ TODO:
             <div class="instructViddiv" id="introViddiv">
                 <video class="instructVid" id="introVid" type="video/mp4" controls autoplay></video>
             </div>
-            <button class='replayButton replayInstruct active-button' id="introVidreplay">Replay</button>
+            <button class='replayButton replayInstruct' id="introVidreplay">Replay</button>
         </center>
         <center><button class="big-button active-button" id="continueIntro" onclick="clickIntro();">Done!</button></center>
     </div>
@@ -123,7 +124,7 @@ TODO:
             <div class="instructViddiv" id="colorViddiv">
                 <video class="instructVid" id="colorVid" type="video/mp4" controls autoplay></video>
             </div>
-            <button class='replayButton replayInstruct active-button' id="colorVidreplay">Replay</button>
+            <button class='replayButton replayInstruct' id="colorVidreplay">Replay</button>
         </center>
         <p class="mtitle">
             Which color do you want to play as?
@@ -137,20 +138,6 @@ TODO:
         </center>
     </div>
 
-    <div id="instructions" class="screen">
-        <p class="mtitle">
-            Instructions
-        </p><br><br>
-        <center>
-            <div class="coverVid bottomCoverFullInstruct"></div>
-            <div id="screenViddiv">
-                <video class="fullInstructVid" id="screenVid" type="video/mp4" controls autoplay></video>
-            </div>
-            <button class='replayButton replayFullInstruct active-button' id="screenVidreplay">Replay</button>
-        </center>
-        <button class="big-button active-button next" id="continueInstruct" onclick="clickInstruct();">Done!</button>
-    </div>
-
     <div id="postPractice" class="screen">
         <p class="mtitle">
             Nice job! You're ready to play!
@@ -159,7 +146,7 @@ TODO:
             <div class="instructViddiv" id="summaryViddiv">
                 <video class="instructVid" id="summaryVid" type="video/mp4" controls autoplay/>
             </div>
-            <button class='replayButton replayInstruct active-button' id="summaryVidreplay">Replay</button>
+            <button class='replayButton replayInstruct' id="summaryVidreplay">Replay</button>
         </center>
         <button class="big-button active-button next" id="continuePost" onclick="clickPostPractice();">Done!</button>
     </div>
@@ -173,10 +160,9 @@ TODO:
                 <div class="instructViddiv" id="turnViddiv">
                     <video class="instructVid" id="turnVid" type="video/mp4" controls autoplay/>
                 </div>
-                <button class='replayButton replayInstruct active-button' id="turnVidreplay">Replay</button>
             </center>
         </div>
-        <div id="practiceOppDecision"><center><img src="img/thumbs-down.png"/ height="200"><br><p>They thought you played a trick<br>and they caught you!</p></center></div>
+        <!-- <div id="practiceOppDecision"><center><img src="img/thumbs-down.png" height="200"><br><p>They thought you played a trick<br>and they caught you!</p></center></div> -->
         <div class="scoreBucket leftBucket updateBucket" id="leftUpdateBucket">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
             <div class="playerScore redScore" id="redUpdateScore"></div>
@@ -185,28 +171,30 @@ TODO:
             <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
             <div class="playerScore blueScore" id="blueUpdateScore"></div>
         </div>
-        <button class="big-button active-button next" id="nextKeep" type="button" onclick="keepTurn();">Done!</button>
+        <!-- <button class="big-button active-button next" id="nextKeep" type="button" onclick="keepTurn();">Done!</button> -->
     </div>
 
     <div id="trialDrawer" class="screen">
         <p class="mtitle trialNum">Round</p>
-        <center>
-        <div id="wrapper" class="wrapperClass">
-            <img class="cover" src="img/tablecloth.png">
-            <br>
-            <div class="urn">
-                <img id='suburn' src="img/marblebox.png"/>
-                <div class="suburn">
+        <div id="insideDrawer">
+            <center>
+            <div id="wrapper" class="wrapperClass">
+                <img class="cover" src="img/tablecloth.png">
+                <br>
+                <div class="urn">
+                    <img id='suburn' src="img/marblebox.png"/>
+                    <div class="suburn">
+                    </div>
                 </div>
-            </div>
-            <button class="active-button" id="draw-button" type="button" onclick="draw();">Go!</button>
-            <div class="tube" id="tube1">
-                <svg class="tubesvg" id="tubesvg1"></svg>
-            </div>
-        </div></center>
+                <button class="active-button" id="draw-button" type="button" onclick="draw();">Go!</button>
+                <div class="tube" id="tube1">
+                    <svg class="tubesvg" id="tubesvg1"></svg>
+                </div>
+            </div></center>
 
-        <center><div id="choices" class="choiceDiv"><div id="labelChoices"></div></div></center>
-        <center><div class="subjResponse"></div></center>
+            <center><div id="choices" class="choiceDiv"><div id="labelChoices"></div></div></center>
+            <center><div class="subjResponse"></div></center>
+        </div>
         <div class="scoreBucket leftBucket updateBucketliar" id="leftUpdateBucketliar">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
             <div class="playerScore redScore" id="redUpdateScoreliar"></div>
@@ -218,36 +206,20 @@ TODO:
         <button class="big-button active-button next" id="nextDrawer" type="button" onclick="report();">Done!</button>
     </div>
 
-    <!-- <div id="switch" class="screen">
-        <p class="mtitle trialNum">Round</p>
-        <div><center>
-            <p>It's the<br></p>
-            <p class="declareplayer" id="detectorplayer"></p>
-            <p><br>player's turn to play as the decider!<br><br><b>Pass the iPad to the other player.</b></p></center>
-        </div>
-        <div class="scoreBucket redBucket">
-            <img class="imgPt redPt" src="img/redpoint.png" width="100%">
-            <div class="playerScore redScore"></div>
-        </div>
-        <div class="scoreBucket blueBucket">
-            <img class="imgPt bluePt" src="img/bluepoint.png" width="100%">
-            <div class="playerScore blueScore"></div>
-        </div>
-        <button class="big-button active-button next" id="nextPass" type="button" onclick="switchTurn();">Next!</button>
-    </div> -->
-
     <div id="trialResponder" class="screen">
         <p class="mtitle trialNum">Round</p>
-        <div class="tube" id="tube2">
-            <svg class="tubesvg" id="tubesvg2"></svg>
-        </div>
-        <center><br><br>
-            <div id="buttonResponse">
-                <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');"><b>Trick</b></button>
-                <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');"><b>Truth</b></button>
+        <div id="insideResponder">
+            <div class="tube" id="tube2">
+                <svg class="tubesvg" id="tubesvg2"></svg>
             </div>
-        </center>
-        <center><div class="subjResponse"></div></center>
+            <center><br><br>
+                <div id="buttonResponse">
+                    <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');"><b>Trick</b></button>
+                    <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');"><b>Truth</b></button>
+                </div>
+            </center>
+            <center><div class="subjResponse"></div></center>
+        </div>
         <div class="scoreBucket leftBucket updateBucketdetector" id="leftUpdateBucketdetector">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
             <div class="playerScore redScore" id="redUpdateScoredetector"></div>
@@ -256,7 +228,6 @@ TODO:
             <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
             <div class="playerScore blueScore" id="blueUpdateScoredetector"></div>
         </div>
-    <!--     <button class="big-button active-button next" id="nextResponder" type="button" onclick="keepTurn();">Next!</button> -->
     </div>
 
     <div id="completed" class="screen">
@@ -272,7 +243,7 @@ TODO:
             <div class="instructViddiv" id="winnerViddiv">
                 <video class="instructVid" id="winnerVid" type="video/mp4" controls autoplay/>
             </div>
-            <button class='replayButton replayInstruct active-button' id="winnerVidreplay">Replay</button>
+            <button class='replayButton replayInstruct' id="winnerVidreplay">Replay</button>
         </center>
         <button class="big-button active-button next" id="continueWinner" onclick="clickWinner();">Continue</button>
     </div>
