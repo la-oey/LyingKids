@@ -33,21 +33,9 @@ TODO:
     <script> 
         $(function(){
             $("#setupDiv").load("madlab/setup.html"); 
-        });
-        $(function(){
-            $("#consentForm").load("madlab/consent.html"); 
-        });
-        $(function(){
-            $("#demoSurvey").load("madlab/demographic.html"); 
-        });
-        $(function(){
+             
             $("#debriefingText").load("madlab/debriefing.html"); 
-        });
-        $(function(){
             $("#emailConfirmation").load("madlab/emailconfirm.html"); 
-        });
-        $(function(){
-            $("#debriefingText").load("madlab/debriefing.html"); 
         });
     </script>
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
@@ -76,17 +64,11 @@ TODO:
     </div>
 
     <div id="consent" class="screen">
-        <p class="mtitle">
-            Parent consent for child to participate in research
-        </p>
         <div id="consentForm"></div>
         <center><button class="big-button active-button" id="continueConsent" onclick="clickConsent();">Continue</button></center>
     </div>
 
     <div id="demographic" class="screen">
-        <p class="mtitle">
-            Please tell us a bit more about your child
-        </p>
         <div id="demoSurvey"></div>
         <center><button class="big-button active-button" id="continueDemo" onclick="clickDemo();">Continue</button></center>
     </div>

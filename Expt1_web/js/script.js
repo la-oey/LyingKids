@@ -1,7 +1,7 @@
 
 
 function pageLoad() {
-    var startPage = "consent";
+    var startPage = "presetup";
 
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
@@ -17,6 +17,9 @@ function pageLoad() {
         $('#rightUpdateBucketdetector').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScoredetector'></div>");
         $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>");
     }
+
+    $("#consentForm").load("madlab/consent_"+client.type+".html"); 
+    $("#demoSurvey").load("madlab/demographic_"+client.type+".html");
     adaptCSS();
     clicksMap[startPage]();
     console.log("debug: " + expt.debug);    
@@ -39,7 +42,9 @@ function clickConsent() {
     submitConsent();
     $('.warning').hide();
     $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
-    if(checkCheckbox("checkconsent") & checkDOB("DOB",3,12)){
+    var canContinue = client.type == "sona" ? checkCheckbox("checkconsent") : checkCheckbox("checkconsent") & checkDOB("DOB", minAge, maxAge)
+    
+    if(canContinue){
         $('#consent').css('display','none');
         $('#demographic').css('display','block');
         window.scrollTo(0, 0);
@@ -53,13 +58,16 @@ function clickConsent() {
             $('#checkconsentLabel').append("<b class='warning'>Please accept to continue</b>");
             $('#checkconsent').css({"border":"2px solid red", "background-color":colors.warning});
         }
-        if(!checkText("DOB","")){
-            $('#DOB').after("<b class='warning'> Please enter a valid date</b>");
-            $('#DOB').css({"border":"2px solid red", "background-color":colors.warning});
-        } else if(!checkDOB("DOB", minAge, maxAge)){
-            $('#DOB').after("<b class='warning'> Child participants must be between the ages of " + minAge + " and " + maxAge + "</b>");
-            $('#DOB').css({"border":"2px solid red", "background-color":colors.warning});
+        if(client.type == "visitor"){
+        	if(!checkText("DOB","")){
+	            $('#DOB').after("<b class='warning'> Please enter a valid date</b>");
+	            $('#DOB').css({"border":"2px solid red", "background-color":colors.warning});
+	        } else if(!checkDOB("DOB", minAge, maxAge)){
+	            $('#DOB').after("<b class='warning'> Child participants must be between the ages of " + minAge + " and " + maxAge + "</b>");
+	            $('#DOB').css({"border":"2px solid red", "background-color":colors.warning});
+	        }
         }
+        
     }
 }
 
@@ -67,7 +75,9 @@ function clickDemo() {
     submitDemo();
     $('.warning').hide();
     $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
-    if(checkRadio("videoaudio") || checkRadio("audioonly") || checkRadio("stillimages")){
+    var canContinue = client.type == "sona" ? checkRadio("stillimages") : demographicClient.imageAllowed == "yes";
+    console.log(demographicClient.imageAllowed)
+    if(canContinue){
         $('#demographic').css('display','none');
         $('#start').css('display','block');
         window.scrollTo(0, 0);
@@ -78,8 +88,12 @@ function clickDemo() {
         data = {client: client, expt: expt, trials: trialData};
         writeServer(data);
     } else{
-        $('#videotapingLabel').after("<b class='warning'> Please select one</b>");
-    }
+    	if(client.type == "visitor"){
+	    	$('#imagetapingLabel').after("<b class='warning' style='font-size:10px'> This task requires still images to confirm that a child is participating. Select 'yes' to continue.</b>");
+	    } else{
+	        $('#imagetapingLabel').after("<b class='warning'> Please select one</b>");
+	    }
+    } 
 }
 
 function clickStart() {
@@ -237,10 +251,10 @@ function pickCol(color){
         }, getEventTime("opponent", 'player_team'));
         
         var timer1 = new Timer(function(){
-            showOpponent(expt.comp.gender,expt.comp.color,'neutral',true);
+            showOpponent(expt.comp.gender,expt.comp.color,true);
         }, getEventTime("opponent", 'other_player'));
         var timer2 = new Timer(function(){
-            showOpponent(expt.comp.gender,expt.comp.color,'neutral');
+            showOpponent(expt.comp.gender,expt.comp.color);
             blink('opponentprof', colors.teamopponentblink, 20, 2, 0);
         }, getEventTime("opponent", 'opponent_team'));
         var timer3 = new Timer(function(){
@@ -472,7 +486,7 @@ function clickPostPractice(){
 
 
 function liar() {
-    showOpponent(expt.comp.gender,expt.comp.color,'neutral');
+    showOpponentAnim(expt.comp.gender,expt.comp.color,'neutral');
     $('#playerprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamplayerblink);
     $('#opponentprof').css('box-shadow', "");
     $('#trialDrawer').css('display','block');
@@ -512,7 +526,7 @@ function detector() {
     $('.callout-button').css('opacity','0');
     
     function detectWait() {
-        showOpponent(expt.comp.gender,expt.comp.color,'think');
+        showOpponentAnim(expt.comp.gender,expt.comp.color,'think');
         $('#playerprof').css('box-shadow', "");
         $('#opponentprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamopponentblink);
         flickerWait();

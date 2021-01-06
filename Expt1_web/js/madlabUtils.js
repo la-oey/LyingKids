@@ -11,7 +11,10 @@ var demographicClient = { //filled out by participant
 	hearingExplain: "",
 	vision: "",
 	visionExplain: "",
-	videotaping: "",
+	videoaudio: "",
+	audioonly: "",
+	stillimages: "",
+	imageAllowed: "",
 	futureEmail: "",
 	futurePhone: "",
 	otherName: "",
@@ -110,7 +113,7 @@ function checkOrientation(){ //mode = {'portrait','landscape'}
 }
 
 function openForm(){
-	window.open("madlab/pdf/consent.pdf", '_blank');
+	window.open("madlab/pdf/consent_"+client.type+".pdf", '_blank');
 }
 
 function submitConsent(){
@@ -129,7 +132,10 @@ function submitDemo(){
 	demographicClient.hearingExplain = $('input[name = "hearingExplain"]').val();
 	demographicClient.vision = $('input[name = "vision"]:checked').val();
 	demographicClient.visionExplain = $('input[name = "visionExplain"]').val();
-	demographicClient.videotaping = $('input[name = "videotaping"]:checked').val();
+	demographicClient.videoaudio = $('input[name = "videoaudio"]:checked').val();
+	demographicClient.audioonly = $('input[name = "audioonly"]:checked').val();
+	demographicClient.stillimages = $('input[name = "stillimages"]:checked').val();
+	demographicClient.imageAllowed = demographicClient.videoaudio || demographicClient.stillimages;
 	demographicClient.futureEmail = $('input[name = "futureEmail"]').val();
 	demographicClient.futurePhone = $('input[name = "futurePhone"]').val();
 	demographicClient.otherName = $('input[name = "otherName"]').val();
