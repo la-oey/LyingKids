@@ -2,6 +2,7 @@
 
 function pageLoad() {
     var startPage = "presetup";
+    //client.type = "sona";
 
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
@@ -20,6 +21,12 @@ function pageLoad() {
 
     $("#consentForm").load("madlab/consent_"+client.type+".html"); 
     $("#demoSurvey").load("madlab/demographic_"+client.type+".html");
+    if(client.type == "sona"){
+    	$('#presetupTxt').html("For now, you'll be doing set up!");
+    	$('#startTxt').html("This study is designed for children, but we need your help to see how adults behave playing the same game.<br><br>Let's begin!");
+    	$('#contactinfo').hide();
+    	$('#commentsTxt').html("Please tell us if you have any comments! If you experienced any issues during the task, let us know here.")
+    } 
     adaptCSS();
     clicksMap[startPage]();
     console.log("debug: " + expt.debug);    
@@ -910,7 +917,7 @@ function confirmEmail(){
     submitContact();
     $('.warning').hide();
     $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
-    if(checkEmail("email")){
+    if(client.type == "sona" || checkEmail("email")){
         $('#confirmation').css('display','none');
         $('#debriefing').css('display','block');
         client.demographic = demographicClient;
@@ -938,7 +945,6 @@ function adaptCSS(){
         params.minWindowHeight = 0;
     }
 
-    //$('#presetupTxt').html(client.userAgent);
     // Errors if using the wrong browser
     if(client.mobile){
         $('#presetupTxt').html('<b>Uh oh!</b> We noticed that you seem to be using a mobile device. To continue with the task, we ask that you please switch to a tablet, laptop, or desktop. Thank you.');
