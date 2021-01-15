@@ -144,5 +144,5 @@ function submitDemo(){
 
 function submitContact(){
 	demographicClient.contactEmail = $('input[name = "email"]').val();
-	demographicClient.comments = $('input[name = "comments"]').val();
+	demographicClient.comments = $('#comments').val();
 }

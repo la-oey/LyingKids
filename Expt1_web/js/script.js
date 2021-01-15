@@ -2,7 +2,7 @@
 
 function pageLoad() {
     var startPage = "presetup";
-    //client.type = "sona";
+    // client.type = "sona";
 
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
@@ -83,7 +83,7 @@ function clickDemo() {
     $('.warning').hide();
     $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
     var canContinue = client.type == "sona" ? checkRadio("stillimages") : demographicClient.imageAllowed == "yes";
-    console.log(demographicClient.imageAllowed)
+    //console.log(demographicClient.imageAllowed)
     if(canContinue){
         $('#demographic').css('display','none');
         $('#start').css('display','block');

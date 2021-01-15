@@ -212,7 +212,7 @@ function showPlayer(color){
     $('#playerprof').css('border','5px solid ' + color);
 }
 
-function showOpponent(gender, color, action, teamless=false){
+function showOpponent(gender, color, teamless=false){
     if(teamless){
         $('#opponentprof').css('border','5px solid black');
     } else{
@@ -220,7 +220,13 @@ function showOpponent(gender, color, action, teamless=false){
     }
     $('#opponentprof').css('display','block');
     $('#opponenticon').css('display','block');
-    $('#opponenticon').attr('src','img/'+gender+'_'+color+'_'+action+'.jpg');
+    $('#opponenticon').attr('src','img/'+gender+'_'+color+'_neutral.jpg');
+}
+
+function showOpponentAnim(gender, color, action){
+    if(trial.exptPart == "trial"){
+        $('#opponenticon').attr('src','img/'+gender+'_'+color+'_'+action+'.jpg');
+    }
 }
 
 function blink(elem, color, thic, freq, timeStart, interval=false){
@@ -254,7 +260,7 @@ function marble(container, color, size, locX, locY){
 }
 
 function drape(){
-    showOpponent(expt.comp.gender,expt.comp.color,'eyes'); //set opponent icon
+    showOpponentAnim(expt.comp.gender,expt.comp.color,'eyes'); //set opponent icon
     $('#draw-button').animate({'opacity': 0});
     $('.cover').css('z-index', 1);
     $('.cover').animate({
@@ -328,14 +334,14 @@ function draw(){
     function oneMarble(){
         if(turn.numDrawn < expt.marblesSampled){
             color = trial.marblesDrawn[turn.numDrawn];
-            var rollMarble = "<div class='sampMarble' id='marble"+turn.numDrawn+trial.exptPart+"'><svg class='marblesvg' id='marble"+turn.numDrawn+trial.exptPart+"svg'></svg></div>";
+            var rollMarble = "<div class='sampMarble' id='marble"+turn.numDrawn+"'><svg class='marblesvg' id='marble"+turn.numDrawn+"svg'></svg></div>";
             var thetube = '#tube1';
             var thetubesvg = "#tubesvg1";
 
             $(thetube).append(rollMarble);
             
-            marble('#marble'+turn.numDrawn+trial.exptPart+'svg', color, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((turn.numDrawn+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
-            $('#marble'+turn.numDrawn+trial.exptPart).animate({'top':'0%'}, 500);
+            marble('#marble'+turn.numDrawn+'svg', color, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((turn.numDrawn+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
+            $('#marble'+turn.numDrawn).animate({'top':'0%'}, 500);
             turn.numDrawn += 1;
             if(client.tablet){
                 if(turn.numDrawn % 3 == 0){
@@ -689,17 +695,18 @@ function report(){
         $('.replayButton').css('display','none');
     }
 
+    $('.marblesvg').empty();
     //transforms reported to what other play should see
     for(var i=0; i<expt.marblesSampled; i++){
         if(i < trial.reportedDrawn){
-            marble('#marble'+i+trial.exptPart+'svg', trial.liarPlayer, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((i+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
+            marble('#marble'+i+'svg', trial.liarPlayer, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((i+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
         } else{
-            marble('#marble'+i+trial.exptPart+'svg', detectorPlayer, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((i+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
+            marble('#marble'+i+'svg', detectorPlayer, expt.marbleSize, .5*$(thetube).width(), $(thetubesvg).height() - ((i+1)/(expt.marblesSampled+1))*$(thetubesvg).height());
         }
     }
 
     function liarWait() {
-        showOpponent(expt.comp.gender,expt.comp.color,'think');
+        showOpponentAnim(expt.comp.gender,expt.comp.color,'think');
         $('#playerprof').css('box-shadow', "");
         $('#opponentprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamopponentblink);
         flickerWait();
@@ -784,7 +791,7 @@ function report(){
 
         setTimeout(function(){
             $('#opponentprof').css('box-shadow', "");
-            showOpponent(expt.comp.gender,expt.comp.color,'neutral');
+            showOpponentAnim(expt.comp.gender,expt.comp.color,'neutral');
             clearInterval(trial.timer);
             clearInterval(trial.audiotimer);
             
@@ -817,7 +824,7 @@ function computerDetect(){
 }
 
 function callout(call){
-    showOpponent(expt.comp.gender,expt.comp.color,'neutral');
+    showOpponentAnim(expt.comp.gender,expt.comp.color,'neutral');
     $('#playerprof').css('box-shadow', "");
     if(trial.exptPart == "practice"){
         clearInterval(replaytimer);
@@ -848,7 +855,7 @@ function callout(call){
 }
 
 function addPoints(player, points, prevPoints, role){ 
-    showOpponent(expt.comp.gender,expt.comp.color,'hands');
+    showOpponentAnim(expt.comp.gender,expt.comp.color,'hands');
     $('.'+player+"TrialPt").css({'top': '-15%'}, 1000);
     $('.'+player+"TrialPt").animate({'opacity': 1}, 250);
     if(points > 0){
@@ -978,7 +985,7 @@ function audioWait(){
 
 
 function computerReport(){
-    showOpponent(expt.comp.gender,expt.comp.color,'eyes');
+    showOpponentAnim(expt.comp.gender,expt.comp.color,'eyes');
     $('#playerprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamplayerblink);
     $('#opponentprof').css('box-shadow', "");
     //groundTruth

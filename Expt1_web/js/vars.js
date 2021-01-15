@@ -1,7 +1,7 @@
 var saveInfo = {
-    dataURL: 'https://madlab-research.ucsd.edu/save.json.php', //'save.json.php', //
+    dataURL: 'save.json.php', //'https://madlab-research.ucsd.edu/save.json.php',  //
     //videoURL: 'submit.video.php',
-    imgURL: 'https://madlab-research.ucsd.edu/save.image.php', //'save.image.php', //
+    imgURL: 'save.image.php', //'https://madlab-research.ucsd.edu/save.image.php', //
     experimenter: 'loey',
     experimentName: 'trick-or-truth-2'
 }
@@ -38,10 +38,10 @@ var expt = {
         redRunningScore: 0,
         blueRunningScore: 0
     },
-    // sona: {
-    //     experiment_id: 1505,
-    //     credit_token: 'b20092f9d3b34a378ee654bcc50710ea'
-    // },
+    sona: {
+        experiment_id: 2004,
+        credit_token: '7f5b765e48fa4831b948bc9281a2968b'
+    },
     debug: false // false //
 };
 var trial = {
