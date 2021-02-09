@@ -401,18 +401,9 @@ function draw(){
     }
     multDraws();
 
-    if(trial.exptPart == "trial"){
-        clearInterval(remindertimer);
-        remindertimer = setInterval(function(){
-            for(var i=0; i<=6; i++){
-                blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
-            }
-        }, 15000);
-    } else{
+    if(trial.exptPart == "practice"){
         $('.replayButton').css('display','none');
     }
-    
-    
 }
 
 function orderTube(type, player, number, marbleSize){
@@ -443,6 +434,73 @@ var gotAll = false;
 var gotNone = false;
 var gotTrue = false;
 var gotTrick = false;
+
+function practiceDraw(){
+        $('.replayButton').css('display','none');
+        var timer0, timer1, timer2;
+        var setShake = function(){
+            var playFunc = function(){
+                var currVideo = document.getElementById('practiceVid');
+                timer0 = new Timer(function(){
+                    blink('tube1', colors.funcblink, 30, 2, 0);
+                }, getEventTime('shake_all','sample'));
+
+                timer1 = new Timer(function(){
+                    for(var i=0; i<=6; i++){
+                        blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
+                    }
+                }, getEventTime('shake_all','choices'));
+
+                timer2 = new Timer(function(){
+                    resetHighlight();
+                }, getEventTime('shake_all','question'));
+
+                currVideo.onpause = function(){
+                    timer0.pause();
+                    timer1.pause();
+                    timer2.pause();
+                }
+                currVideo.onplay = function(){
+                    if(currVideo.currentTime == 0){
+                        timer0.reset();
+                        timer1.reset();
+                        timer2.reset();
+                    }
+                    timer0.resume();
+                    timer1.resume();
+                    timer2.resume();
+                }
+            };
+            var endFunc = function(){
+                $('#practiceVid').attr('onplay','');
+
+                if(!client.tablet){
+                    replaytimer = setInterval(function(){
+                        loadVideo('shake_all_'+expt.human.color+'_again', 'practiceVid','sideInstruct', null, null, null);
+                    }, 20000);
+                }
+            };
+            var resetFunc = function(){};
+            
+            loadVideo("shake_all_"+expt.human.color,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+        }
+        if(client.tablet){
+            setShake();
+            pauseVideo("practiceVid");
+            timer0.pause();
+            timer1.pause();
+            timer2.pause();
+            setTimeout(function(){
+                playVideo("practiceVid");
+            }, 5000);
+        } else{
+            setTimeout(function(){
+                setShake();
+            }, 5000);
+        }
+        
+        $('#draw-button').prop('disabled',true);
+    }
 
 function practiceHighlightChoice(choice){
     // the gnarliest nested if statement of all time
@@ -599,55 +657,93 @@ function highlightChoice(choice){
         chooseAudio.currentTime = 0;
         chooseAudio.play();
         clearInterval(remindertimer);
+    } else{
+        practiceHighlightChoice(choice)
     }
 
-    //if highlighted, unhighlighted
-    if($('#choice'+choice).css('background-color')=='rgb(255, 255, 0)'){
-        //$('#choice'+choice).css('background-color','white');
-        for(var i=0; i<=expt.marblesSampled; i++){
-            $('#choice'+i).on({
+    if(trial.exptPart == "trial" && expt.catchTrials.includes(trial.trialNumber)){ //
+        //if highlighted, unhighlight
+        if($('#choice'+choice).css('background-color')=='rgb(255, 255, 0)'){
+            $('#choice'+choice).on({
                 mouseenter: function(){
                     $(this).css('background-color', '#FFFFAD');
                 },
                 mouseleave: function(){
                     $(this).css('background-color', 'white');
                 }
-            })
+            });
+            $('#choice'+choice).css('background-color','white');
+            trial.catch.response[choice] = "FALSE";
+        } else{ //if unhighlighted, highlight
+            $('#choice'+choice).css('background-color','rgb(255, 255, 0)');
+            $('#choice'+choice).off('mouseenter mouseleave');
+            $('#nextDrawer').prop('disabled', false);
+            trial.catch.response[choice] = "TRUE";
         }
-        $('#nextDrawer').prop('disabled', true);
-    } else{ //if unhighlighted, highlight
-        //unhighlights all
-        for(var i=0; i<=expt.marblesSampled; i++){
-            if(i != choice){
-                $('#choice'+i).css('background-color','white');
+    } else{
+        //if highlighted, unhighlight
+        if($('#choice'+choice).css('background-color')=='rgb(255, 255, 0)'){
+            for(var i=0; i<=expt.marblesSampled; i++){
                 $('#choice'+i).on({
                     mouseenter: function(){
-                        $(this).css('background-color', '#FFFFCC');
+                        $(this).css('background-color', '#FFFFAD');
                     },
                     mouseleave: function(){
                         $(this).css('background-color', 'white');
                     }
                 })
             }
+            $('#nextDrawer').prop('disabled', true);
+        } else{ //if unhighlighted, highlight
+            //unhighlights all
+            for(var i=0; i<=expt.marblesSampled; i++){
+                if(i != choice){
+                    $('#choice'+i).css('background-color','white');
+                    $('#choice'+i).on({
+                        mouseenter: function(){
+                            $(this).css('background-color', '#FFFFCC');
+                        },
+                        mouseleave: function(){
+                            $(this).css('background-color', 'white');
+                        }
+                    })
+                }
+            }
+            $('#choice'+choice).css('background-color','rgb(255, 255, 0)');
+            $('#choice'+choice).off('mouseenter mouseleave');
+            $('#nextDrawer').prop('disabled', false);
+            trial.highlightedDrawn = choice;
         }
-        $('#choice'+choice).css('background-color','rgb(255, 255, 0)');
-        $('#choice'+choice).off('mouseenter mouseleave');
-        $('#nextDrawer').prop('disabled', false);
-        trial.highlightedDrawn = choice;
-    }
-
-    if(trial.exptPart == "practice"){
-        practiceHighlightChoice(choice)
     }
 }
 
 function showChoices(){
+    expt.catchTrials = [0]
     $('#choices').css('opacity',1);
     $('#choices').css('z-index',1);
+    $('#choices').append("<div id=choiceMid></div>");
 
-    $('#choices').append("<div id=choiceMid></div>")
+    if(trial.exptPart == "trial" && expt.catchTrials.includes(trial.trialNumber)){
+        var colors = []
+        colors = fillArray(colors,"red", 4);
+        colors = fillArray(colors,"blue", 3);
+        colors = shuffle(colors);
+        trial.catch.key = colors;
+
+        trial.highlightedDrawn = "NA";
+        trial.catch.response = [];
+        trial.catch.response = fillArray(trial.catch.response, "FALSE", 7);
+    }
+
     for(var i=0; i<=expt.marblesSampled; i++){
-        $('#choiceMid').append("<div class='choiceClass choiceClassMid' id='choice"+i+"'><img id='choice"+i+"img' class='choiceImg' src='img/"+trial.liarPlayer+i+".png' height='200'/></div>");
+        if(trial.exptPart == "trial" && expt.catchTrials.includes(trial.trialNumber)){
+            var imageName = "attention_"+colors[i];
+            var height = 100;
+        } else{
+            var imageName = trial.liarPlayer+i;
+            var height = 200;
+        }
+        $('#choiceMid').append("<div class='choiceClass choiceClassMid' id='choice"+i+"'><img id='choice"+i+"img' class='choiceImg' src='img/"+imageName+".png' height='"+height+"'/></div>");
     }
     $('#nextDrawer').css('opacity',1);
     
@@ -655,6 +751,19 @@ function showChoices(){
 
     if(trial.exptPart == "trial"){
         resetHighlight();
+        clearInterval(remindertimer);
+        remindertimer = setInterval(function(){
+            for(var i=0; i<=6; i++){
+                blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
+            }
+        }, 15000);
+        if(expt.catchTrials.includes(trial.trialNumber)){ //#EDIT TO HAVE REPEAT
+            sayAudio.Attention.currentTime = 0;
+            sayAudio.Attention.play();
+        } else{
+            sayAudio.Report.currentTime = 0;
+            sayAudio.Report.play();
+        }
     }
 }
 
@@ -1045,7 +1154,7 @@ function computerReport(){
 
     debugLog("Opponent's report: " + trial.reportedDrawn);
 
-    if(trial.exptPart == "trial"){
+    if(trial.exptPart == "trial"){ //EDIT - maybe record audio to say TRUE or FALSE?
         sayAudio.TrickOrTruth.currentTime = 0;
         sayAudio.OpponentReported = new Audio("audio/say_"+trial.reportedDrawn+expt.comp.color+"_"+(expt.marblesSampled-trial.reportedDrawn)+expt.human.color+".wav");
         sayAudio.OpponentReported.play();
@@ -1125,9 +1234,17 @@ function toWinnerCircle(){
             setWinner();
         }, 2000);
     }
-    
-    
 }
+
+
+function setupFunctions(){
+    $('#draw-button').click(function(){
+        if(trial.exptPart == "practice"){
+            practiceDraw();
+        }
+    });
+}
+
 
 
 
@@ -1153,6 +1270,13 @@ function shuffle(set){
     return set;
 }
 
+function fillArray(a, value, len) {
+    for(var i=0; i<len; i++){
+        a = a.concat(value);
+    }
+    return(a);
+}
+
 function recordData(){
     trialData.push({
         playerColor: expt.human.color,
@@ -1176,7 +1300,11 @@ function recordData(){
         responseTime: trial.responseTime,
         trialTime: trial.trialTime,
         currStartTime: trial.startTime,
-        currEndTime: trial.currEndTime
+        currEndTime: trial.currEndTime,
+        catchQuestion: trial.catch.question,
+        catchResponse: trial.catch.response,
+        catchKey: trial.catch.key,
+        catchResponseTime: trial.catch.responseTime
     })
 }
 
@@ -1234,11 +1362,11 @@ function scorePrefix(score){
     }
 }
 
-function distributeChecks(totalTrials, freq){
-    var round = Math.floor(totalTrials * freq);
+function distributeChecks(totalTrials, freq){ //freq refers to a check occurring ever X trials
+    var round = Math.floor(totalTrials / freq);
     var checkRounds = [];
-    for(var i=0; i<totalTrials/round; i++){
-        checkRounds.push(round*i + Math.floor(randomDouble(0,round)));
+    for(var i=0; i<round; i++){
+        checkRounds.push(freq*i + Math.floor(randomDouble(0,freq)));
     }
     return(checkRounds);
 }

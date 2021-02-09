@@ -1,13 +1,16 @@
 
 
 function pageLoad() {
-    var startPage = "presetup";
+    var startPage = "trial";
     // client.type = "sona";
+    setupFunctions();
 
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
         expt.human.color = "blue";
         expt.comp.color = "red";
+        sayAudio.Report = new Audio("audio/say_"+expt.human.color+"_and_"+expt.comp.color+"_marbles.wav");
+        sayAudio.Attention = new Audio("audio/say_attention_"+expt.human.color+".wav");
         colors.teamplayerblink = colors.teamblueblink;
         colors.teamopponentblink = colors.teamredblink;
         $('#leftUpdateBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScore'></div>");
@@ -246,6 +249,9 @@ function pickCol(color){
         expt.comp.gender = sample(['male','female']);
     }
 
+    sayAudio.Report = new Audio("audio/say_"+expt.human.color+"_and_"+expt.comp.color+"_marbles.wav");
+    sayAudio.Attention = new Audio("audio/say_attention_"+expt.human.color+".wav");
+
       /////////////////
      /// animation ///
     /////////////////
@@ -354,79 +360,6 @@ function clickColor() {
 
     //INSTRUCT ANIMATIONS
     loadVideo("shake_shakebutton","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
-    
-    $('#draw-button').click(function(){
-        if(trial.exptPart == "practice"){
-            practiceDraw();
-        }
-    });
-
-    var practiceDraw = function(){
-        $('.replayButton').css('display','none');
-        var timer0, timer1, timer2;
-        var setShake = function(){
-            var playFunc = function(){
-                var currVideo = document.getElementById('practiceVid');
-                timer0 = new Timer(function(){
-                    blink('tube1', colors.funcblink, 30, 2, 0);
-                }, getEventTime('shake_all','sample'));
-
-                timer1 = new Timer(function(){
-                    for(var i=0; i<=6; i++){
-                        blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
-                    }
-                }, getEventTime('shake_all','choices'));
-
-                timer2 = new Timer(function(){
-                    resetHighlight();
-                }, getEventTime('shake_all','question'));
-
-                currVideo.onpause = function(){
-                    timer0.pause();
-                    timer1.pause();
-                    timer2.pause();
-                }
-                currVideo.onplay = function(){
-                    if(currVideo.currentTime == 0){
-                        timer0.reset();
-                        timer1.reset();
-                        timer2.reset();
-                    }
-                    timer0.resume();
-                    timer1.resume();
-                    timer2.resume();
-                }
-            };
-            var endFunc = function(){
-                $('#practiceVid').attr('onplay','');
-
-                if(!client.tablet){
-                    replaytimer = setInterval(function(){
-                        loadVideo('shake_all_'+expt.human.color+'_again', 'practiceVid','sideInstruct', null, null, null);
-                    }, 20000);
-                }
-            };
-            var resetFunc = function(){};
-            
-            loadVideo("shake_all_"+expt.human.color,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
-        }
-        if(client.tablet){
-            setShake();
-            pauseVideo("practiceVid");
-            timer0.pause();
-            timer1.pause();
-            timer2.pause();
-            setTimeout(function(){
-                playVideo("practiceVid");
-            }, 5000);
-        } else{
-            setTimeout(function(){
-                setShake();
-            }, 5000);
-        }
-        
-        $('#draw-button').prop('disabled',true);
-    }
 }
 
 function clickPostPractice(){
@@ -438,6 +371,7 @@ function clickPostPractice(){
 
     //expt.catchTrials = distributeChecks(expt.trials, 0.10); // 0.1 of expt trials have an attention check
     expt.pseudo = distributePseudo(expt.trials);
+    expt.catchTrials = distributeChecks(expt.trials, 6);
     expt.roleFirst = sample(expt.roles);
     trial.roleCurrent = expt.roleFirst;
 

@@ -15,7 +15,7 @@ var params = {
 
 // experiment settings
 var expt = {
-    trials: 20,
+    trials: 24,
     marblesSampled: 6, //total number of marbles drawn per trial
     numPerDrawn: 2,
     marbleSize: 15,
@@ -74,9 +74,10 @@ var trial = {
     callBS: false,
     callBStxt: '',
     catch: {
+        on: false,
         question: '',
-        response: 0,
-        key: 0,
+        response: [],
+        key: [],
         responseStartTime: 0,
         responseTime: 0
     },
@@ -109,7 +110,8 @@ var shakeAudio = new Audio('audio/shake.wav');
 var winnerAudio = new Audio('audio/winner.wav');
 var sayAudio = {
     ShakeTheBox: new Audio("audio/say_ShakeTheBox.wav"),
-    // Report: null,
+    Report: null,
+    Attention: null,
     TrickOrTruth: new Audio("audio/say_TrickOrTruth.wav"),
     OpponentDecided: new Audio("audio/say_OpponentDecided.wav"),
     Points: new Audio("audio/say_Points.wav"),
