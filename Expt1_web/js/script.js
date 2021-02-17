@@ -1,7 +1,7 @@
 
 
 function pageLoad() {
-    var startPage = "trial";
+    var startPage = "presetup";
     // client.type = "sona";
     setupFunctions();
 
@@ -9,8 +9,6 @@ function pageLoad() {
     if(!beforeParamInputs.includes(startPage)){
         expt.human.color = "blue";
         expt.comp.color = "red";
-        sayAudio.Report = new Audio("audio/say_"+expt.human.color+"_and_"+expt.comp.color+"_marbles.wav");
-        sayAudio.Attention = new Audio("audio/say_attention_"+expt.human.color+".wav");
         colors.teamplayerblink = colors.teamblueblink;
         colors.teamopponentblink = colors.teamredblink;
         $('#leftUpdateBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScore'></div>");
@@ -310,8 +308,6 @@ function pickCol(color){
 function clickColor() {
     pauseVideo("colorVid");
     $('#pickColor').css('display','none');
-    //pauseVideo("screenVid");
-    //$('#instructions').css('display','none');
     $('.tube').show();
     $('.tubesvg').empty();
     $('.marblesvg').empty();
@@ -358,7 +354,6 @@ function clickColor() {
         clearInterval(blinktimer);
     };
 
-    //INSTRUCT ANIMATIONS
     loadVideo("shake_shakebutton","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
 }
 
@@ -369,9 +364,8 @@ function clickPostPractice(){
     $('.sideInstructVid').css('display','none');
 
 
-    //expt.catchTrials = distributeChecks(expt.trials, 0.10); // 0.1 of expt trials have an attention check
-    expt.pseudo = distributePseudo(expt.trials);
-    expt.catchTrials = distributeChecks(expt.trials, 6);
+    expt.trialOrder = distributePseudo(expt.trials);
+    expt.trialOrder = distributeChecks(expt.trialOrder);
     expt.roleFirst = sample(expt.roles);
     trial.roleCurrent = expt.roleFirst;
 
@@ -424,7 +418,30 @@ function clickPostPractice(){
 }
 
 
+function catchTrial() {
+    showOpponentAnim(expt.comp.gender,expt.comp.color,'neutral');
+    $('#playerprof').css('box-shadow', "0px 0px 30px 20px " + colors.teamplayerblink);
+    $('#opponentprof').css('box-shadow', "");
+    $('#trialDrawer').css('display','block');
+    $('#nextDrawer').prop('disabled', true);
+    $('#nextDrawer').css('opacity',0);
+    $('.urn').css('opacity', 0);
+    $('.tube').css('opacity', 0);
+    
+    $('#choices').empty();
+    $('#choices').addClass('catchChoice');
+    $('#choices').css('opacity',0);
+    showChoices();
 
+    $('#nextDrawer').attr('onclick', 'submitCatch();');
+    trial.marblesDrawn = [];
+    trial.urnRed = 0;
+    trial.urnBlue = 0;
+    trial.drawnRed = 0;
+    trial.drawnBlue = 0;
+
+    trial.responseStartTime = Date.now();
+}
 
 function liar() {
     showOpponentAnim(expt.comp.gender,expt.comp.color,'neutral');
@@ -465,7 +482,8 @@ function detector() {
     $('.tube').css('top', '15%');
     $('.subjResponse').css('opacity','1');
     $('.callout-button').css('opacity','0');
-    
+    restartTrial();
+
     function detectWait() {
         showOpponentAnim(expt.comp.gender,expt.comp.color,'think');
         $('#playerprof').css('box-shadow', "");
@@ -481,7 +499,9 @@ function detector() {
 
             $('.subjResponse').css('opacity','0');
             $('.callout-button').css('opacity','0.8');
-            $('.callout-button').prop('disabled', false);
+            if(trial.exptPart == "trial"){
+                $('.callout-button').prop('disabled', false);
+            }
             computerReport();
             orderTube("detectRep", trial.liarPlayer, trial.reportedDrawn, expt.marbleSize);
 
@@ -491,6 +511,7 @@ function detector() {
     detectWait();
 
     if(trial.exptPart == "practice"){
+        $('.callout-button').prop('disabled', true);
         var timer0, timer1, timer2;
         var setDecideOppLie = function(){
             var resetFunc = function(){};
@@ -503,6 +524,7 @@ function detector() {
                 }, getEventTime('decide_opponentlie', 'orange_button'));
                 timer2 = new Timer(function(){
                     blink('accept-button', colors.truthblink, 20, 2, 0);
+                    $('.callout-button').prop('disabled', false);
                 }, getEventTime('decide_opponentlie', 'green_button'));
 
                 var currVideo = document.getElementById("practiceVid")
@@ -572,10 +594,9 @@ function detector() {
                 setDecideOppLie();
             }, trial.waitTime)
         }
-        
     }
-    
 }
+
 
 
 function trialDone() {
@@ -584,34 +605,43 @@ function trialDone() {
     trial.trialTime = Date.now() - trial.startTime;
     trial.trialNumber += 1;
 
-    if(!trial.callBS){
-        trial.redTrialScore = trial.reportedRed;
-        trial.blueTrialScore = trial.reportedBlue;
-    } else{
-        if(trial.liarPlayer == "red"){
-            if(trial.reportedRed == trial.drawnRed){
-                debugLog("truth");
-                trial.redTrialScore = trial.reportedRed;
-                trial.blueTrialScore = trial.reportedBlue - 3;
-            } else{
-                debugLog("lie");
-                trial.redTrialScore = 0;
-                trial.blueTrialScore = expt.marblesSampled;
-            }
+    if(!trial.catch.on){
+        if(!trial.callBS){
+            trial.redTrialScore = trial.reportedRed;
+            trial.blueTrialScore = trial.reportedBlue;
         } else{
-            if(trial.reportedBlue == trial.drawnBlue){
-                debugLog("truth");
-                trial.blueTrialScore = trial.reportedBlue;
-                trial.redTrialScore = trial.reportedRed - 3;
+            if(trial.liarPlayer == "red"){
+                if(trial.reportedRed == trial.drawnRed){
+                    debugLog("truth");
+                    trial.redTrialScore = trial.reportedRed;
+                    trial.blueTrialScore = trial.reportedBlue - 3;
+                } else{
+                    debugLog("lie");
+                    trial.redTrialScore = 0;
+                    trial.blueTrialScore = expt.marblesSampled;
+                }
             } else{
-                debugLog("lie");
-                trial.blueTrialScore = 0;
-                trial.redTrialScore = expt.marblesSampled;
+                if(trial.reportedBlue == trial.drawnBlue){
+                    debugLog("truth");
+                    trial.blueTrialScore = trial.reportedBlue;
+                    trial.redTrialScore = trial.reportedRed - 3;
+                } else{
+                    debugLog("lie");
+                    trial.blueTrialScore = 0;
+                    trial.redTrialScore = expt.marblesSampled;
+                }
             }
         }
+        expt.stat.redRunningScore += trial.redTrialScore;
+        expt.stat.blueRunningScore += trial.blueTrialScore;
+
+        console.log("marble-picker told truth: " + (trial.reportedRed == trial.drawnRed));
+        console.log("responder accused trick: " + trial.callBS);
+        console.log("red: " + trial.redTrialScore + " | blue: " + trial.blueTrialScore); //EDIT later
+    } else{
+        trial.redTrialScore = 0;
+        trial.blueTrialScore = 0;
     }
-    expt.stat.redRunningScore += trial.redTrialScore;
-    expt.stat.blueRunningScore += trial.blueTrialScore;
 
     trial.currEndTime = Date.now();
     recordData();
@@ -717,7 +747,8 @@ function trialDone() {
 
             } else{
                 trial.roleCurrent = "liar";
-                var roletxt = "Marble-Picker"
+                var roletxt = "Marble-Picker";
+                $('#trialDrawer').css('display','none');
                 $('#trialResponder').css('display','none');
             }
             $('#keep').css('display','block');
@@ -763,17 +794,15 @@ function trialDone() {
                 }, 3000);
             } else if(trial.trialNumber != expt.trials/2){
                 setTimeout(function(){
-                    //$('#nextKeep').prop('disabled',false);
                     keepTurn();
                 }, 3500); //3000 without Vivian audio
             }
         } else {
             setTimeout(function(){
-                //$('#nextKeep').prop('disabled',false);
                 keepTurn();
             }, 1000);
-        }
 
+        }
 
         $('#humanRole').html(roletxt);
         $('#humanRole').css('color', expt.human.color);

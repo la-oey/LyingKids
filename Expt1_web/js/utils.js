@@ -11,7 +11,6 @@ function getEventTime(video, event){
 var Timer = function(callback, delay) {
     var timerId, start, remaining = delay;
 
-
     this.reset = function() { //if user restarts video to 0, resets timer
         remaining = delay;
     }
@@ -99,7 +98,6 @@ function replacePlayerPic() {
 }
 
 
-
 function loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc){
     $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' type='video/mp4' controls autoplay></video>");
     $("#"+to).attr("src","video/"+vid+".mp4");
@@ -122,6 +120,10 @@ function loadVideo(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc)
                 vids.currentTime = supposedCurrentTime;
             }
         });
+    }
+
+    if(reduceAudio.includes(vid)){
+        vids.volume = 0.5;
     }
     
     if(callPlayFunc != null){
@@ -155,21 +157,28 @@ function resumeVideo(to){ //plays or resumes video
 
 
 function loadWaiting(vid, to, classtype){
-    
     if(no_replay.includes(vid) & !client.tablet){
         $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");  
-    } else if(to == "screenVid"){
-        $("#"+to+"replay").css('display','block');
     }
-    else{ //does not load wait gif for screen record
+    else{
         if(client.tablet){
             $('#'+to+"div").html("<img class='"+classtype+"Vid' id='"+to+"' src='img/waiting.gif'>");
         } else {
             $('#'+to+"div").html("<video class='"+classtype+"Vid' id='"+to+"' src='video/waiting.mp4' autoplay loop>");
         }
-        $("#"+to+"replay").css('display','block');
+        if(listenPractVid){ //temporarily blocks if button was clicked before end of video
+            $("#"+to+"replay").css('display','block');
+        }
     }
 }
+
+function pauseVidListen(){
+    listenPractVid = false;
+    setTimeout(function(){
+        listenPractVid = true;
+    }, 5000);
+}
+
 
 function clickReplay(vid, to, classtype, callPlayFunc, callEndFunc, callResetFunc){
     if(callResetFunc != null){
@@ -177,6 +186,22 @@ function clickReplay(vid, to, classtype, callPlayFunc, callEndFunc, callResetFun
     } 
     if(vid == "decide_lie"){
         vid = "decide_lie_again";
+        callPlayFunc = function(){
+            var currVideo = document.getElementById('practiceVid');
+            var timer0 = new Timer(function(){ //CHECK
+                $('#nextDrawer').prop('disabled',false);
+                blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
+            }, getEventTime('decide_lie_again','lie_next'));
+            currVideo.onpause = function(){
+                timer0.pause();
+            }
+            currVideo.onplay = function(){
+                if(currVideo.currentTime == 0){
+                    timer0.reset();
+                }
+                timer0.resume();
+            }
+        }
     } else if(client.tablet & vid == "shake_all_"+expt.human.color){
         vid = "shake_all_"+expt.human.color+"_again";
         callPlayFunc = null;
@@ -274,8 +299,8 @@ function drape(){
         trial.drawnRed = 3;
         trial.drawnBlue = 3;
     } else{
-        if(expt.pseudo[trial.trialNumber] != -1){
-            trial.drawnRed = expt.pseudo[trial.trialNumber];
+        if(!trial.catch.on && expt.trialOrder[trial.trialNumber] != -1){
+            trial.drawnRed = expt.trialOrder[trial.trialNumber];
             trial.drawnBlue = expt.marblesSampled - trial.drawnRed;
             trial.pseudo = true;
         } else{
@@ -400,10 +425,6 @@ function draw(){
         }
     }
     multDraws();
-
-    if(trial.exptPart == "practice"){
-        $('.replayButton').css('display','none');
-    }
 }
 
 function orderTube(type, player, number, marbleSize){
@@ -420,11 +441,9 @@ function orderTube(type, player, number, marbleSize){
         var indexLab = "#tubesvg2"
     }
     for(var i=0; i<number; i++){
-        //marble(indexLab, player, marbleSize, ((i+1)/(expt.marblesSampled+1))*$(indexLab).width(), .5*$(indexLab).height());
         marble(indexLab, player, marbleSize, .5*$(indexLab).width(), $(indexLab).height() - ((i+1)/(expt.marblesSampled+1))*$(indexLab).height());
     }
     for(var j=0; j<(expt.marblesSampled-number); j++){
-        //marble(indexLab, otherplayer, marbleSize, ((number+j+1)/(expt.marblesSampled+1))*$(indexLab).width(), .5*$(indexLab).height());
         marble(indexLab, otherplayer, marbleSize, .5*$(indexLab).width(), $(indexLab).height() - ((number+j+1)/(expt.marblesSampled+1))*$(indexLab).height());
     }
 }
@@ -436,71 +455,72 @@ var gotTrue = false;
 var gotTrick = false;
 
 function practiceDraw(){
-        $('.replayButton').css('display','none');
-        var timer0, timer1, timer2;
-        var setShake = function(){
-            var playFunc = function(){
-                var currVideo = document.getElementById('practiceVid');
-                timer0 = new Timer(function(){
-                    blink('tube1', colors.funcblink, 30, 2, 0);
-                }, getEventTime('shake_all','sample'));
+    $('.replayButton').css('display','none');
+    pauseVidListen();
+    var timer0, timer1, timer2;
+    var setShake = function(){
+        var playFunc = function(){
+            var currVideo = document.getElementById('practiceVid');
+            timer0 = new Timer(function(){
+                blink('tube1', colors.funcblink, 30, 2, 0);
+            }, getEventTime('shake_all','sample'));
 
-                timer1 = new Timer(function(){
-                    for(var i=0; i<=6; i++){
-                        blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
-                    }
-                }, getEventTime('shake_all','choices'));
-
-                timer2 = new Timer(function(){
-                    resetHighlight();
-                }, getEventTime('shake_all','question'));
-
-                currVideo.onpause = function(){
-                    timer0.pause();
-                    timer1.pause();
-                    timer2.pause();
+            timer1 = new Timer(function(){
+                for(var i=0; i<=6; i++){
+                    blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
                 }
-                currVideo.onplay = function(){
-                    if(currVideo.currentTime == 0){
-                        timer0.reset();
-                        timer1.reset();
-                        timer2.reset();
-                    }
-                    timer0.resume();
-                    timer1.resume();
-                    timer2.resume();
-                }
-            };
-            var endFunc = function(){
-                $('#practiceVid').attr('onplay','');
+            }, getEventTime('shake_all','choices'));
 
-                if(!client.tablet){
-                    replaytimer = setInterval(function(){
-                        loadVideo('shake_all_'+expt.human.color+'_again', 'practiceVid','sideInstruct', null, null, null);
-                    }, 20000);
+            timer2 = new Timer(function(){
+                resetHighlight();
+            }, getEventTime('shake_all','question'));
+
+            currVideo.onpause = function(){
+                timer0.pause();
+                timer1.pause();
+                timer2.pause();
+            }
+            currVideo.onplay = function(){
+                if(currVideo.currentTime == 0){
+                    timer0.reset();
+                    timer1.reset();
+                    timer2.reset();
                 }
-            };
-            var resetFunc = function(){};
-            
-            loadVideo("shake_all_"+expt.human.color,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
-        }
-        if(client.tablet){
-            setShake();
-            pauseVideo("practiceVid");
-            timer0.pause();
-            timer1.pause();
-            timer2.pause();
-            setTimeout(function(){
-                playVideo("practiceVid");
-            }, 5000);
-        } else{
-            setTimeout(function(){
-                setShake();
-            }, 5000);
-        }
-        
-        $('#draw-button').prop('disabled',true);
+                timer0.resume();
+                timer1.resume();
+                timer2.resume();
+            }
+        };
+        var endFunc = function(){
+            $('#practiceVid').attr('onplay','');
+
+            if(!client.tablet){
+                replaytimer = setInterval(function(){
+                    loadVideo('shake_all_'+expt.human.color+'_again', 'practiceVid','sideInstruct', null, null, null);
+                }, 20000);
+            }
+        };
+        var resetFunc = function(){};
+
+        loadVideo("shake_all_"+expt.human.color,"practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
     }
+    if(client.tablet){
+        setShake();
+        pauseVideo("practiceVid");
+        timer0.pause();
+        timer1.pause();
+        timer2.pause();
+        setTimeout(function(){
+            playVideo("practiceVid");
+        }, 5000);
+    } else{
+        setTimeout(function(){
+            setShake();
+        }, 5000);
+    }
+
+    $('#draw-button').prop('disabled',true);
+}
 
 function practiceHighlightChoice(choice){
     // the gnarliest nested if statement of all time
@@ -599,6 +619,7 @@ function practiceHighlightChoice(choice){
                         }, getEventTime('decide_lie','lie'));
                         var timer1 = new Timer(function(){
                             gotTrick = true;
+                            $('#nextDrawer').css('opacity',1);
                             $('#nextDrawer').prop('disabled',false);
                             blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
                         }, getEventTime('decide_lie','lie_next'));
@@ -620,20 +641,6 @@ function practiceHighlightChoice(choice){
                     var resetFunc = function(){
                         clearInterval(blinktimer);
                         $('#nextDrawer').prop('disabled',true);
-                        var currVideo = document.getElementById('practiceVid');
-                        var timer0 = new Timer(function(){ //CHECK
-                            $('#nextDrawer').prop('disabled',false);
-                            blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
-                        }, getEventTime('decide_lie_again','lie_next'));
-                        currVideo.onpause = function(){
-                            timer0.pause();
-                        }
-                        currVideo.onplay = function(){
-                            if(currVideo.currentTime == 0){
-                                timer0.reset();
-                            }
-                            timer0.resume();
-                        }
                     };
                     loadVideo("decide_lie","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
                 } else{
@@ -652,16 +659,15 @@ function practiceHighlightChoice(choice){
 
 
 function highlightChoice(choice){
-    if(trial.exptPart != "practice"){
+    if(trial.exptPart == "practice"){
+        practiceHighlightChoice(choice);
+    } else{
         chooseAudio.pause();
         chooseAudio.currentTime = 0;
         chooseAudio.play();
         clearInterval(remindertimer);
-    } else{
-        practiceHighlightChoice(choice)
     }
-
-    if(trial.exptPart == "trial" && expt.catchTrials.includes(trial.trialNumber)){ //
+    if(trial.catch.on){ //check if catch trial
         //if highlighted, unhighlight
         if($('#choice'+choice).css('background-color')=='rgb(255, 255, 0)'){
             $('#choice'+choice).on({
@@ -711,20 +717,23 @@ function highlightChoice(choice){
             }
             $('#choice'+choice).css('background-color','rgb(255, 255, 0)');
             $('#choice'+choice).off('mouseenter mouseleave');
-            $('#nextDrawer').prop('disabled', false);
+            if(trial.exptPart != "practice"){
+                $('#nextDrawer').prop('disabled', false);
+            }
             trial.highlightedDrawn = choice;
         }
     }
 }
 
 function showChoices(){
-    expt.catchTrials = [0]
     $('#choices').css('opacity',1);
     $('#choices').css('z-index',1);
     $('#choices').append("<div id=choiceMid></div>");
 
-    if(trial.exptPart == "trial" && expt.catchTrials.includes(trial.trialNumber)){
+    if(trial.exptPart == "trial" && trial.catch.on){
         var colors = []
+        sayAudio.Attention = new Audio("audio/say_attention_"+expt.trialOrder[trial.trialNumber]+".wav");
+        trial.catch.question = expt.trialOrder[trial.trialNumber];
         colors = fillArray(colors,"red", 4);
         colors = fillArray(colors,"blue", 3);
         colors = shuffle(colors);
@@ -736,7 +745,7 @@ function showChoices(){
     }
 
     for(var i=0; i<=expt.marblesSampled; i++){
-        if(trial.exptPart == "trial" && expt.catchTrials.includes(trial.trialNumber)){
+        if(trial.exptPart == "trial" && trial.catch.on){
             var imageName = "attention_"+colors[i];
             var height = 100;
         } else{
@@ -745,11 +754,11 @@ function showChoices(){
         }
         $('#choiceMid').append("<div class='choiceClass choiceClassMid' id='choice"+i+"'><img id='choice"+i+"img' class='choiceImg' src='img/"+imageName+".png' height='"+height+"'/></div>");
     }
-    $('#nextDrawer').css('opacity',1);
     
     trial.responseStartTime = Date.now();
 
     if(trial.exptPart == "trial"){
+        $('#nextDrawer').css('opacity',1);
         resetHighlight();
         clearInterval(remindertimer);
         remindertimer = setInterval(function(){
@@ -757,7 +766,7 @@ function showChoices(){
                 blink('choice'+i+'img', colors.funcblink, 30, 2, 0);
             }
         }, 15000);
-        if(expt.catchTrials.includes(trial.trialNumber)){ //#EDIT TO HAVE REPEAT
+        if(trial.catch.on){ //#EDIT TO HAVE REPEAT
             sayAudio.Attention.currentTime = 0;
             sayAudio.Attention.play();
         } else{
@@ -774,6 +783,7 @@ function resetHighlight(){
 }
 
 function report(){
+    sayAudio.Report.pause();
     trial.responseTime = Date.now() - trial.responseStartTime;
     trial.reportedDrawn = trial.highlightedDrawn;
     $('#nextDrawer').prop('disabled', true);
@@ -790,18 +800,25 @@ function report(){
     $('#detectorplayer').html(detectorPlayer);
     $('#detectorplayer').css('color', detectorPlayer);
 
-    if(trial.liarPlayer=="red"){
-        trial.reportedRed = trial.reportedDrawn;
-        trial.reportedBlue = expt.marblesSampled-trial.reportedDrawn;
+    if(trial.catch.on){
+        trial.reportedDrawn = null;
+        trial.reportedRed = null;
+        trial.reportedBlue = null;
     } else{
-        trial.reportedBlue = trial.reportedDrawn;
-        trial.reportedRed = expt.marblesSampled-trial.reportedDrawn;
+        if(trial.liarPlayer=="red"){
+            trial.reportedRed = trial.reportedDrawn;
+            trial.reportedBlue = expt.marblesSampled-trial.reportedDrawn;
+        } else{
+            trial.reportedBlue = trial.reportedDrawn;
+            trial.reportedRed = expt.marblesSampled-trial.reportedDrawn;
+        }
     }
 
     var thetube = '#tube1';
     var thetubesvg = "#tubesvg1";
     if(trial.exptPart == "practice"){
         $('.replayButton').css('display','none');
+        pauseVidListen();
     }
 
     $('.marblesvg').empty();
@@ -823,12 +840,14 @@ function report(){
         
         trial.waitTime = 1000 + 1500*exponential(0.75);
         if(trial.exptPart == "practice"){
+            console.log("TEST: gettin here?")
             $('#nextDrawer').css('opacity',1);
             $('#nextDrawer').attr('onclick', 'keepTurn();'); //temporarily change function
             trial.waitTime = 6000;
             var timer0, timer1, timer2;
             //INSTRUCT ANIMATIONS
             var setDecideSwitch = function(){
+                console.log("TEST 2")
                 waitAudio.pause();
                 var playFunc = function(){
                     if(expt.human.color == "red"){
@@ -914,6 +933,7 @@ function report(){
             }
             setTimeout(function(){
                 trialDone();
+                $('.subjResponse').css('opacity','0');
             }, 4000);
         }, trial.waitTime);
     }
@@ -963,6 +983,16 @@ function callout(call){
     trialDone();
 }
 
+
+function submitCatch(){
+    trial.responseTime = Date.now() - trial.responseStartTime;
+    $('#choices').css('opacity',0);
+    $('#nextDrawer').attr('onclick', 'report();');
+    $('#choices').removeClass('catchChoice');
+    trialDone();
+}
+
+
 function addPoints(player, points, prevPoints, role){ 
     showOpponentAnim(expt.comp.gender,expt.comp.color,'hands');
     $('.'+player+"TrialPt").css({'top': '-15%'}, 1000);
@@ -987,6 +1017,7 @@ function addPoints(player, points, prevPoints, role){
 function keepTurn(){
     $('#keep').css('display','none');
     $('.replayButton').css('display','none');
+    pauseVidListen();
     clearInterval(blinktimer);
     if(trial.exptPart == "practice"){
         if(trial.roleCurrent == "liar" & trial.trialNumber == 0){
@@ -1034,10 +1065,20 @@ function keepTurn(){
         }
     }
     else{
-        if(trial.roleCurrent == "liar"){
+        if(isNaN(expt.trialOrder[trial.trialNumber])){
+            trial.catch.on = true;
+            if(trial.roleCurrent=="detector"){
+                $("#trialResponder").css('display','none');
+            }
+            catchTrial();
+        } else if(trial.roleCurrent == "liar"){
+            trial.catch.on = false;
             liar();
         } else{
-            restartTrial();
+            if(isNaN(expt.trialOrder[trial.trialNumber-1])){
+                $("#trialDrawer").css('display','none');
+            }
+            trial.catch.on = false;
             detector();
         }
     }
@@ -1051,17 +1092,17 @@ function restartTrial(){
     $('.tubesvg').empty();
     $('.marblesvg').empty();
     $('.sampMarble').css('top', '-80%');
-    $('.subjResponse').css('opacity','0');
     
     trial.probabilityRed = expt.trialProbs; //can set this to a number that changes across trials
     trial.probabilityBlue = 1-trial.probabilityRed;
     trial.drawnRed = 0;
     trial.drawnBlue = 0;
     
-    trial.catch.key = -1;
+    trial.catch.question = -1;
     trial.catch.response = -1;
+    trial.catch.key = -1;
+    trial.catch.responseStartTime = -1;
     trial.catch.responseTime = -1;
-    $('#catchQ').hide();
 
     trial.startTime = Date.now();
 }
@@ -1113,8 +1154,8 @@ function computerReport(){
         trial.drawnRed = 3; //reported is a lie
         trial.drawnBlue = 3;
         //$('.callout-button').prop('disabled',true);
-    } else if(expt.pseudo[trial.trialNumber] != -1){
-        trial.reportedDrawn = expt.pseudo[trial.trialNumber];
+    } else if(!trial.catch.on && expt.trialOrder[trial.trialNumber] != -1){
+        trial.reportedDrawn = expt.trialOrder[trial.trialNumber];
         trial.pseudo = true;
     } else{
         trial.pseudo = false;
@@ -1154,7 +1195,7 @@ function computerReport(){
 
     debugLog("Opponent's report: " + trial.reportedDrawn);
 
-    if(trial.exptPart == "trial"){ //EDIT - maybe record audio to say TRUE or FALSE?
+    if(trial.exptPart == "trial"){ 
         sayAudio.TrickOrTruth.currentTime = 0;
         sayAudio.OpponentReported = new Audio("audio/say_"+trial.reportedDrawn+expt.comp.color+"_"+(expt.marblesSampled-trial.reportedDrawn)+expt.human.color+".wav");
         sayAudio.OpponentReported.play();
@@ -1167,9 +1208,6 @@ function computerReport(){
             blink("accept-button", colors.truthblink, 20, 2, 0);
         }, 10000);
     }
-    
-    
-
 }
 
 function toWinnerCircle(){
@@ -1270,6 +1308,11 @@ function shuffle(set){
     return set;
 }
 
+function removeItem(set, item){
+    index = set.indexOf(item);
+    set.splice(index,1);
+}
+
 function fillArray(a, value, len) {
     for(var i=0; i<len; i++){
         a = a.concat(value);
@@ -1303,8 +1346,7 @@ function recordData(){
         currEndTime: trial.currEndTime,
         catchQuestion: trial.catch.question,
         catchResponse: trial.catch.response,
-        catchKey: trial.catch.key,
-        catchResponseTime: trial.catch.responseTime
+        catchKey: trial.catch.key
     })
 }
 
@@ -1362,21 +1404,14 @@ function scorePrefix(score){
     }
 }
 
-function distributeChecks(totalTrials, freq){ //freq refers to a check occurring ever X trials
-    var round = Math.floor(totalTrials / freq);
-    var checkRounds = [];
-    for(var i=0; i<round; i++){
-        checkRounds.push(freq*i + Math.floor(randomDouble(0,freq)));
-    }
-    return(checkRounds);
-}
+
 
 function distributePseudo(totalTrials){
     var pseudoDict = {};
     var arrPseudo = [0,1,5,6];
     var bucketLie = arrPseudo.slice(0);
 
-    for(var i=0; i<totalTrials/2 - arrPseudo.length; i++){
+    for(var i=0; i<(totalTrials-4)/2 - arrPseudo.length; i++){
         bucketLie.push(-1);
     }
     var bucketDetect = bucketLie.slice(0);
@@ -1394,6 +1429,27 @@ function distributePseudo(totalTrials){
     return(pseudoDict);
 }
 
+function distributeChecks(set){ //freq refers to a check occurring ever X trials
+    var catchN = 4;
+    
+    var arrCatch = ["red","blue"];
+    var catchDict = [];
+
+    for(var i=0; i<catchN; i++){
+        var subsetN = set.length / catchN;
+        if(i % 2 == 0){
+            catchColor = arrCatch.slice(0);
+        }
+        var thisColor = sample(catchColor);
+        removeItem(catchColor, thisColor);
+        var tempSet = set.slice(0);
+        tempSet = tempSet.slice(i*subsetN, (i+1)*subsetN);
+        var randIndex = Math.floor(randomDouble(0,subsetN+1));
+        tempSet.splice(randIndex, 0, thisColor);
+        catchDict.push(...tempSet);
+    }
+    return(catchDict)
+}
 
 
 
