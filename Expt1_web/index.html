@@ -33,7 +33,6 @@ TODO:
     <script> 
         $(function(){
             $("#setupDiv").load("madlab/setup.html"); 
-             
             $("#debriefingText").load("madlab/debriefing.html"); 
             $("#emailConfirmation").load("madlab/emailconfirm.html"); 
         });
@@ -74,7 +73,7 @@ TODO:
     </div>
 
     <div id="start" class="screen">
-        <p class="mtitle">
+        <p id="startTxt" class="mtitle">
             Let's begin! <br><br> Please get your child. 
         </p>
         <center><button class="big-button active-button" id="letsgo" onclick="clickStart();">Yeah!</button></center>
@@ -248,5 +247,7 @@ TODO:
     <div id="playerprof"><img id="playericon" src=""></div>
     <div id="opponentprof"><img id="opponenticon" src=""></div>
 </div>
-
+<div id="coverscreen">
+    <p class="mtitle" id="covertext">Please increase the window size.</p>
+</div>
 </body>

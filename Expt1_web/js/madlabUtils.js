@@ -97,7 +97,11 @@ function checkWindowDimensionsDynamic(minWidth, minHeight, wug) {
 	        }
         } else{
         	if(dynWidth < minWidth || dynHeight < minHeight){
-        		alert("Please increase your window size.");
+        		$('#fullscreen').css('display','none');
+        		$('#coverscreen').css('display','block');
+        	} else{
+        		$('#coverscreen').css('display','none');
+        		$('#fullscreen').css('display','block');
         	}
         }
     };
