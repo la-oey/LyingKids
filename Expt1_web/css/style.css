@@ -60,15 +60,15 @@ body {
     position: absolute;
     left: 9.5%;
     z-index: 1;
-    top: 53%;
-    height: 84px;
-    width: 70px;
-    background-size: 70px 84px;
+    top: 52%;
+    height: 72px;
+    width: 68px;
+    background-size: 68px 72px;
     font-size: 11px;
 }
 
 .replaySideInstruct:hover {
-    background-size: 70px 84px;
+    background-size: 68px 72px;
 }
 
 
@@ -110,12 +110,23 @@ body {
         left: 6%;
     }
 
-    .choiceDiv {
+    /*.choiceDiv {
         position: absolute;
         top: 55%;
         width: 84%;
         height: 30%;
         left: 14%;
+        right: 2%;
+        margin-left: auto;
+        margin-right: auto;
+    }*/
+
+    .choiceDiv {
+        position: absolute;
+        top: 55%;
+        width: 91%;
+        height: 30%;
+        left: 4.5%;
         right: 2%;
         margin-left: auto;
         margin-right: auto;
@@ -146,12 +157,23 @@ body {
         border: 2px solid black;
     }
 
-    .choiceDiv {
+    /*.choiceDiv {
         position: absolute;
         top: 60%;
         width: 84%;
         height: 30%;
         left: 14%;
+        right: 2%;
+        margin-left: auto;
+        margin-right: auto;
+    }*/
+
+    .choiceDiv {
+        position: absolute;
+        top: 60%;
+        width: 91%;
+        height: 30%;
+        left: 4.5%;
         right: 2%;
         margin-left: auto;
         margin-right: auto;
@@ -798,10 +820,12 @@ ul {
 }
 
 .choiceClass {
-    border: 2px solid black;
-    padding-top: 1px;
-    padding-bottom: 1px;
+    /*border: 2px solid black;*/
+    /*padding-top: 1px;
+    padding-bottom: 1px;*/
+    padding: 0.8%;
     cursor: pointer;
+    border-radius: 25px;
 }
 
 .choiceClassTop {
@@ -892,12 +916,11 @@ ul {
 }
 
 #reject-button {
-    background-color: #FF4500;
+    background-color: #F16521;
 }
 
-#catchQ {
-    margin-left: 25%;
-    font-size: 30px;
+.catchChoice {
+    top: 40%;
 }
 
 .scoreReport {
@@ -932,7 +955,7 @@ ul {
 
 #whowontext {
     position: absolute;
-    top: 25%;
+    top: 35%;
     left: 0;
     right: 0;
     margin-left: auto;
@@ -945,7 +968,9 @@ ul {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    top: 35%;
+    top: 45%;
+    width: 217.6px;
+    height: 260.8px;
 }
 
 

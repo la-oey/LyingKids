@@ -69,7 +69,7 @@ function closeExplain(value){
 
 
 
-function checkWindowDimensionsDynamic(minWidth, minHeight) {
+function checkWindowDimensionsDynamic(minWidth, minHeight, wug) {
 	var minArea = minWidth*minHeight;
 
     function assessWindowSize() {
@@ -78,21 +78,27 @@ function checkWindowDimensionsDynamic(minWidth, minHeight) {
         debugLog("width: " + dynWidth + ", height: " + dynHeight);
         var dynArea = dynWidth*dynHeight;
         
-        if(dynWidth >= minWidth & dynHeight >= minHeight) {
-        	$("#windowGradient").css('opacity', 1);
-        	$("#windowBinary").css('opacity', 1);
-        	$("#windowCheckTxt").html("Your window size is large enough to continue with the study! Please do not reduce the window size during the study.")
-        	$("#windowCheckTxt").css("color","green");
-        	$("#continueSetup").prop('disabled', false);
-        	$("#continueSetup").css('display', 'block');
+        if(wug){
+        	if(dynWidth >= minWidth && dynHeight >= minHeight) {
+	        	$("#windowGradient").css('opacity', 1);
+	        	$("#windowBinary").css('opacity', 1);
+	        	$("#windowCheckTxt").html("Your window size is large enough to continue with the study! Please do not reduce the window size during the study.")
+	        	$("#windowCheckTxt").css("color","green");
+	        	$("#continueSetup").prop('disabled', false);
+	        	$("#continueSetup").css('display', 'block');
+	        } else{
+	        	//$("#windowGradient").css('opacity', Math.pow(dynArea/minArea,2));
+	        	$("#windowGradient").css('opacity', 0.8*dynArea/minArea);
+	        	$("#windowBinary").css('opacity', 0);
+	        	$("#windowCheckTxt").html("To continue to the study, please enlarge the window size until the bird gets brighter and the sunglasses appear (or enter full screen mode).");
+	        	$("#windowCheckTxt").css("color","red");
+	        	$("#continueSetup").prop('disabled', true);
+	        	$("#continueSetup").css('display', 'none');
+	        }
         } else{
-        	//$("#windowGradient").css('opacity', Math.pow(dynArea/minArea,2));
-        	$("#windowGradient").css('opacity', 0.8*dynArea/minArea);
-        	$("#windowBinary").css('opacity', 0);
-        	$("#windowCheckTxt").html("To continue to the study, please enlarge the window size until the bird gets brighter and the sunglasses appear (or enter full screen mode).");
-        	$("#windowCheckTxt").css("color","red");
-        	$("#continueSetup").prop('disabled', true);
-        	$("#continueSetup").css('display', 'none');
+        	if(dynWidth < minWidth || dynHeight < minHeight){
+        		alert("Please increase your window size.");
+        	}
         }
     };
     

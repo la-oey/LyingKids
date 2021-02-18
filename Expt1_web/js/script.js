@@ -36,12 +36,13 @@ function pageLoad() {
 function clickPreSetup() {
     $('#presetup').css('display','none');
     $('#setup').css('display','block');
-    checkWindowDimensionsDynamic(params.minWindowWidth, params.minWindowHeight);
+    checkWindowDimensionsDynamic(params.minWindowWidth, params.minWindowHeight, true);
 }
 
 function clickSetup() {
     $('#setup').css('display','none');
     $('#consent').css('display','block');
+    checkWindowDimensionsDynamic(params.minWindowWidth, params.minWindowHeight, false);
 }
 
 function clickConsent() {
@@ -638,6 +639,8 @@ function trialDone() {
         console.log("marble-picker told truth: " + (trial.reportedRed == trial.drawnRed));
         console.log("responder accused trick: " + trial.callBS);
         console.log("red: " + trial.redTrialScore + " | blue: " + trial.blueTrialScore); //EDIT later
+        console.log("red cumulative score: " + (expt.stat.redRunningScore + expt.stat.redTotalScore));
+        console.log("blue cumulative score: " + (expt.stat.blueRunningScore + expt.stat.blueTotalScore));
     } else{
         trial.redTrialScore = 0;
         trial.blueTrialScore = 0;
