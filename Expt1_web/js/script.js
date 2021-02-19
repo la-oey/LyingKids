@@ -108,10 +108,10 @@ function clickDemo() {
 function clickStart() {
     $('#start').css('display','none');
     $('#clickclick').prop('disabled',true);
+    trial.startTime = Date.now();
 
     if(demographicClient.imageAllowed == "yes"){
         $('#photobooth').css('display','block');
-        trial.startTime = Date.now();
         showCam();
         setupCam();
         camLoadWait = setInterval(function(){ //checks if camera is loaded every 500 ms, then takes picture
@@ -441,6 +441,7 @@ function catchTrial() {
     trial.drawnRed = 0;
     trial.drawnBlue = 0;
 
+    trial.startTime = Date.now();
     trial.responseStartTime = Date.now();
 }
 
