@@ -1,3 +1,5 @@
+var startPage = "practiceResponder";
+
 var saveInfo = {
     dataURL: 'save.json.php', //'https://madlab-research.ucsd.edu/save.json.php',  //
     //videoURL: 'submit.video.php',
@@ -9,8 +11,8 @@ var saveInfo = {
 var params = {
     minAge: 4,
     maxAge: 12,
-    minWindowWidth: 980,
-    minWindowHeight: 634
+    minWindowWidth: 1026, //980
+    minWindowHeight: 680
 }
 
 // experiment settings
@@ -29,9 +31,8 @@ var expt = {
         gender: ['female', 'red']
     },
     trialProbs: 0.5,//[0.2,0.5,0.8],
-    pseudo: [],
+    trialOrder: [],
     choiceArr: "oneRow",
-    catchTrials: [],
     stat: {
         redTotalScore: 0,
         blueTotalScore: 0,
@@ -77,9 +78,7 @@ var trial = {
         on: false,
         question: '',
         response: [],
-        key: [],
-        responseStartTime: 0,
-        responseTime: 0
+        key: []
     },
     scoreHeight: {
         "red": 0,
@@ -110,7 +109,7 @@ var shakeAudio = new Audio('audio/shake.wav');
 var winnerAudio = new Audio('audio/winner.wav');
 var sayAudio = {
     ShakeTheBox: new Audio("audio/say_ShakeTheBox.wav"),
-    Report: null,
+    Report: new Audio("audio/say_PickAButton.wav"),
     Attention: null,
     TrickOrTruth: new Audio("audio/say_TrickOrTruth.wav"),
     OpponentDecided: new Audio("audio/say_OpponentDecided.wav"),
@@ -123,7 +122,7 @@ var colors = {
     camblink: "#42BBE2", //light blue
     teamredblink: "#ffcccb",
     teamblueblink: "#add8e6",
-    funcblink: "yellow",
+    funcblink: "#fbff00",
     truthblink: "#6b8e23", //light forest green
     trickblink: "#f59c49", //light orange
     teamplayerblink: null,
@@ -144,9 +143,16 @@ var no_replay = [
     "switch_red_liar", "switch_red_detector", "switch_blue_liar", "switch_blue_detector"
 ];
 
+var reduceAudio = [
+    "prompt_trick", "prompt_truth_blue", "prompt_truth_red",
+    "decide_switch_blue", "decide_switch_red"
+]
+
 var vidColors =  [
     "opponent", "screenRecord", 
     "shake_all", "shake_no", "shake_true", 
     "decide_switch", "decide_opponentlie",
     "prompt_truth"
-    ];
+];
+
+var listenPractVid = true;

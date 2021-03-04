@@ -195,8 +195,14 @@ TODO:
             </div>
             <center><br><br>
                 <div id="buttonResponse">
-                    <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');"><b>Trick</b></button>
-                    <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');"><b>Truth</b></button>
+                    <!-- <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');"><b>Trick</b></button>
+                    <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');"><b>Truth</b></button> -->
+                    <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');">
+                        <img class="imgTT" id="imgTrick" src="img/trick.png" width="100%">
+                    </button>
+                    <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');">
+                        <img class="imgTT" id="imgTruth" src="img/truth.png" width="100%">
+                    </button>
                 </div>
             </center>
             <center><div class="subjResponse"></div></center>
@@ -248,6 +254,9 @@ TODO:
     <div id="opponentprof"><img id="opponenticon" src=""></div>
 </div>
 <div id="coverscreen">
-    <p class="mtitle" id="covertext">Please increase the window size.</p>
+    <p class="mtitle" id="covertext">
+        Please increase the window size.<br>
+        <img id="expandGIF" src="img/expand.gif" width="100%">
+    </p>
 </div>
 </body>

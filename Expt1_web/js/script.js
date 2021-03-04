@@ -1,7 +1,7 @@
 
 
 function pageLoad() {
-    var startPage = "presetup";
+    //checkWindowDimensionsDynamic(params.minWindowWidth, params.minWindowHeight, false);
     // client.type = "sona";
     setupFunctions();
 
@@ -176,12 +176,12 @@ function clickIntro() {
      /// animation ///
     /////////////////
 
-    var playFunc = function(){
-        var currVideo = document.getElementById('colorVid');
-        var timer0 = new Timer(function(){
+    let playFunc = function(){
+        let currVideo = document.getElementById('colorVid');
+        let timer0 = new Timer(function(){
             blink('red-button', colors.teamredblink, 20, 2, 0);
         }, getEventTime('color','red_team'));
-        var timer1 = new Timer(function(){
+        let timer1 = new Timer(function(){
             blink('blue-button', colors.teamblueblink, 20, 2, 0);
         }, getEventTime('color','blue_team'));
 
@@ -199,11 +199,11 @@ function clickIntro() {
         }
     };
 
-    var endFunc = function(){
+    let endFunc = function(){
         $('.color-button').prop('disabled',false);
     };
 
-    var resetFunc = function(){
+    let resetFunc = function(){
         $('.color-button').prop('disabled',true);
     };
 
@@ -332,9 +332,9 @@ function clickColor() {
     }
     $('#draw-button').prop('disabled',true);
 
-    var playFunc = function(){
-        var currVideo = document.getElementById('practiceVid');
-        var timer0 = new Timer(function(){
+    let playFunc = function(){
+        let currVideo = document.getElementById('practiceVid');
+        let timer0 = new Timer(function(){
             blink('draw-button', colors.nextblink, 20, 2, 0, true);
             $('#draw-button').prop('disabled',false);
         }, getEventTime('shake_shakebutton', 'shake_button'));
@@ -349,8 +349,8 @@ function clickColor() {
             timer0.resume();
         }
     };
-    var endFunc = function(){};
-    var resetFunc = function(){
+    let endFunc = function(){};
+    let resetFunc = function(){
         $('#draw-button').prop('disabled',true);
         clearInterval(blinktimer);
     };
@@ -377,18 +377,18 @@ function clickPostPractice(){
     }
 
     if(trial.roleCurrent == "liar"){
-        var roletxt = "Marble-Picker"
+        let roletxt = "Marble-Picker"
     } else{
-        var roletxt = "Decider"
+        let roletxt = "Decider"
     }
     $('#turnVid').css('display','block');
-    var playFunc = function(){};
-    var endFunc = function(){
+    let playFunc = function(){};
+    let endFunc = function(){
         setTimeout(function(){
             keepTurn();
         }, 1000);
     };
-    var resetFunc = function(){};
+    let resetFunc = function(){};
     loadVideo('start_'+expt.human.color+'_'+ trial.roleCurrent,'turnVid',"instruct", playFunc, endFunc, resetFunc);
 
     trial.exptPart = "trial";
