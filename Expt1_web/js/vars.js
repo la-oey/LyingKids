@@ -70,7 +70,6 @@ var trial = {
     reportedRed: 0,
     reportedBlue: 0,
     compLie: 0,
-    compUnifLie: false,
     compDetect: 0,
     callBS: false,
     callBStxt: '',

@@ -840,14 +840,12 @@ function report(){
         
         trial.waitTime = 1000 + 1500*exponential(0.75);
         if(trial.exptPart == "practice"){
-            console.log("TEST: gettin here?")
             $('#nextDrawer').css('opacity',1);
             $('#nextDrawer').attr('onclick', 'keepTurn();'); //temporarily change function
             trial.waitTime = 6000;
             var timer0, timer1, timer2;
             //INSTRUCT ANIMATIONS
             var setDecideSwitch = function(){
-                console.log("TEST 2")
                 waitAudio.pause();
                 var playFunc = function(){
                     if(expt.human.color == "red"){
@@ -1159,30 +1157,25 @@ function computerReport(){
         trial.pseudo = true;
     } else{
         trial.pseudo = false;
-        if(Math.random() < 0.5){
-            trial.compUnifLie = true;
-            trial.reportedDrawn = Math.floor(randomDouble(0,expt.marblesSampled+1));
-        } else{
-            var rand = Math.random();
-            var lie = getK(expt.marblesSampled, trial.probabilityRed, rand);
-            if(expt.human.color == 'blue'){
-                if(lie <= trial.drawnRed){
-                    trial.reportedDrawn = trial.drawnRed;
-                } else{
-                    trial.reportedDrawn = lie;
-                }
+        var rand = Math.random();
+        var lie = getK(expt.marblesSampled, trial.probabilityRed, rand);
+        if(expt.human.color == 'blue'){
+            if(lie <= trial.drawnRed){
+                trial.reportedDrawn = trial.drawnRed;
             } else{
-                lie = expt.marblesSampled - lie;
-                if(lie <= trial.drawnBlue){
-                    trial.reportedDrawn = trial.drawnBlue;
-                } else{
-                    trial.reportedDrawn = lie;
-                }
+                trial.reportedDrawn = lie;
             }
-            trial.compLie = lie;
-            trial.compDetect = -1;
-            debugLog("Opponent's Internal Gen Lie: " + trial.compLie)
+        } else{
+            lie = expt.marblesSampled - lie;
+            if(lie <= trial.drawnBlue){
+                trial.reportedDrawn = trial.drawnBlue;
+            } else{
+                trial.reportedDrawn = lie;
+            }
         }
+        trial.compLie = lie;
+        trial.compDetect = -1;
+        debugLog("Opponent's Internal Gen Lie: " + trial.compLie)
     }
     if(expt.human.color == 'red'){
         trial.reportedBlue = trial.reportedDrawn;
