@@ -43,7 +43,8 @@ function setupCam() {
         jpeg_quality: 90
     })
 
-    Webcam.attach('#thecamera')
+    Webcam.attach('#thecamera');
+    $('#thecamera').css('transform', 'scale(-1,1)');
 }
 
 function showCam(){
@@ -86,6 +87,8 @@ function take_snapshot() {
         }
     })
     clearInterval(camLoadWait);
+    clearTimeout(waitOptOut);
+    $("#attention").remove();
 }
 
 function replacePlayerPic() {
@@ -1109,6 +1112,7 @@ function flickerWait(){
     var op = 0.1;
     var increment = 0.1;
     $('.subjResponse').html('<p><br>Waiting...<br><br></p>');
+    $('.subjResponse').show();
     $('.subjResponse').css('opacity','0');
     trial.timer = setInterval(go, 50)
     function go(){
@@ -1276,6 +1280,23 @@ function setupFunctions(){
     });
 }
 
+var waitOptOut;
+function optout(){
+    if(expt.optout){
+        waitOptOut = setTimeout(function(){
+            let optoutHTML = "<div id='attention'>Having issues?  " +
+                             "<button id='optoutButton'>Skip</button>" +
+                             "</div>";
+            $("#thecamera").before(optoutHTML);
+            $("#optoutButton").click(function(){
+                demographicClient.imageAllowed = "no";
+                clickPicture();
+                $("#attention").remove();
+                Webcam.reset('#thecamera');
+            });
+        }, 15000);
+    }
+}
 
 
 

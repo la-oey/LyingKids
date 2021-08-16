@@ -37,37 +37,43 @@ function readServer(request){
       
 
 // function writeServer(data){
-//     debugLog('initiate server write');
-//   $.ajax({
-//       dataType: 'json',
-//       type: 'POST',
-//       url: saveInfo.dataURL,
-//       data: { data: JSON.stringify(data), 
+//     if(!expt.debug){
+//         $.ajax({
+//           dataType: 'json',
+//           type: 'POST',
+//           url: saveInfo.dataURL,
+//           data: { data: JSON.stringify(data), 
 //             experimenter: saveInfo.experimenter,
 //             experimentName: saveInfo.experimentName},
-//         success: function(data){
-//           debugLog('success saving data!');
-//         },
-//         error:function(xhr, status, error){
-//           debugLog('failure saving data');
-//           debugLog(xhr.responseText);
-//           debugLog(status);
-//           debugLog(error);
-//         }
-//       });
+//             success: function(data){
+//               console.log('success saving data!');
+//             },
+//             error:function(xhr, status, error){
+//               console.log('failure saving data');
+//               console.log(xhr.responseText);
+//               console.log(status);
+//               console.log(error);
+//             }
+//         });
+//     }
 // }
 
 // function writeImgServer(data){
-//   $.ajax({
-//     type: "POST",
-//     url: saveInfo.imgURL,
-//     data: { img: data, 
+//     if(!expt.debug){
+//         $.ajax({
+//         type: "POST",
+//         url: saveInfo.imgURL,
+//         data: { img: data, 
 //             name: client.sid,
 //             experimenter: saveInfo.experimenter,
 //             experimentName: saveInfo.experimentName},
-//   }).done(function(o) {
-//      console.log('saved'); 
-//  })
+//             success: function(data){
+//               console.log('image saved!');
+//             }
+//        }) //.done(function(o) {
+//        //     console.log('saved'); 
+//        // })
+//     }
 // }
 
 // function writeVidServer(data){

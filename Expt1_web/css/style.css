@@ -486,6 +486,40 @@ form {
     padding-left: 3%;
 }
 
+#attention {
+    position: absolute;
+    padding: 10px 20px;
+    border-radius: 20px;
+    background-color: lightblue;
+    font-size: 20px;
+}
+
+#optoutButton {
+    background-color: lightblue;
+    color: navy;
+    border: 2px solid black;
+    font-size: 18px;
+    border: 2px solid navy;
+}
+
+#optoutButton:hover {
+    background-color: navy;
+    color: lightblue;
+}
+
+#recordSignal {
+    width: 191px;
+    margin: auto;
+    position: relative;
+}
+
+.letterAnim {
+    float: left;
+}
+
+
+
+
 ul {
     font-size: 16px;
     font-family: verdana;
@@ -1013,6 +1047,9 @@ textarea {
     top: 50%;
     transform: translateY(-50%);
 }
+
+
+
 
 
 

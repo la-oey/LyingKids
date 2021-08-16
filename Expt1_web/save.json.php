@@ -25,7 +25,8 @@ function ajax_return($contents){
 	$data = json_decode($_REQUEST['data'], true);
 
 	// setup directories (w/ permissions)
-	$dataDir = sprintf('data/%s/%s/dat/', $experimenter, $experimentName);
+	$dataDir = "data/" . $experimenter . "/" . $experimentName . "/dat/";
+	// $dataDir = sprintf('data/%s/%s/dat/', $experimenter, $experimentName);
 
 	// change permissions if you accidentally assigned the wrong permissions
 	// chmod(sprintf('data/%s/%s/dat/', $experimenter, $experimentName), 0777);
@@ -40,7 +41,7 @@ function ajax_return($contents){
 		chmod("data/" . $experimenter . "/" . $experimentName, 0777);
 		chmod("data/" . $experimenter, 0777);
 	} else {
-		print_r("Writing to $dataDir\n");
+		// print_r("Writing to $dataDir\n");
 	}
 
 	$rawfile = $dataDir . $data['client']['sid'] . '.json';

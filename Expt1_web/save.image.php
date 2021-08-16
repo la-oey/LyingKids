@@ -1,8 +1,10 @@
 <?php
+	header('Access-Control-Allow-Origin: *'); 
+	header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); 
+	header('Access-Control-Allow-Methods: Content-Type'); 
 	// ob_start();
 	// 	error_reporting(E_ALL);
 	// 	ini_set('display_errors', '1');
-	// 	header('Access-Control-Allow-Origin: *'); 
 	$experimenter = $_POST['experimenter'];
 	$experimentName = $_POST['experimentName'];
 	$img = $_POST['img'];
@@ -13,7 +15,8 @@
 	// change permissions if you accidentally assigned the wrong permissions
 	// chmod(sprintf('data/%s/%s/img/', $experimenter, $experimentName), 0777);
 
-	$dataDir = sprintf('data/%s/%s/img/%s/', $experimenter, $experimentName, $_POST['name']);
+	$dataDir = "data/" . $experimenter . "/" . $experimentName . "/img/" . $_POST['name'] . "/";
+	//$dataDir = sprintf('data/%s/%s/img/%s/', $experimenter, $experimentName, $_POST['name']);
 	if (!file_exists($dataDir)) {
 		// 0755 (directory, permissions mode, recursive = true for creating full path)) 
 		if (!mkdir($dataDir, 0777, true)) {	// 0644, 0750, 0755 //0777 for full permissions						
@@ -25,7 +28,7 @@
 		chmod("data/" . $experimenter . "/" . $experimentName, 0777);
 		chmod("data/" . $experimenter , 0777);
 	} else {
-		print_r("Writing to $dataDir\n");
+		// print_r("Writing to $dataDir\n");
 	}
 
 	$i = 0;
@@ -34,11 +37,11 @@
 	}
 
 	if(file_put_contents($upload_name, $data)) {
-		print_r("Success saving data!\n");
-		print_r("fileName: $fileName \n");
+		// print_r("Success saving data!\n");
+		// print_r("fileName: $fileName \n");
 	} else{
-		print_r("Error...could not save data!\n");
-		print_r("fileName: $fileName \n");
+		// print_r("Error...could not save data!\n");
+		// print_r("fileName: $fileName \n");
 	}
 
 ?>

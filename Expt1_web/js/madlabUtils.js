@@ -76,7 +76,7 @@ function checkWindowDimensionsDynamic(minWidth, minHeight, wug) {
         let dynWidth = $(window).width();
         let dynHeight = $(window).height();
         debugLog("width: " + dynWidth + ", height: " + dynHeight);
-        var dynArea = dynWidth*dynHeight;
+        let dynArea = dynWidth*dynHeight;
         
         if(wug){
         	if(dynWidth >= minWidth && dynHeight >= minHeight) {
