@@ -1,9 +1,11 @@
-var startPage = "practiceResponder";
+var startPage = "presetup"; 
+//["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"]
 
 var saveInfo = {
     dataURL: 'save.json.php', //'https://madlab-research.ucsd.edu/save.json.php',  //
     //videoURL: 'submit.video.php',
     imgURL: 'save.image.php', //'https://madlab-research.ucsd.edu/save.image.php', //
+    audURL: 'save.audio.php',
     experimenter: 'loey',
     experimentName: 'trick-or-truth-2'
 }
@@ -11,8 +13,8 @@ var saveInfo = {
 var params = {
     minAge: 4,
     maxAge: 12,
-    minWindowWidth: 1026, //980
-    minWindowHeight: 680
+    minWindowWidth: 950, //980
+    minWindowHeight: 620
 }
 
 // experiment settings
@@ -43,7 +45,9 @@ var expt = {
         experiment_id: 2004,
         credit_token: '7f5b765e48fa4831b948bc9281a2968b'
     },
-    debug: false // false //
+    optout: true, // skip camera if broken (for pilot only)
+    synchr: true, // remove mic & camera for synchronous version
+    debug: true // false //
 };
 var trial = {
     exptPart: 'practice', //parts: {'practice','trial'}
@@ -155,3 +159,5 @@ var vidColors =  [
 ];
 
 var listenPractVid = true;
+var canContinueDemo = false;
+

@@ -20,6 +20,11 @@ TODO:
     <link rel="icon" href="https://madlab.ucsd.edu/favicon.png">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script type="text/javascript" src='js/web-audio-recorder-js/lib/WavAudioEncoder.min.js'></script>
+    <script type="text/javascript" src='js/web-audio-recorder-js/lib/WebAudioRecorder.js'></script>
+    <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+    <script type="text/javascript" src='js/jspsych/plugins/jspsych-html-audio-response_modified.js'></script>
+    <script type="text/javascript" src='js/audioHandling.js'></script>
     <script type="text/javascript" src='js/client.js'></script>
     <script type="text/javascript" src='js/vars.js'></script>
     <script type="text/javascript" src='js/velocity.min.js'></script>
@@ -27,6 +32,7 @@ TODO:
     <script type="text/javascript" src='js/script.js'></script>
     <script type="text/javascript" src='js/utils.js'></script>
     <script type="text/javascript" src='js/madlabUtils.js'></script>
+
     <script type="text/javascript" src='js/timing.js'></script>
     <script type="text/javascript" src='js/clickMapping.js'></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -74,8 +80,12 @@ TODO:
 
     <div id="start" class="screen">
         <p id="startTxt" class="mtitle">
-            Let's begin! <br><br> Please get your child. 
+            Let's begin! <br><br> Please get your child. <br><br>
         </p>
+        <center><p id="mic">
+            Record your child saying their name! We're checking that you're not a robot!<br><button id='recordButton'></button>
+        </p></center>
+
         <center><button class="big-button active-button" id="letsgo" onclick="clickStart();">Yeah!</button></center>
     </div>
 
@@ -143,7 +153,6 @@ TODO:
                 </div>
             </center>
         </div>
-        <!-- <div id="practiceOppDecision"><center><img src="img/thumbs-down.png" height="200"><br><p>They thought you played a trick<br>and they caught you!</p></center></div> -->
         <div class="scoreBucket leftBucket updateBucket" id="leftUpdateBucket">
             <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
             <div class="playerScore redScore" id="redUpdateScore"></div>
@@ -195,8 +204,6 @@ TODO:
             </div>
             <center><br><br>
                 <div id="buttonResponse">
-                    <!-- <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');"><b>Trick</b></button>
-                    <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');"><b>Truth</b></button> -->
                     <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');">
                         <img class="imgTT" id="imgTrick" src="img/trick.png" width="100%">
                     </button>

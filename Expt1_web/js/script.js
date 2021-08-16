@@ -1,8 +1,7 @@
 
 
 function pageLoad() {
-    //checkWindowDimensionsDynamic(params.minWindowWidth, params.minWindowHeight, false);
-    // client.type = "sona";
+    checkWindowDimensionsDynamic(params.minWindowWidth, params.minWindowHeight, false);
     setupFunctions();
 
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
@@ -80,17 +79,32 @@ function clickConsent() {
     }
 }
 
+
+
 function clickDemo() {
     submitDemo();
     $('.warning').hide();
     $('.requiredAns').css({"border":"1px inset gray", "background-color":'white'});
-    var canContinue = client.type == "sona" ? checkRadio("stillimages") : demographicClient.imageAllowed == "yes";
-    //console.log(demographicClient.imageAllowed)
-    if(canContinue){
+    if(!canContinueDemo){
+        if(expt.synchr){
+            canContinueDemo = true;
+        } else{
+            canContinueDemo = client.type == "sona" ? checkRadio("stillimages") : demographicClient.imageAllowed == "yes";
+        }
+    }
+    
+    if(canContinueDemo){
         $('#demographic').css('display','none');
         $('#start').css('display','block');
+        setGoAudioRecording();
         window.scrollTo(0, 0);
-        blink("letsgo", colors.nextblink, 20, 2, 3000, true);
+        $("#letsgo").prop('disabled', true);
+        if(expt.synchr){
+            $('#mic').css('display','none');
+            setTimeout(function(){ // to keep participant from skipping ahead, wait 8 seconds then allow player to move on
+                $("#letsgo").prop('disabled', false);
+            }, 8000)
+        }
 
         //saves client data from 2nd page of consent
         client.demographic = demographicClient;
@@ -110,7 +124,10 @@ function clickStart() {
     $('#clickclick').prop('disabled',true);
     trial.startTime = Date.now();
 
-    if(demographicClient.imageAllowed == "yes"){
+    if(expt.synchr || demographicClient.imageAllowed != "yes"){
+        replacePlayerPic();
+        continueToIntro();
+    } else {
         $('#photobooth').css('display','block');
         showCam();
         setupCam();
@@ -127,9 +144,7 @@ function clickStart() {
             $('#continuePicture').prop('disabled',false);
             blink("continuePicture", colors.nextblink, 20, 2, 3000, true);
         })
-    } else{
-        replacePlayerPic();
-        continueToIntro();
+        optout();
     }
 }
 
@@ -358,6 +373,7 @@ function clickColor() {
     loadVideo("shake_shakebutton","practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
 }
 
+var roletxt;
 function clickPostPractice(){
     $('#postPractice').css('display','none');
     $('#keep').css('display','block');
@@ -377,9 +393,9 @@ function clickPostPractice(){
     }
 
     if(trial.roleCurrent == "liar"){
-        let roletxt = "Marble-Picker"
+        roletxt = "Marble-Picker"
     } else{
-        let roletxt = "Decider"
+        roletxt = "Decider"
     }
     $('#turnVid').css('display','block');
     let playFunc = function(){};
@@ -482,7 +498,6 @@ function detector() {
     $('#nextResponder').prop('disabled', true);
     trial.roleCurrent = "detector";
     $('.tube').css('top', '15%');
-    $('.subjResponse').css('opacity','1');
     $('.callout-button').css('opacity','0');
     restartTrial();
 
@@ -499,7 +514,7 @@ function detector() {
             clearInterval(trial.timer);
             clearInterval(trial.audiotimer);
 
-            $('.subjResponse').css('opacity','0');
+            $('.subjResponse').hide();
             $('.callout-button').css('opacity','0.8');
             if(trial.exptPart == "trial"){
                 $('.callout-button').prop('disabled', false);
@@ -868,7 +883,7 @@ function writeImgServer(data){
             experimenter: saveInfo.experimenter,
             experimentName: saveInfo.experimentName},
         }).done(function(o) {
-           debugLog('saved'); 
+           console.log('saved'); 
        })
     }
 }
