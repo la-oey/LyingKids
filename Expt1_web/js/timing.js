@@ -138,45 +138,85 @@ var events = [
 		event: 'lie_next',
 		time: '10540'
 	},
+	// {
+	// 	video: 'decide_switch_red.mp4',
+	// 	event: 'opponent_allpoints',
+	// 	time: '6640'
+	// },
+	// {
+	// 	video: 'decide_switch_red.mp4',
+	// 	event: 'player_nopoints',
+	// 	time: '8000'
+	// },
+	// {
+	// 	video: 'decide_switch_red.mp4',
+	// 	event: 'other_player',
+	// 	time: '34200'
+	// },
+	// {
+	// 	video: 'decide_switch_red.mp4',
+	// 	event: 'points_next',
+	// 	time: '42490'
+	// },
+	// {
+	// 	video: 'decide_switch_blue.mp4',
+	// 	event: 'opponent_allpoints',
+	// 	time: '6380'
+	// },
+	// {
+	// 	video: 'decide_switch_blue.mp4',
+	// 	event: 'player_nopoints',
+	// 	time: '8790'
+	// },
+	// {
+	// 	video: 'decide_switch_blue.mp4',
+	// 	event: 'other_player',
+	// 	time: '35690'
+	// },
+	// {
+	// 	video: 'decide_switch_blue.mp4',
+	// 	event: 'points_next',
+	// 	time: '45440'
+	// },
 	{
-		video: 'decide_switch_red.mp4',
-		event: 'opponent_allpoints',
-		time: '6640'
+		video: 'decide_goodlie_red.mp4',
+		event: 'player_alot',
+		time: '8750'
 	},
 	{
-		video: 'decide_switch_red.mp4',
-		event: 'player_nopoints',
-		time: '8000'
+		video: 'decide_goodlie_red.mp4',
+		event: 'opponent_some',
+		time: '12720'
 	},
 	{
-		video: 'decide_switch_red.mp4',
+		video: 'decide_goodlie_red.mp4',
 		event: 'other_player',
-		time: '34200'
+		time: '26680'
 	},
 	{
-		video: 'decide_switch_red.mp4',
+		video: 'decide_goodlie_red.mp4',
 		event: 'points_next',
-		time: '42490'
+		time: '35080'
 	},
 	{
-		video: 'decide_switch_blue.mp4',
-		event: 'opponent_allpoints',
-		time: '6380'
+		video: 'decide_goodlie_blue.mp4',
+		event: 'player_alot',
+		time: '8500'
 	},
 	{
-		video: 'decide_switch_blue.mp4',
-		event: 'player_nopoints',
-		time: '8790'
+		video: 'decide_goodlie_blue.mp4',
+		event: 'opponent_some',
+		time: '11830'
 	},
 	{
-		video: 'decide_switch_blue.mp4',
+		video: 'decide_goodlie_blue.mp4',
 		event: 'other_player',
-		time: '35690'
+		time: '25890'
 	},
 	{
-		video: 'decide_switch_blue.mp4',
+		video: 'decide_goodlie_blue.mp4',
 		event: 'points_next',
-		time: '45440'
+		time: '34770'
 	},
 
 

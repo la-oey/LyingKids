@@ -5,9 +5,12 @@ var clicksMap = {
 	"demographic": function(){
 		$('#demographic').css('display','block');
 	},
-	"start": clickDemo,
+	"start": function(){
+		canContinueDemo = true;
+		clickDemo();
+	},
 	"photobooth": function(){
-		demographicClient.videotaping = "yes";
+		demographicClient.imageAllowed = "yes";
 		clickStart();
 	},
 	"introduction": clickPicture,

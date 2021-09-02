@@ -154,15 +154,15 @@ function clickPicture() {
     $('#thecamera').css('display','none');
     $('#clickclick').css('display','none');
     replacePlayerPic();
-    if(!expt.debug){
-        $('#continueIntro').prop('disabled',true);
-    }
     continueToIntro();
 }
 
 function continueToIntro(){
     $('#introduction').css('display','block');
-    
+    if(!expt.debug){
+        $('#continueIntro').prop('disabled',true);
+    }
+
     var playFunc = function(){};
     var endFunc = function(){
         $('#continueIntro').prop('disabled',false);

@@ -615,9 +615,9 @@ function practiceHighlightChoice(choice){
                     var playFunc = function(){
                         var currVideo = document.getElementById('practiceVid');
                         var timer0 = new Timer(function(){
-                            blink('choice6img', colors.funcblink, 30, 2, 0);
+                            blink('choice4img', colors.funcblink, 30, 2, 0); // choice6img
                             setTimeout(function(){ //might need to get un-highlighted if player restarts video
-                                highlightChoice(6);
+                                highlightChoice(4); // 6
                             }, 2000);
                         }, getEventTime('decide_lie','lie'));
                         var timer1 = new Timer(function(){
@@ -859,18 +859,18 @@ function report(){
                         var highlightHuman = colors.teamblueblink;
                     }
                     timer0 = new Timer(function(){
-                        blink("rightUpdateBucketliar", highlightComp, 40, 2, 0);
-                    }, getEventTime('decide_switch','opponent_allpoints'));
+                        blink("leftUpdateBucketliar", highlightHuman, 40, 2, 0); // blink("rightUpdateBucketliar", highlightComp, 40, 2, 0)
+                    }, getEventTime('decide_goodlie','player_alot')); // getEventTime('decide_switch','opponent_allpoints')
                     timer1 = new Timer(function(){
-                        blink("leftUpdateBucketliar", highlightHuman, 40, 2, 0);
-                    }, getEventTime('decide_switch','player_nopoints'));
+                        blink("rightUpdateBucketliar", highlightComp, 40, 2, 0); // blink("leftUpdateBucketliar", highlightHuman, 40, 2, 0)
+                    }, getEventTime('decide_goodlie','opponent_some')); // getEventTime('decide_switch','player_nopoints')
                     timer2 = new Timer(function(){
                         blink('opponentprof', colors.teamopponentblink, 20, 2, 0);
-                    }, getEventTime('decide_switch','other_player'));
+                    }, getEventTime('decide_goodlie','other_player')); // getEventTime('decide_switch','other_player')
                     timer3 = new Timer(function(){
                         blink("nextDrawer", colors.nextblink, 20, 2, 0, true);
                         $('#nextDrawer').prop('disabled',false);
-                    }, getEventTime('decide_switch','points_next'));
+                    }, getEventTime('decide_goodlie','points_next')); // getEventTime('decide_switch','points_next')
 
                     var currVideo = document.getElementById("practiceVid")
                     currVideo.onpause = function(){
@@ -898,7 +898,7 @@ function report(){
                     $('#nextDrawer').prop('disabled',true);
                 };
 
-                loadVideo("decide_switch_"+expt.human.color, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
+                loadVideo("decide_goodlie_"+expt.human.color, "practiceVid","sideInstruct", playFunc, endFunc, resetFunc);
             }
             
             if(client.tablet){
@@ -927,7 +927,7 @@ function report(){
             $('.subjResponse').html("<p><br>They decided!<br><br></p>")
             $('.subjResponse').css('opacity','1');
             if(trial.exptPart == "practice"){
-                trial.callBS = true;
+                trial.callBS = false; // true
             } else{
                 sayAudio.OpponentDecided.play();
                 computerDetect();

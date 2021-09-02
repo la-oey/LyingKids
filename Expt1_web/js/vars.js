@@ -47,7 +47,7 @@ var expt = {
     },
     optout: true, // skip camera if broken (for pilot only)
     synchr: true, // remove mic & camera for synchronous version
-    debug: true // false //
+    debug: false // false //
 };
 var trial = {
     exptPart: 'practice', //parts: {'practice','trial'}
@@ -154,7 +154,7 @@ var reduceAudio = [
 var vidColors =  [
     "opponent", "screenRecord", 
     "shake_all", "shake_no", "shake_true", 
-    "decide_switch", "decide_opponentlie",
+    "decide_switch", "decide_goodlie", "decide_opponentlie",
     "prompt_truth"
 ];
 
