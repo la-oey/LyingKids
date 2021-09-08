@@ -986,8 +986,11 @@ function callout(call){
 
 
 function submitCatch(){
+    console.log("submit catch")
     trial.responseTime = Date.now() - trial.responseStartTime;
     $('#choices').css('opacity',0);
+    $('#nextDrawer').prop('disabled', true);
+    $('#nextDrawer').css('opacity',0);
     $('#nextDrawer').attr('onclick', 'report();');
     $('#choices').removeClass('catchChoice');
     trialDone();
@@ -1129,6 +1132,7 @@ function flickerWait(){
 
 function audioWait(){
     waitAudio.currentTime = 0;
+    waitAudio.volume = 0.5;
     waitAudio.play();
     trial.audiotimer = setInterval(function(){
         waitAudio.play();

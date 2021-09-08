@@ -6,17 +6,17 @@ function pageLoad() {
 
     var beforeParamInputs = ["presetup","setup","consent","demographic","start","photobooth","introduction","pickColor"];
     if(!beforeParamInputs.includes(startPage)){
-        expt.human.color = "blue";
-        expt.comp.color = "red";
-        colors.teamplayerblink = colors.teamblueblink;
-        colors.teamopponentblink = colors.teamredblink;
-        $('#leftUpdateBucket').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScore'></div>");
-        $('#rightUpdateBucket').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScore'></div>");
-        $('#leftUpdateBucketliar').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScoreliar'></div>");
-        $('#rightUpdateBucketliar').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScoreliar'></div>");
-        $('#leftUpdateBucketdetector').html("<img class='imgPt bluePt blueTrialPt' src='img/bluepoint.png' width='100%'><div class='playerScore blueScore' id='blueUpdateScoredetector'></div>");
-        $('#rightUpdateBucketdetector').html("<img class='imgPt redPt redTrialPt' src='img/redpoint.png' width='100%'><div class='playerScore redScore' id='redUpdateScoredetector'></div>");
-        $('.scoreboardDiv').html("<div class='scoreCol' style='color:blue'>Blue Score:<br><b class='blueFinalScore'>0</b></div><div class='scoreCol' style='color:red'>Red Score:<br><b class='redFinalScore'>0</b></div>");
+        expt.human.color = "red";
+        expt.comp.color = "blue";
+        colors.teamplayerblink = colors.teamredblink;
+        colors.teamopponentblink = colors.teamblueblink;
+        $('#leftUpdateBucket').html("<img class='imgPt "+expt.human.color+"Pt "+expt.human.color+"TrialPt' src='img/"+expt.human.color+"point.png' width='100%'><div class='playerScore "+expt.human.color+"Score' id='"+expt.human.color+"UpdateScore'></div>");
+        $('#rightUpdateBucket').html("<img class='imgPt "+expt.comp.color+"Pt "+expt.comp.color+"TrialPt' src='img/"+expt.comp.color+"point.png' width='100%'><div class='playerScore "+expt.comp.color+"Score' id='"+expt.comp.color+"UpdateScore'></div>");
+        $('#leftUpdateBucketliar').html("<img class='imgPt "+expt.human.color+"Pt "+expt.human.color+"TrialPt' src='img/"+expt.human.color+"point.png' width='100%'><div class='playerScore "+expt.human.color+"Score' id='"+expt.human.color+"UpdateScoreliar'></div>");
+        $('#rightUpdateBucketliar').html("<img class='imgPt "+expt.comp.color+"Pt "+expt.comp.color+"TrialPt' src='img/"+expt.comp.color+"point.png' width='100%'><div class='playerScore "+expt.comp.color+"Score' id='"+expt.comp.color+"UpdateScoreliar'></div>");
+        $('#leftUpdateBucketdetector').html("<img class='imgPt "+expt.human.color+"Pt "+expt.human.color+"TrialPt' src='img/"+expt.human.color+"point.png' width='100%'><div class='playerScore "+expt.human.color+"Score' id='"+expt.human.color+"UpdateScoredetector'></div>");
+        $('#rightUpdateBucketdetector').html("<img class='imgPt "+expt.comp.color+"Pt "+expt.comp.color+"TrialPt' src='img/"+expt.comp.color+"point.png' width='100%'><div class='playerScore "+expt.comp.color+"Score' id='"+expt.comp.color+"UpdateScoredetector'></div>");
+        $('.scoreboardDiv').html("<div class='scoreCol' style='color:"+expt.human.color+"'>"+expt.human.color+" Score:<br><b class='"+expt.human.color+"FinalScore'>0</b></div><div class='scoreCol' style='color:"+expt.comp.color+"'>"+expt.comp.color+" Score:<br><b class='"+expt.comp.color+"FinalScore'>0</b></div>");
     }
 
     $("#consentForm").load("madlab/consent_"+client.type+".html"); 
@@ -330,7 +330,6 @@ function clickColor() {
     $('.sampMarble').css('top', '-80%');
     trial.exptPart = "practice";
 
-    //document.getElementById('keep').style.display = 'block';
     keepTurn();
     trial.liarPlayer = expt.human.color;
     $('#liarplayer').html(trial.liarPlayer);
@@ -489,7 +488,7 @@ function liar() {
     trial.urnBlue = 0;
     trial.drawnRed = 0;
     trial.drawnBlue = 0;
-    trial.roleCurrent = "liar"
+    trial.roleCurrent = "liar";
     restartTrial();
 }
 
