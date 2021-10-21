@@ -1,0 +1,244 @@
+---
+title: "visualizations"
+author: "Lauren Oey"
+date: "2/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+df <- read_csv("data.csv")
+dem <- read_csv("demographic.csv") %>%
+  select(subjID, startTime, DOB, gender)
+```
+
+```{r functions}
+reformatDate <- function(date){
+  date.a <- as.Date(date, format="%m/%d/%Y")
+  date.b <- as.Date(date, format="%m.%d.%Y")
+  case_when(
+    !is.na(date.a) ~ date.a,
+    !is.na(date.b) ~ date.b,
+    TRUE ~ as.Date(date, format="%Y-%m-%d")
+  )
+}
+```
+
+```{r}
+df_unified <- df %>%
+  mutate(k = ifelse(liarPlayer=="blue", drawnBlue, drawnRed),
+         kstar = ifelse(liarPlayer=="blue", reportedBlue, reportedRed)) %>%
+  select(subjID, playerColor, trialNumber, playerRole, k, kstar, callBS, redTrialScore, blueTrialScore, responseTime, trialTime, catchQuestion, catchKey, catchResponse) %>%
+  left_join(dem, by="subjID") %>%
+  mutate(DOT = as.Date(as.POSIXct(startTime/1000, origin="1970-01-01")),
+         DOB = reformatDate(DOB),
+         age = as.numeric(DOT - DOB),
+         age.months = age / (365.25/12),
+         age.years = age / 365.25) %>%
+  select(-age)
+  
+
+
+
+df_catch <- df_unified %>%
+  filter(catchQuestion != -1) %>%
+  select(subjID, playerColor, trialNumber, playerRole, responseTime, catchQuestion, catchKey, catchResponse) %>%
+  mutate(catchKey = str_remove_all(catchKey, "\\[|\\]|\\'"),
+         catchResponse = str_remove_all(catchResponse, "\\[|\\]|\\'")) %>%
+  separate(catchKey, paste0("key_",0:6), sep=", ") %>%
+  gather("choice.num", "value", starts_with("key_")) %>%
+  separate(catchResponse, paste0("response_", 0:6), sep=", ") %>%
+  gather("response.num", "response", starts_with("response_")) %>%
+  mutate(response = as.logical(response),
+         choice.num = str_extract(choice.num, "[^_]$")) %>%
+  filter(choice.num == str_extract(response.num, "[^_]$")) %>%
+  select(-response.num) %>%
+  mutate(correct = (catchQuestion == value) == response) %>%
+  group_by(subjID) %>%
+  summarise(percCatchCorr = sum(correct)/n())
+
+
+
+
+  
+df_unified <- df_unified %>%
+  filter(catchQuestion == -1) %>%
+  left_join(select(df_catch, subjID, percCatchCorr), by="subjID") %>%
+  select(-catchQuestion, -catchKey, -catchResponse)
+
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  count(k == kstar)
+```
+
+
+
+
+
+
+
+# Plots
+
+## Catch Trials
+```{r}
+df_catch %>%
+  arrange(percCatchCorr)
+```
+
+
+## Sender 
+```{r}
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  ggplot(aes(x=k, y=kstar)) +
+  geom_jitter(colour="gray80", size=0.7) +
+  stat_summary() +
+  geom_abline(slope=1, linetype=2) +
+  theme_bw()
+
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  mutate(age.years = floor(age.years)) %>%
+  ggplot(aes(x=k, y=kstar)) +
+  geom_jitter(aes(colour=subjID), size=0.7) +
+  stat_summary() +
+  geom_abline(slope=1, linetype=2) +
+  guides(colour=FALSE) +
+  facet_wrap(~age.years) +
+  theme_bw()
+
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  mutate(age.years = floor(age.years)) %>%
+  group_by(age.years) %>%
+  summarise(lieRate = sum(k != kstar)/n())
+
+df_unified %>%
+  filter(playerRole == "liar", k != kstar) %>%
+  mutate(age.years = floor(age.years),
+         ksay3 = case_when(
+           kstar > 3 ~ "above3",
+           kstar < 3 ~ "below3",
+           kstar == 3 ~ "equal3"
+         )) %>%
+  count(ksay3)
+
+df_unified %>%
+  filter(playerRole == "liar", k != kstar) %>%
+  mutate(age.years = floor(age.years),
+         k3 = case_when(
+           k > 3 ~ "above3",
+           k < 3 ~ "below3",
+           k == 3 ~ "equal3"
+         )) %>%
+  count(k3)
+
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  mutate(subjID = paste(str_pad(floor(age.months), 3, pad="0"), "months --", subjID)) %>%
+  count(subjID, k, kstar) %>%
+  complete(subjID, k, kstar, fill=list(n=0)) %>%
+  group_by(subjID, k) %>%
+  mutate(prop = n/sum(n)) %>%
+  ggplot(aes(x=k, y=kstar, fill=prop)) +
+  geom_tile() +
+  scale_x_continuous("true drawn", expand = c(0,0), breaks=0:6) +
+  scale_y_continuous("reported", expand = c(0,0), breaks=0:6) +
+  facet_wrap(~subjID)
+  
+
+glimpse(df_unified)
+```
+
+
+
+```{r}
+df_unified %>%
+  filter(playerRole == "liar" & k != kstar) %>%
+  ggplot(aes(x=k, y=kstar)) +
+  geom_jitter() +
+  stat_summary() +
+  geom_smooth(method="lm") +
+  geom_abline(slope=1, linetype=2) +
+  ggtitle("lies") +
+  theme_minimal()
+```
+
+NOTE: mean lie above vs below identity line, maybe more for kids
+
+
+```{r}
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  mutate(truth = as.numeric(k == kstar)) %>%
+  ggplot(aes(x=k, y=truth)) +
+  stat_summary() +
+  geom_smooth() +
+  ggtitle("rate of telling the truth") +
+  scale_y_continuous(limits=c(0,1)) +
+  theme_minimal()
+```
+
+
+```{r}
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  count(k, kstar) %>%
+  complete(k, kstar, fill=list(n=0)) %>%
+  group_by(k) %>%
+  mutate(prop = n/sum(n)) %>%
+  ggplot(aes(x=k, y=kstar, fill=prop)) +
+  geom_tile() +
+  scale_x_continuous("true drawn", expand = c(0,0), breaks=0:6) +
+  scale_y_continuous("reported", expand = c(0,0), breaks=0:6) +
+  scale_fill_gradient2(low="white", mid="darkorchid", high="blue", midpoint=0.5, limits=c(0,1))
+
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  mutate(age.years = floor(age.years)) %>%
+  count(age.years, k, kstar) %>%
+  complete(age.years, k, kstar, fill=list(n=0)) %>%
+  group_by(age.years, k) %>%
+  mutate(prop = n/sum(n)) %>%
+  ggplot(aes(x=k, y=kstar, fill=prop)) +
+  geom_tile() +
+  scale_x_continuous("true drawn", expand = c(0,0), breaks=0:6) +
+  scale_y_continuous("reported", expand = c(0,0), breaks=0:6) +
+  scale_fill_gradient2(low="white", mid="darkorchid", high="blue", midpoint=0.5, limits=c(0,1)) +
+  facet_wrap(~age.years)
+
+```
+
+
+```{r}
+df_unified %>%
+  filter(playerRole == "detector") %>%
+  mutate(callBS = as.numeric(callBS)) %>%
+  ggplot(aes(x=kstar, y=callBS)) +
+  geom_hline(yintercept=0.5, colour="gray40", lty=2) +
+  stat_summary() +
+  #stat_summary(geom="line") +
+  geom_smooth() +
+  scale_x_continuous("reported", breaks=0:6) +
+  scale_y_continuous('responded "trick"') +
+  theme_minimal()
+
+df_unified %>%
+  filter(playerRole == "detector") %>%
+  mutate(age.years = floor(age.years),
+         callBS = as.numeric(callBS)) %>%
+  ggplot(aes(x=kstar, y=callBS, colour=subjID)) +
+  geom_hline(yintercept=0.5, colour="gray40", lty=2) +
+  geom_jitter() +
+  stat_summary() +
+  #stat_summary(geom="line") +
+  geom_smooth(method="glm", se=FALSE, method.args = list(family = "binomial")) +
+  scale_x_continuous("reported", breaks=0:6) +
+  scale_y_continuous('responded "trick"') +
+  facet_wrap(~age.years) +
+  theme_minimal()
+
+```
+
+
+

@@ -1,0 +1,101 @@
+---
+title: "visualizations"
+author: "Lauren Oey"
+date: "2/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+df <- read_csv("data.csv")
+
+df_unified <- df %>%
+  mutate(k = ifelse(liarPlayer=="blue", drawnBlue, drawnRed),
+         kstar = reportedDrawn) %>%
+  select(subjID, playerColor, trialNumber, playerRole, k, kstar, callBS, redTrialScore, blueTrialScore, responseTime, trialTime)
+```
+
+
+# Plots
+
+## Sender 
+```{r}
+df %>%
+  filter(playerRole == "liar") %>%
+  ggplot(aes(x=drawnRed, y=reportedRed)) +
+  geom_jitter(colour="gray80", size=0.7) +
+  stat_summary() +
+  geom_abline(slope=1, linetype=2) +
+  facet_wrap(~liarPlayer) +
+  theme_bw()
+```
+
+```{r}
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  ggplot(aes(x=k, y=kstar)) +
+  geom_jitter() +
+  stat_summary() +
+  geom_smooth() +
+  geom_abline(slope=1, linetype=2) +
+  theme_minimal()
+```
+
+```{r}
+df_unified %>%
+  filter(playerRole == "liar" & k != kstar) %>%
+  ggplot(aes(x=k, y=kstar)) +
+  geom_jitter() +
+  stat_summary() +
+  geom_smooth(method="lm") +
+  geom_abline(slope=1, linetype=2) +
+  ggtitle("lies") +
+  theme_minimal()
+```
+
+NOTE: mean lie above vs below identity line, maybe more for kids
+
+
+```{r}
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  mutate(truth = as.numeric(k == kstar)) %>%
+  ggplot(aes(x=k, y=truth)) +
+  stat_summary() +
+  geom_smooth() +
+  ggtitle("rate of telling the truth") +
+  scale_y_continuous(limits=c(0,1)) +
+  theme_minimal()
+```
+
+
+```{r}
+df_unified %>%
+  filter(playerRole == "liar") %>%
+  count(k, kstar) %>%
+  complete(k, kstar, fill=list(n=0)) %>%
+  group_by(k) %>%
+  mutate(prop = n/sum(n)) %>%
+  ggplot(aes(x=k, y=kstar, fill=prop)) +
+  geom_tile() +
+  scale_x_continuous("true drawn", expand = c(0,0), breaks=0:6) +
+  scale_y_continuous("reported", expand = c(0,0), breaks=0:6) +
+  scale_fill_gradient2(low="white", mid="darkorchid", high="blue", midpoint=0.5, limits=c(0,1))
+```
+
+
+```{r}
+df_unified %>%
+  filter(playerRole == "detector") %>%
+  mutate(callBS = as.numeric(callBS)) %>%
+  ggplot(aes(x=kstar, y=callBS)) +
+  stat_summary() +
+  #stat_summary(geom="line") +
+  geom_smooth() +
+  scale_x_continuous("reported", breaks=0:6) +
+  scale_y_continuous('responded "trick"') +
+  theme_minimal()
+```
+
+
+
