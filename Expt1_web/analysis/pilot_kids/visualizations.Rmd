@@ -12,7 +12,7 @@ dem <- read_csv("demographic.csv") %>%
   select(subjID, startTime, DOB, gender)
 ```
 
-```{r functions}
+```{r functions, include=FALSE}
 reformatDate <- function(date){
   date.a <- as.Date(date, format="%m/%d/%Y")
   date.b <- as.Date(date, format="%m.%d.%Y")
@@ -24,51 +24,61 @@ reformatDate <- function(date){
 }
 ```
 
+# reformat data
+
 ```{r}
 df_unified <- df %>%
-  mutate(k = ifelse(liarPlayer=="blue", drawnBlue, drawnRed),
+  mutate(k = ifelse(liarPlayer=="blue", drawnBlue, drawnRed), # account for which color the player chose to play as
          kstar = ifelse(liarPlayer=="blue", reportedBlue, reportedRed)) %>%
   select(subjID, playerColor, trialNumber, playerRole, k, kstar, callBS, redTrialScore, blueTrialScore, responseTime, trialTime, catchQuestion, catchKey, catchResponse) %>%
-  left_join(dem, by="subjID") %>%
-  mutate(DOT = as.Date(as.POSIXct(startTime/1000, origin="1970-01-01")),
-         DOB = reformatDate(DOB),
-         age = as.numeric(DOT - DOB),
-         age.months = age / (365.25/12),
-         age.years = age / 365.25) %>%
+  left_join(dem, by="subjID") %>% # include demographic data
+  mutate(DOT = as.Date(as.POSIXct(startTime/1000, origin="1970-01-01")), # make date of testing (DOT) readable for normal humans lol
+         DOB = reformatDate(DOB), # use customized function to reformat date of birth (inputted by parent)
+         age = as.numeric(DOT - DOB), # calculate participant age at time of testing
+         age.months = age / (365.25/12), # participant age in months (double)
+         age.years = age / 365.25) %>% # participant age in years (double)
   select(-age)
   
 
-
-
+# get catch trial data for each participant
+# 4 catch trials for each participant
+# participants asked to "click on all the {red/blue} marbles."
 df_catch <- df_unified %>%
-  filter(catchQuestion != -1) %>%
+  filter(catchQuestion != -1) %>% # filter only the catch trials
   select(subjID, playerColor, trialNumber, playerRole, responseTime, catchQuestion, catchKey, catchResponse) %>%
-  mutate(catchKey = str_remove_all(catchKey, "\\[|\\]|\\'"),
+  mutate(catchKey = str_remove_all(catchKey, "\\[|\\]|\\'"), # parse the catch key and response arrays: remove outer bracket
          catchResponse = str_remove_all(catchResponse, "\\[|\\]|\\'")) %>%
-  separate(catchKey, paste0("key_",0:6), sep=", ") %>%
-  gather("choice.num", "value", starts_with("key_")) %>%
+  separate(catchKey, paste0("key_",0:6), sep=", ") %>% # separate comma-separated string into separate columns
+  gather("choice.num", "value", starts_with("key_")) %>% # create one column with responses in long format
   separate(catchResponse, paste0("response_", 0:6), sep=", ") %>%
   gather("response.num", "response", starts_with("response_")) %>%
   mutate(response = as.logical(response),
-         choice.num = str_extract(choice.num, "[^_]$")) %>%
-  filter(choice.num == str_extract(response.num, "[^_]$")) %>%
+         choice.num = str_extract(choice.num, "[^_]$")) %>% # pull out only #
+  filter(choice.num == str_extract(response.num, "[^_]$")) %>% # filter so that only get matched question and response number for each row
   select(-response.num) %>%
-  mutate(correct = (catchQuestion == value) == response) %>%
+  mutate(correct = (catchQuestion == value) == response) %>% # check if correct
   group_by(subjID) %>%
-  summarise(percCatchCorr = sum(correct)/n())
-
-
-
+  summarise(percCatchCorr = sum(correct)/n()) # get percent correct for each participant
 
   
 df_unified <- df_unified %>%
   filter(catchQuestion == -1) %>%
   left_join(select(df_catch, subjID, percCatchCorr), by="subjID") %>%
-  select(-catchQuestion, -catchKey, -catchResponse)
+  select(-catchQuestion, -catchKey, -catchResponse) %>%
+  filter(percCatchCorr == 1) # remove participants who don't get 100% correct on catch trials ... maybe this is too harsh but most participants succeed
 
+# overall rate of lying
 df_unified %>%
   filter(playerRole == "liar") %>%
-  count(k == kstar)
+  summarise(lyingRate = sum(k != kstar)/n())
+
+# arrange participants by date of testing
+df_unified %>%
+  distinct(subjID, DOT) %>%
+  arrange(DOT)
+
+df_unified <- df_unified %>%
+  filter(DOT >= "2021-09-01") # filter for expt version when instructions changed
 ```
 
 
@@ -82,6 +92,10 @@ df_unified %>%
 ## Catch Trials
 ```{r}
 df_catch %>%
+  arrange(percCatchCorr)
+
+df_unified %>%
+  distinct(subjID, percCatchCorr) %>%
   arrange(percCatchCorr)
 ```
 
