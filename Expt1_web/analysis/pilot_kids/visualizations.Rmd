@@ -77,8 +77,14 @@ df_unified %>%
   distinct(subjID, DOT) %>%
   arrange(DOT)
 
-df_unified <- df_unified %>%
-  filter(DOT >= "2021-09-01") # filter for expt version when instructions changed
+# ****** @Diana commenting this out so you can look at the full data*******
+# df_unified <- df_unified %>%
+#  filter(DOT >= "2021-09-01") # filter for expt version when instructions changed
+
+# rate of lying for new expt kids
+# df_unified %>%
+#   filter(playerRole == "liar") %>%
+#   summarise(lyingRate = sum(k != kstar)/n())
 ```
 
 
@@ -159,9 +165,6 @@ df_unified %>%
   scale_x_continuous("true drawn", expand = c(0,0), breaks=0:6) +
   scale_y_continuous("reported", expand = c(0,0), breaks=0:6) +
   facet_wrap(~subjID)
-  
-
-glimpse(df_unified)
 ```
 
 
