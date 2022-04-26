@@ -25,7 +25,12 @@ function parseClient(){
 	} else {
 		// just a random visitor?
 		client.type = 'visitor';
-		client.sid = 'visitor-' + Math.random().toString(36).substr(2, 5);
+		if(getParameterByName('sid') == null){
+			client.sid = 'visitor-' +  Math.random().toString(36).substr(2, 5);
+		} else{
+			client.sid = 'visitor-' +  getParameterByName('sid');
+		}
+		
 	}
 	client.exptStartTime = Date.now();
 	client.window = {width: $(window).width(), height: $(window).height()};
