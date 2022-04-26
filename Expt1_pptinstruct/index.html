@@ -1,0 +1,263 @@
+<!--
+TODO:
+1. get images of products
+2. make product list correct
+3. randomize product list
+4. make the actual content of the experiment not filler.
+5. make it less ugly.
+ -->
+
+<!DOCTYPE html>
+<html>
+<html lang="en-US">
+<meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
+<head>
+    <title>Trick or Truth</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://madlab.ucsd.edu/favicon.png">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script type="text/javascript" src='js/web-audio-recorder-js/lib/WavAudioEncoder.min.js'></script>
+    <script type="text/javascript" src='js/web-audio-recorder-js/lib/WebAudioRecorder.js'></script>
+    <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+    <script type="text/javascript" src='js/jspsych/plugins/jspsych-html-audio-response_modified.js'></script>
+    <script type="text/javascript" src='js/client.js'></script>
+    <script type="text/javascript" src='js/vars.js'></script>
+    <script type="text/javascript" src='js/velocity.min.js'></script>
+    <script type="text/javascript" src='js/webcamjs-master/webcam.js'></script>
+    <script type="text/javascript" src='js/script.js'></script>
+    <script type="text/javascript" src='js/utils.js'></script>
+    <script type="text/javascript" src='js/madlabUtils.js'></script>
+
+    <script type="text/javascript" src='js/timing.js'></script>
+    <script type="text/javascript" src='js/clickMapping.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script> 
+        $(function(){
+            $("#setupDiv").load("madlab/setup.html"); 
+            $("#debriefingText").load("madlab/debriefing.html"); 
+            $("#emailConfirmation").load("madlab/emailconfirm.html"); 
+        });
+    </script>
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0"/>
+</head>
+
+
+<body onload="pageLoad();">
+<div id="fullscreen">
+    <div class="sideInstructViddiv" id="practiceViddiv">
+        <video class="sideInstructVid" id="practiceVid" type="video/mp4" controls autoplay></video>
+    </div>
+    <button class='replayButton replaySideInstruct' id="practiceVidreplay">Replay</button>
+    <div id="presetup" class="screen">
+        <center><p id='presetupTxt'>Welcome! For now, you'll be doing a very quick set up!</p></center><br>
+        <center><div id="presetupButtonDiv"><button class="big-button active-button" id="continuePreSetup" onclick="clickPreSetup();">Continue</button></div></center>
+    </div>
+
+    <div id="setup" class="screen">
+        <div id="setupDiv"></div>
+        <center><button class="big-button active-button" id="continueSetup" onclick="clickSetup();">Continue</button></center>
+    </div>
+
+    <div id="consent" class="screen">
+        <div id="consentForm"></div>
+        <center><button class="big-button active-button" id="continueConsent" onclick="clickConsent();">Continue</button></center>
+    </div>
+
+    <div id="demographic" class="screen">
+        <div id="demoSurvey"></div>
+        <center><button class="big-button active-button" id="continueDemo" onclick="clickDemo();">Continue</button></center>
+    </div>
+
+    <div id="start" class="screen">
+        <p id="startTxt" class="mtitle">
+            Let's begin! <br><br> Please get your child. <br><br>
+        </p>
+        <center><p id="mic">
+            Record your child saying their name! We're checking that you're not a robot!<br><button id='recordButton'></button>
+        </p></center>
+
+        <center><button class="big-button active-button" id="letsgo" onclick="clickStart();">Yeah!</button></center>
+    </div>
+
+    <div id="photobooth" class="screen">
+        <p class="mtitle">
+            Smile for the camera! We're checking that you're not a robot!<br><br>
+            <b style='color:red'>Please click "Allow" when asked if this website may use your webcam. If you are using Firefox, check off "Remember this decision".</b>
+        </p>
+        <center><button class="big-button active-button" id="continuePicture" onclick="clickPicture();">Done!</button></center>
+    </div>
+
+    <div id="introduction" class="screen">
+        <p class="mtitle">
+            Meet Vivian!
+        </p>
+        <center>
+            <div class="instructViddiv" id="introViddiv">
+                <video class="instructVid" id="introVid" type="video/mp4" controls autoplay></video>
+            </div>
+            <button class='replayButton replayInstruct' id="introVidreplay">Replay</button>
+        </center>
+        <center><button class="big-button active-button" id="continueIntro" onclick="clickIntro();">Done!</button></center>
+    </div>
+
+    <div id="pickColor" class="screen">
+        <center>
+            <div class="instructViddiv" id="colorViddiv">
+                <video class="instructVid" id="colorVid" type="video/mp4" controls autoplay></video>
+            </div>
+            <button class='replayButton replayInstruct' id="colorVidreplay">Replay</button>
+        </center>
+        <p class="mtitle">
+            Which color do you want to play as?
+        </p>
+        <center><br><br>
+            <div id="colorResponse">
+                <button class="color-button" id="red-button" type="button" onclick="pickCol('red');"><b>Red</b></button>
+                <button class="color-button" id="blue-button" type="button" onclick="pickCol('blue');"><b>Blue</b></button>
+            </div><br><br><br>
+            <button class="big-button active-button" id="continueColor" onclick="clickColor();">Done!</button>
+        </center>
+    </div>
+
+    <div id="postPractice" class="screen">
+        <p class="mtitle">
+            Nice job! You're ready to play!
+        </p>
+        <center>
+            <div class="instructViddiv" id="summaryViddiv">
+                <video class="instructVid" id="summaryVid" type="video/mp4" controls autoplay/>
+            </div>
+            <button class='replayButton replayInstruct' id="summaryVidreplay">Replay</button>
+        </center>
+        <button class="big-button active-button next" id="continuePost" onclick="clickPostPractice();">Done!</button>
+    </div>
+
+    <div id="keep" class="screen">
+        <p class="mtitle trialNum">Round</p>
+        <div id="keepDiv">
+            <center>
+                <p>It's your turn to play as the<br></p>
+                <p class="declareplayer" id="humanRole" st></p><br><br>
+                <div class="instructViddiv" id="turnViddiv">
+                    <video class="instructVid" id="turnVid" type="video/mp4" controls autoplay/>
+                </div>
+            </center>
+        </div>
+        <div class="scoreBucket leftBucket updateBucket" id="leftUpdateBucket">
+            <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
+            <div class="playerScore redScore" id="redUpdateScore"></div>
+        </div>
+        <div class="scoreBucket rightBucket updateBucket" id="rightUpdateBucket">
+            <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
+            <div class="playerScore blueScore" id="blueUpdateScore"></div>
+        </div>
+        <!-- <button class="big-button active-button next" id="nextKeep" type="button" onclick="keepTurn();">Done!</button> -->
+    </div>
+
+    <div id="trialDrawer" class="screen">
+        <p class="mtitle trialNum">Round</p>
+        <div id="insideDrawer">
+            <center>
+            <div id="wrapper" class="wrapperClass">
+                <img class="cover" src="img/tablecloth.png">
+                <br>
+                <div class="urn">
+                    <img id='suburn' src="img/marblebox.png"/>
+                    <div class="suburn">
+                    </div>
+                </div>
+                <button class="active-button" id="draw-button" type="button" onclick="draw();">Go!</button>
+                <div class="tube" id="tube1">
+                    <svg class="tubesvg" id="tubesvg1"></svg>
+                </div>
+            </div></center>
+
+            <center><div id="choices" class="choiceDiv"><div id="labelChoices"></div></div></center>
+            <center><div class="subjResponse"></div></center>
+        </div>
+        <div class="scoreBucket leftBucket updateBucketliar" id="leftUpdateBucketliar">
+            <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
+            <div class="playerScore redScore" id="redUpdateScoreliar"></div>
+        </div>
+        <div class="scoreBucket rightBucket updateBucketliar" id="rightUpdateBucketliar">
+            <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
+            <div class="playerScore blueScore" id="blueUpdateScoreliar"></div>
+        </div>
+        <button class="big-button active-button next" id="nextDrawer" type="button" onclick="report();">Done!</button>
+    </div>
+
+    <div id="trialResponder" class="screen">
+        <p class="mtitle trialNum">Round</p>
+        <div id="insideResponder">
+            <div class="tube" id="tube2">
+                <svg class="tubesvg" id="tubesvg2"></svg>
+            </div>
+            <center><br><br>
+                <div id="buttonResponse">
+                    <button class="callout-button" id="reject-button" type="button" onclick="callout('reject');">
+                        <img class="imgTT" id="imgTrick" src="img/trick.png" width="100%">
+                    </button>
+                    <button class="callout-button" id="accept-button" type="button" onclick="callout('accept');">
+                        <img class="imgTT" id="imgTruth" src="img/truth.png" width="100%">
+                    </button>
+                </div>
+            </center>
+            <center><div class="subjResponse"></div></center>
+        </div>
+        <div class="scoreBucket leftBucket updateBucketdetector" id="leftUpdateBucketdetector">
+            <img class="imgPt redPt redTrialPt" src="img/redpoint.png" width="100%">
+            <div class="playerScore redScore" id="redUpdateScoredetector"></div>
+        </div>
+        <div class="scoreBucket rightBucket updateBucketdetector" id="rightUpdateBucketdetector">
+            <img class="imgPt bluePt blueTrialPt" src="img/bluepoint.png" width="100%">
+            <div class="playerScore blueScore" id="blueUpdateScoredetector"></div>
+        </div>
+    </div>
+
+    <div id="completed" class="screen">
+        <center><h1>Scoreboard</h1></center>
+        <div class="scoreboardDiv">
+            <div class="scoreCol" style="color:red">Red Score:<br><b class="redFinalScore">0</b></div>
+            <div class="scoreCol" style="color:blue">Blue Score:<br><b class="blueFinalScore">0</b></div>
+        </div>
+        <center>
+            <div id="whowontext">
+                <p class="mtitle" id="whowon"></p>
+            </div>
+            <div class="instructViddiv" id="winnerViddiv">
+                <video class="instructVid" id="winnerVid" type="video/mp4" controls autoplay/>
+            </div>
+            <button class='replayButton replayInstruct' id="winnerVidreplay">Replay</button>
+        </center>
+        <button class="big-button active-button next" id="continueWinner" onclick="clickWinner();">Continue</button>
+    </div>
+
+<!--     <div id="confirmation" class="screen">
+        <p class="mtitle">
+            End of experiment
+        </p>
+        <div id="emailConfirmation"></div>
+        <center><button class="big-button active-button" id="" onclick="confirmEmail();">More Information About Our Study</button></center>
+    </div> -->
+
+    <div id="debriefing" class="screen">
+        <p class="mtitle">
+            What we're studying
+        </p>
+        <div id="debriefingText"></div>
+        <center><button class="big-button active-button" id="" onclick="experimentDone();">Finish And Return to Experiment Home Page</button></center>
+    </div>
+    <div id="playerprof"><img id="playericon" src=""></div>
+    <div id="opponentprof"><img id="opponenticon" src=""></div>
+</div>
+<div id="coverscreen">
+    <p class="mtitle" id="covertext">
+        Please increase the window size.<br>
+        <img id="expandGIF" src="img/expand.gif" width="100%">
+    </p>
+</div>
+</body>
